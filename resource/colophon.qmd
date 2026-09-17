@@ -315,7 +315,7 @@ ggplot(ramps_df, aes(x = darkness, y = fct_rev(color), fill = hex)) +
 
 ### `color` section for `_brand.yml`
 
-Because there are so many possible colors, I use code to generate the `color: ` section of `_brand.yml` and manually copy/paste it into my official `_brand.yml` file.
+Because there are so many possible colors, I use code to generate the `color: ` section of `_brand.yml` and manually copy/paste it into my official `_brand.yml` file. See the [full R code in all its messy glory here](https://github.com/andrewheiss/quantf26.classes.andrewheiss.com/blob/main/resource/colophon.qmd).
 
 ```{r}
 #| label: brand-yaml
