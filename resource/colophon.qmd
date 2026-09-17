@@ -85,7 +85,7 @@ time_utc <- format(
 
 ## Design
 
-The typography, colors, and custom CSS settings are all controlled with [this `_brand.yml` file](https://github.com/andrewheiss/quarto-websites_2025-10/blob/main/_brand.yml):
+The typography, colors, and custom CSS settings are all controlled with [this `_brand.yml` file](https://github.com/andrewheiss/quantf26.classes.andrewheiss.com/blob/main/_brand.yml):
 
 <details>
 <summary>Show `_brand.yml` for this site</summary>
@@ -577,4 +577,4 @@ cat(
 
 ## License and credits
 
-All the materials and content for this course are licensed under [{{< fa brands creative-commons >}} Creative Commons CC-BY-SA {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-sa >}}](https://github.com/posit-conf-2025/quarto-brand/blob/main/LICENSE.md). Use whatever you want!
+All the materials and content for this course are licensed under [{{< fa brands creative-commons >}} Creative Commons CC-BY-SA {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-sa >}}](https://github.com/andrewheiss/quantf26.classes.andrewheiss.com/blob/main/LICENSE.md). Use whatever you want!
