@@ -1,0 +1,12 @@
+---
+title: "Hypothesis testing II"
+date: "2026-11-03"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_20-class.md >}}
+
+:::

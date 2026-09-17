@@ -1,0 +1,2 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [8.3–8.5](https://moderndive.com/v2/08-confidence-intervals.html#sec-boot-remarks)
+- {{< fa hourglass-half >}} Other readings TBA

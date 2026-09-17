@@ -1,0 +1,2 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [4.1–4.2](https://moderndive.com/v2/04-tidy.html)
+- {{< fa book >}} *Recommended*: ["Data tidying"](https://r4ds.hadley.nz/data-tidy.html) in @WickhamCetinkaya-RundelGrolemund2023

@@ -1,0 +1,5 @@
+---
+title: "Problem set 7"
+# subtitle: "Introduction to R and the tidyverse"
+date: "2026-11-14"
+---

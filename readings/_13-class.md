@@ -1,0 +1,3 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [6.1](https://moderndive.com/v2/06-multiple-regression.html)
+- {{< fa book >}} @DiezCetinkaya-RundelBarr2019, 9.1–9.2. This one is more mathy than *ModernDive*---skim it!
+- {{< fa brands youtube >}} OpenIntro, "Introduction to Multiple Regression", <https://www.youtube.com/watch?v=sQpAuyfEYZg>

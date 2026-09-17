@@ -1,0 +1,111 @@
+---
+title: "Schedule"
+sidebar: false
+toc: false
+page-layout: full
+freeze: false
+csl: files/bib/chicago-syllabus.csl
+citations-hover: false
+link-citations: false
+suppress-bibliography: true
+---
+
+```{r}
+#| label: libraries-data
+#| include: false
+
+library(tidyverse)
+library(tinytable)
+
+options(tinytable_quarto_disable_processing = FALSE)
+
+# Wrapping in a data-qmd div is how tinytable gets Quarto to run cell
+# content back through the markdown/citation processor (see format_tt(fn =
+# div_it) below). & and " have to be escaped or they'd break out of the
+# HTML attribute -- this matters more now that reading can hold a whole
+# markdown file's worth of prose instead of just a short citation line.
+div_it <- \(z) sprintf(
+  '<div data-qmd="%s"></div>',
+  z |> str_replace_all("&", "&amp;") |> str_replace_all('"', "&quot;")
+)
+
+# A `reading` cell that's a path to a file in readings/_*.md gets swapped for
+# that file's contents, so longer readings can be written/edited as their
+# own markdown file instead of as a multiline CSV cell.
+inject_reading <- function(x) {
+  if (is.na(x) || !str_detect(x, "^/readings/.*\\.md$")) {
+    return(x)
+  }
+  path <- here::here(str_remove(x, "^/"))
+  paste(readLines(path, warn = FALSE), collapse = "\n")
+}
+```
+
+```{r}
+#| label: schedule-table
+#| echo: false
+#| warning: false
+#| message: false
+#| results: asis
+
+schedule_raw <- read_csv(here::here("data/schedule.csv"))
+
+schedule <- schedule_raw |>
+  mutate(
+    date = format(date, "%a, %b %e"),
+    reading = map_chr(reading, inject_reading)
+  )
+
+schedule_nested <- schedule |>
+  mutate(
+    var_class = ifelse(
+      !is.na(class),
+      str_glue(
+        '<a href="/class/{class}.html"><span class="fa-solid fa-lg">&#xe53d;</span></a>'
+      ),
+      str_glue(
+        '<font color="#e9ecef"><span class="fa-solid fa-lg">&#xe53d;</span></font>'
+      )
+    )
+  ) |>
+  select(
+    section,
+    Date = date,
+    Topic = title,
+    `Reading (before class!)` = reading,
+    Class = var_class
+  ) |>
+  nest(.by = section)
+
+# Quarto reprocesses these raw HTML tables (to expand the citation divs
+# inside cells), which rebuilds each <colgroup> as equal thirds, clobbering
+# tinytable's own column widths. Patch it back here, since this <style>
+# block survives that reprocessing even though the <table> tag itself gets
+# rewritten.
+schedule_css <- "
+.tbl-schedule {
+  table-layout: fixed !important;
+}
+.tbl-schedule colgroup col:nth-child(1) { width: 10% !important; }
+.tbl-schedule colgroup col:nth-child(2) { width: 25% !important; }
+.tbl-schedule colgroup col:nth-child(3) { width: 60% !important; }
+.tbl-schedule colgroup col:nth-child(4) { width: 5% !important; }
+"
+
+
+show_table <- function(i) {
+  cat("\n\n###", schedule_nested$section[[i]], "\n\n")
+
+  tbl <- schedule_nested$data[[i]] |>
+    tt(width = c(0.05, 0.3, 0.65, 0.05)) |>
+    format_tt(j = 3, fn = div_it, output = "html") |>
+    format_tt(j = 2, markdown = TRUE) |>
+    format_tt(j = 4, markdown = TRUE) |>
+    format_tt(replace = "") |>
+    theme_html(class = "tbl-schedule table", css_rule = schedule_css)
+
+  cat(knitr::knit_print(tbl))
+}
+
+walk(seq_len(nrow(schedule_nested)), show_table)
+```

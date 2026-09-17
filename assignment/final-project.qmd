@@ -1,0 +1,9 @@
+---
+title: "Final project"
+# subtitle: "Introduction to R and the tidyverse"
+date: "2026-12-12"
+---
+
+::: {.callout-note}
+The date here is approximate; it will be the same date/time as the scheduled final exam—GU-Q just hasn't posted the exam schedule yet.
+:::

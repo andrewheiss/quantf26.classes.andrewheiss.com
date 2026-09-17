@@ -1,0 +1,51 @@
+---
+title: "Quantitative Methods for International Politics"
+title-html: |
+  Quantitative Methods<br><span class="title-italic">for</span><br>International Politics
+subtitle: "Use modern statistical and data scientific tools to answer questions about political science and international relations with data"
+details: |
+  IPOL 3270 • Fall 2026<br>Georgetown University in Qatar
+sidebar: false
+toc: false
+page-layout: full
+format:
+  html:
+    template-partials:
+      - html/home/title-block.html
+course-logo: /files/img/quant-guq_no-text.svg
+---
+
+::: {.home}
+
+:::: {.grid .course-details}
+
+::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
+### Instructor
+
+- [{{< fa user >}}]{.fa-li} [{{< var instructor.name >}}]({{< var instructor.url >}})
+- [{{< fa university >}}]{.fa-li} {{< var instructor.office >}}
+- [{{< fa envelope >}}]{.fa-li} <a href='mailto:{{< var instructor.email >}}'>{{< var instructor.email >}}</a>
+- [{{< fa brands bluesky >}}]{.fa-li} [Bluesky]({{< var instructor.bluesky >}})
+:::
+
+::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
+### Course details
+
+- [{{< fa calendar >}}]{.fa-li} {{< var course.days >}}
+- [{{< fa calendar-alt >}}]{.fa-li} {{< var course.dates >}}
+- [{{< fa clock >}}]{.fa-li} {{< var course.time >}}
+- [{{< fa location-dot >}}]{.fa-li} {{< var course.location >}}
+:::
+
+::: {.g-col-12 .g-col-md-4 .contact-policy}
+### Contacting me
+
+- [{{< fa calendar-check >}}]{.fa-li} [Schedule an appointment]({{< var instructor.appointment_url >}})
+- [{{< fa brands discord >}}]{.fa-li} [Discord]({{< var course.discord >}})
+
+{{< var instructor.contact_policy >}}
+:::
+
+::::
+
+:::

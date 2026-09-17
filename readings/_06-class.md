@@ -1,0 +1,4 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [2.5–2.9](https://moderndive.com/v2/02-visualization.html#sec-histograms)
+- {{< fa arrow-up-right-from-square >}} @Kosara2010
+- {{< fa arrow-up-right-from-square >}} @Desbarats2021
+- {{< fa file-pdf >}} @Few2008

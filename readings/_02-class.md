@@ -1,0 +1,4 @@
+- {{< fa bookmark >}} The [syllabus](/syllabus.qmd) and [assignments page](/assignment/index.qmd)
+- {{< fa brands r-project >}} Install R and Positron on your laptop ([instructions here](/resource/install.qmd))
+- {{< fa arrow-up-right-from-square >}} @Musgrave2025
+- {{< fa arrow-up-right-from-square >}} @Honig2026

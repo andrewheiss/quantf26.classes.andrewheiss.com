@@ -1,0 +1,9 @@
+date-heading:
+  content: "Due by 23:59 on"
+  class: "bg-assignment"
+date-format: "full"
+
+format:
+  html:
+    template-partials:
+      - ../html/title-metadata.html

@@ -1,0 +1,4 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [5.1](https://moderndive.com/v2/05-regression.html)
+- {{< fa book >}} @DiezCetinkaya-RundelBarr2019, 8.1–8.3. This one is more mathy than *ModernDive*---don't worry about reading it as carefully or deeply.
+- {{< fa brands youtube >}} OpenIntro, "Line Fitting, Residuals, and Correlation", <https://www.youtube.com/watch?v=mPvtZhdPBhQ>
+- {{< fa brands youtube >}} OpenIntro, "Fitting a Line with Least Squares Regression", <https://www.youtube.com/watch?v=z8DmwG2G4Qc>

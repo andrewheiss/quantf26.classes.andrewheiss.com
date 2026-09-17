@@ -1,0 +1,12 @@
+---
+title: "Logistic regression"
+date: "2026-11-17"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_24-class.md >}}
+
+:::

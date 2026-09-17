@@ -1,0 +1,2 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [4.3–4.5](https://moderndive.com/v2/04-tidy.html#sec-case-study-tidy)
+- {{< fa laptop-code >}} "Reshape data" interactive primer, <https://r-primers.andrewheiss.com/tidy-data/01-reshape-data/>

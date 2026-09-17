@@ -1,0 +1,3 @@
+- {{< fa file-lines >}} @Arel-BundockGreiferHeiss2024
+- {{< fa book >}} ["Conceptual framework,"](https://marginaleffects.com/chapters/framework.html) chapter 3 in @Arel-Bundock2026
+- {{< fa arrow-up-right-from-square >}} @Heiss2022

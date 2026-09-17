@@ -1,0 +1,3 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [3.5–3.9](https://moderndive.com/v2/03-wrangling.html#sec-mutate)
+- {{< fa laptop-code >}} "Isolating data with {dplyr}" interactive primer, <https://r-primers.andrewheiss.com/transform-data/02-isolating/>
+- {{< fa laptop-code >}} "Deriving information with {dplyr}" interactive primer, <https://r-primers.andrewheiss.com/transform-data/03-deriving/>

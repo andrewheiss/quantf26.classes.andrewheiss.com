@@ -1,0 +1,12 @@
+---
+title: "Sampling I"
+date: "2026-10-18"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_15-class.md >}}
+
+:::

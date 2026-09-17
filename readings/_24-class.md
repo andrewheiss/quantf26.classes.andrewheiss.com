@@ -1,0 +1,3 @@
+- {{< fa book >}} @DiezCetinkaya-RundelBarr2019, 9.5
+- {{< fa arrow-up-right-from-square >}} @Kubinec2024
+- {{< fa arrow-up-right-from-square >}} @Miller2024

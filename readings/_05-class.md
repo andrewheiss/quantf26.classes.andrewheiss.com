@@ -1,0 +1,4 @@
+- {{< fa book >}} [1.1–1.4](https://moderndive.com/v2/01-getting-started.html) in @IsmayKimValdivia2025
+- {{< fa book >}} @IsmayKimValdivia2025, [2.1–2.4](https://moderndive.com/v2/02-visualization.html)
+- {{< fa laptop-code >}} "Data visualization basics" interactive primer, <https://r-primers.andrewheiss.com/basics/01-visualization-basics/>
+- {{< fa podcast >}} @99Invisible2021

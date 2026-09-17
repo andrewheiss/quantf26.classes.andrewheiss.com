@@ -1,0 +1,112 @@
+---
+title: "Problem set 1"
+subtitle: "Measurement and research design"
+date: "2026-09-07"
+---
+
+## Purpose
+
+In class, we spent a lot of time reviewing the foundational principles of research and measurement, like ontology (how we perceive reality, like objectivism or constructivism), epistemology (how we know what we know, like positivism or interpretivism), and measurement and operationalization (how to take broad concepts and boil them down into categories and terms).
+
+This problem set lets you practice these principles on a real IR concept, on your own! By the end, you should be able to:
+
+- Create a definition of a concept by building a hierarchy or ladder of abstraction
+- Find and evaluate other definitions of the same concept and critique and compare it with your own
+- Recognize that you have your own ontological and epistemological views that shape your view of research, and reflect on how those views influence what kind questions you might ask and what kinds of evidence you might collect
+
+## Criteria for success
+
+This problem set is graded using a ✔+/✔/✔− system. I'm looking for good-faith effort and engagement with the ideas, not perfect answers.
+
+- **✔+**: Every task is complete. The table in Task 1 is cumulative and has real named examples throughout, and part 2 identifies a specific, well-reasoned exclusion. The definition in Task 2 is real and has a good comparison with the concept you created in Task 1. Task 3 goes beyond restating class vocabulary, the paradigm descriptions are concrete, and the proposed research project names an actual case and actual potential evidence. I will not assign these often.
+- **✔**: This is the expected level of performance. Most tasks are attempted and complete, the ladder in Task 1 is cumulative instead of a list of unrelated definitions, Task 2 uses a real and cited source, and Task 3 names a specific case instead of a generic idea.
+- **✔−**: The problem set is missing large chunks, definitions or citations are fabricated or missing, the Task 1 table isn't actually cumulative, or Task 3 stays generic and vocabulary-level throughout (e.g., a research project with no real case or data attached). This is a sign you should talk with me!
+
+You may work together in groups of up to four, but you must turn in your own answers and note who you worked with.
+
+And remember: **everything human-facing must be human-generated**. Don't submit AI-generated text. I want to hear *your* voice.
+
+## How to submit
+
+Submit a single PDF on Canvas. You can either write your responses in a standard word processor like Microsoft Word or Google Docs and convert the document to PDF, or if you want to be brave, you can write in Markdown in a Quarto document (you'll do this with all future assignments).
+
+To simplify your life, I have created a template with headings already in place for you:
+
+- [Word](/projects/01-problem-set/your-name_problem-set-1.docx)
+- [Google Docs](https://docs.google.com/document/d/1h-B3mkVjC8gZQjWKn2h-CCWk0EOPRhG909nXpifcXG0/copy)
+- [Quarto](/projects/01-problem-set/your-name_problem-set-1.zip) (this is a .zip file since some browsers complain when opening .qmd files; make sure you [unzip it first!](/resource/unzipping.qmd))
+
+
+## Tasks
+
+### Task 0: Choose a concept
+
+Choose *one* of these concepts:
+
+- Corruption
+- Energy independence
+- National wellbeing
+- Electoral freedom
+- Political violence
+- Civil society
+
+You'll be working with this concept throughout the rest of the problem set.
+
+
+### Task 1: The ladder of abstraction
+
+#### Part 1
+
+Create a list of 5--7 attributes of your concept and arrange them by how abstract and general they are, with the most abstract at the top of the list. Make sure you order these hierarchically and cumulatively---every attribute you add should narrows the definition and shrink the set of what counts. Don't make a list of independent definitions. Instead, everything should get more specific.
+
+Put these attributes in a table with two columns. The first column should contain the attribute, and the second column should contain some actual examples of real life people, organizations, countries, or phenomena that would be included if your concept was measured with that attribute (and all previous attributes). Something like what we did in class with witches:
+
+| Attribute      | What would count under this definition                    |
+|----------------|-----------------------------------------------------------|
+| Mammal         | Yourself, cats, wizards, dogs                             |
+| and Enmagicked | Magical humans, trolls, elves, goddesses                  |
+| and Female     | Winky the house elf, Athena the goddess, Hermione Granger |
+| and Human      | Hermione Granger, Elphaba from *The Wizard of Oz*         |
+
+#### Part 2
+
+Choose one of these levels of abstraction that you think is most appropriate for defining your concept use it as your official definition of the concept (in the witch example, it might be something like "a female, magic-using mammal")
+
+Explain why you like this definition the most and not one that is more or less abstract. Describe at least one case that this definition *excludes* (e.g., something someone might expect to count, but doesn't, given the attributes you chose). Then say whether this exclusion is a problem or is actually correct. (For instance, in the witch example from class, real women from who were accused of witchcraft in the 1600s wouldn't count since they didn't *actually* use magic, but that's probably okay since they weren't actually witches.)
+
+### Task 2: Exploring a real world term
+
+Find an actual definition of a term related to your concept published in the wild—it should come from a peer-reviewed article, a report from an NGO (like Freedom House, the Varieties of Democracy project, Transparency International, The Carter Center, Amnesty International, etc.), a government document, or something similar.
+
+In 100-150 words, do the following: 
+
+- Quote the definition and provide a citation to the original source (ideally with Chicago or APA formatting)
+- List the published definition's key attributes. These might be stated explicitly, or they might just be implied. 
+- Explain whether you think this is a good definition and why (or why not). What kind of cases does it cover? What does it miss? 
+- Compare this definition to yours from Task 1. Are there cases that yours misses and this one picks up (and vice versa)? Are there situations where yours is more appropriate (and vice versa)?
+
+
+### Task 3: Ontology and epistemology
+
+#### Part 1: Think like an objectivist or constructivist
+
+In a couple sentences for each question, describe the following:
+
+- How would an objectivist researcher think about the concept you have chosen?
+- How would a constructivist researcher think about the concept you have chosen?
+
+#### Part 2: Think like a positivist or interpretivist
+
+In a couple sentences for each question, describe the following:
+
+- How would a positivist researcher design a research project to explore your concept? What kind of data would they likely collect to understand the principle?
+- How would an interpretivist researcher design a research project to explore your concept? What kind of data would they likely collect to understand the principle?
+
+#### Part 3: Think like yourself
+
+In 150--200 words, answer and explore the following:
+
+- How do you personally think about the nature of reality of your concept (i.e. what is your ontological perspective)?
+- How do you personally think about how you might understand or know more about your concept (i.e. what is your epistemological perspective)? How would you actually go about learning more about it?
+- If you were designing a research project about this concept, how would your ontology and epistemology change what evidence and data you'd collect?
+- Propose a possible research project to explore your concept, based on your personal ontological and epistemological views. Make sure you name a real country, region, time period, people, population, etc. and the data or evidence you'd collect (i.e. don't just say "I would study BLAH"; that's not specific enough).

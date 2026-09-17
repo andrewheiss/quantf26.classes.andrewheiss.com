@@ -1,0 +1,47 @@
+---
+title: "Problem set 2"
+subtitle: "Data visualization with {ggplot2}"
+date: "2026-09-14"
+---
+
+## Purpose
+
+[Chapter 2 of *ModernDive*](https://moderndive.com/v2/02-visualization.html) introduces the **grammar of graphics**, or the idea that any statistical plot consists of variables in `data` that are mapped to `aes`thetic attributes of `geom`etric objects. You learned how to use `ggplot()` to create five common plot types, or the "5NG": scatterplots, linegraphs, histograms, boxplots, and barplots.
+
+In this problem set, you'll practice making some plots with `ggplot()`. By the end, you should be able to: 
+
+- Name the `data`, `aes`, and `geom` components of `ggplot()` code and explain what each one means
+- Predict what happens when a constant aesthetic (like `alpha = 0.25`) is placed inside `aes()` instead of outside it
+- Create a scatterplot, a linegraph, a histogram, and barplot
+- Explain when to use `geom_bar()` versus `geom_col()` based on whether your data is pre-counted
+
+## Criteria for success
+
+This problem is graded using a ✔+/✔/✔− system. I'm looking for correct plot-building logic and genuine attempts at the short written answers, not polished prose.
+
+- **✔+**: All plots render without errors and use the correct variables, aesthetics, and geoms. The written answers correctly name the grammar of graphics components, correctly predict the `aes(alpha = ...)` bug, and give a real justification for the `geom_bar()` vs. `geom_col()` choice (i.e. you shouldn't just say "the chapter said so"). The extension does fun, neat things and goes beyond the bare minimum.
+- **✔**: This is the expected level of performance. All plots run and mostly use the right geoms and variables; minor mismatches (e.g., a slightly-off bin width) are fine. Written answers are attempted and reasonable.
+- **✔−**: Plots are missing, don't render, or use the wrong geom for the variable types involved (e.g., a histogram for a categorical variable). Written answers are left blank.
+
+You may work together in groups of up to four, but you must turn in your own answers and note who you worked with.
+
+And remember: **everything human-facing must be human-generated**. Don't submit AI-generated text. I want to hear *your* voice.
+
+Also, if you do use LLMs to help with the code (I recommend not!), make sure you [follow the guidelines from the syllabus](/syllabus.qmd#rule-2-you-are-responsible-for-understanding-verifying-and-citing-everything-an-llm-generates) about how to cite what you use.
+
+## How to submit
+
+Submit a single rendered PDF on Canvas.
+
+## Instructions
+
+1. Download this `.zip` file. Make sure you [unzip or extract it after you download it](/resource/unzipping.qmd)! Open the unzipped folder in Positron.
+
+   - [{{< fa file-archive >}} `02-problem-set.zip`](/projects/02-problem-set.zip)
+   - [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/12860513): Use this link if you're using Posit.cloud on your iPad.
+
+2. Rename the Quarto file named `your-name_problem-set-2.qmd` to something that matches your name.
+
+3. Complete the tasks given in the Quarto file. You can definitely copy, paste, and adapt from other code in the document---don't try to write everything from scratch!
+
+4. When you're all done, render the document to Typst (pdf), PDF, or Word. Upload that file to Canvas. **Do not upload a rendered HTML file** (they don't work on Canvas).

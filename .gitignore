@@ -1,0 +1,22 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+/.quarto/
+/_site/
+/_freeze/
+/_targets/
+
+_targets.yaml
+
+projects/*.zip
+
+# knitr and caching stuff
+**/*_files/*
+**/*_cache/*
+!README_files/*
+
+/.luarc.json
+
+**/*.quarto_ipynb

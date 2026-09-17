@@ -1,0 +1,12 @@
+---
+title: "Prediction"
+date: "2026-11-24"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_26-class.md >}}
+
+:::

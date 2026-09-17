@@ -1,0 +1,4 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [3.1–3.4](https://moderndive.com/v2/03-wrangling.html)
+- {{< fa laptop-code >}} "Working with tibbles" interactive primer, <https://r-primers.andrewheiss.com/transform-data/01-tibbles/>
+- {{< fa arrow-up-right-from-square >}} @Heiss2024
+- {{< fa book >}} *Recommended*: ["Data transformation"](https://r4ds.hadley.nz/data-transform.html) in @WickhamCetinkaya-RundelGrolemund2023

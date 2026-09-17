@@ -1,0 +1,12 @@
+---
+title: "Marginal effects"
+date: "2026-11-15"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_23-class.md >}}
+
+:::

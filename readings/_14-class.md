@@ -1,0 +1,4 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [6.2–6.3](https://moderndive.com/v2/06-multiple-regression.html#sec-model3)
+- {{< fa book >}} @DiezCetinkaya-RundelBarr2019, 9.3–9.4. This one is more mathy than *ModernDive*---again, skim it!
+- {{< fa brands youtube >}} OpenIntro, "Model Selection in Multiple Regression", <https://www.youtube.com/watch?v=VB1qSwoF-l0>
+- {{< fa brands youtube >}} OpenIntro, "Checking Multiple Regression Diagnostics Using Graphs", <https://www.youtube.com/watch?v=3KSUeYMKt5A>

@@ -1,0 +1,2 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [7.1–7.3](https://moderndive.com/v2/07-sampling.html)
+- {{< fa hourglass-half >}} Other readings TBA

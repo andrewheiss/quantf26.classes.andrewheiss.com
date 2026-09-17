@@ -1,0 +1,50 @@
+---
+title: "Problem set 3"
+subtitle: "Data wrangling with {dplyr} and {tidyr}"
+date: "2026-09-26"
+---
+
+## Purpose
+
+[Chapter 3](https://moderndive.com/v2/03-wrangling.html) and [Chapter 4](https://moderndive.com/v2/04-tidy.html) in *ModernDive* introduce {dplyr}'s six core verbs for wrangling data: `filter()`, `arrange()`, `select()`, `mutate()`, `group_by()`, and `summarise()`, and {tidyr}'s two functions for reshaping data with `pivot_longer()` and `pivot_wider()`.
+
+In this problem set, you'll practice using these functions on real data from the [V-Dem (Varieties of Democracy) project](https://www.v-dem.net/). By the end, you should be able to:
+
+- Filter rows based on one or more conditions and arrange them by a column
+- Select a subset of columns to keep
+- Create new columns with `mutate()`, including recoding a numeric column into categories with `ifelse()`
+- Use `group_by()` and `summarize()` to calculate summary statistics (like averages) within groups
+- Chain {dplyr} verbs together with `|>`
+- Reshape data between wide and long formats with `pivot_wider()` and `pivot_longer()`
+- Feed wrangled data into `ggplot()` to make plots
+
+## Criteria for success
+
+This problem is graded using a ✔+/✔/✔− system. I'm looking for correct wrangling logic and genuine attempts at the short written answers, not polished prose.
+
+- **✔+**: All chunks run without errors and use the correct {dplyr} functions, columns, and logic. The datasets you create match the expected output shown in the instructions. The written answers correctly interpret the results (you don't just restate numbers!), and the extension does something new and exciting rather than only copying a previous chunk.
+- **✔**: This is the expected level of performance. All chunks run and produce mostly correct results; minor mismatches (e.g., column order, or rounding) are fine. Written answers are attempted and reasonable.
+- **✔−**: Chunks are missing, don't run, or use the wrong functions/columns for what was asked (e.g., using `mutate()` when `summarize()` was needed). Written answers are left blank.
+
+You may work together in groups of up to four, but you must turn in your own answers and note who you worked with.
+
+And remember: **everything human-facing must be human-generated**. Don't submit AI-generated text. I want to hear *your* voice.
+
+Also, if you do use LLMs to help with the code (I recommend not!), make sure you [follow the guidelines from the syllabus](/syllabus.qmd#rule-2-you-are-responsible-for-understanding-verifying-and-citing-everything-an-llm-generates) about how to cite what you use.
+
+## How to submit
+
+Submit a single rendered PDF on Canvas.
+
+## Instructions
+
+1. Download this `.zip` file. Make sure you [unzip or extract it after you download it](/resource/unzipping.qmd)! Open the unzipped folder in Positron.
+
+   - [{{< fa file-archive >}} `03-problem-set.zip`](/projects/03-problem-set.zip)
+   - [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/12860513): Use this link if you're using Posit.cloud on your iPad.
+
+2. Rename the Quarto file named `your-name_problem-set-3.qmd` to something that matches your name.
+
+3. Complete the tasks given in the Quarto file. You can definitely copy, paste, and adapt from other code in the document---don't try to write everything from scratch!
+
+4. When you're all done, render the document to Typst (pdf), PDF, or Word. Upload that file to Canvas. **Do not upload a rendered HTML file** (they don't work on Canvas).

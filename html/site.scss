@@ -1,0 +1,323 @@
+/*-- scss:defaults --*/
+$font-size-base:              1rem !default;
+
+$h1-font-size: $font-size-base * 2.35;
+$h2-font-size: $font-size-base * 1.9;
+$h3-font-size: $font-size-base * 1.45;
+$h4-font-size: $font-size-base * 1.1;
+$h5-font-size: $font-size-base * 1;
+$h6-font-size: $font-size-base * 0.8;
+
+$breadcrumb-padding-x:        2px !default;
+$breadcrumb-padding-y:        0 !default;
+$breadcrumb-divider:          quote(" >");
+
+// Block code
+$monokai-bg: #2e3440;
+
+/*-- scss:rules --*/
+
+// Home page stuff
+.title-block {
+  margin: 1em 0;
+  border-bottom: 3px solid $gray-200;
+  padding-bottom: 1em;
+  text-align: center;
+}
+
+.course-logo {
+  display: block;
+  margin: 0 auto 1em;
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+}
+
+.course-details {
+  margin: 0 0 1em;
+  // border-bottom: 3px solid $gray-200;
+  padding-bottom: 1em;
+}
+
+.course-details h3 {
+  margin-top: 0;
+}
+
+.course-title {
+  font-size: 3.5rem;
+  margin-top: 0;
+  padding-bottom: 0.2em;
+  text-align: center;
+
+  .title-italic {
+    color: #606368;
+    font-family: "Charis SIL";
+    font-style: italic;
+    font-weight: 400;
+    font-size: 80%;
+  }
+}
+
+.course-subtitle {
+  font-size: 1.7rem;
+}
+
+.course-meta {
+  font-size: 1.2rem;
+  color: $gray-600;
+}
+
+// Breadcrumb stuff
+.breadcrumb {
+  font-weight: 400;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.breadcrumb-item {
+  padding-top: 0;
+}
+
+// Content page stuff
+// Date bar
+.date-block {
+  font-size: 1.15rem;
+  margin-top: 0.75em;
+
+  // This is needed now because I'm using the title-metadata.html template 
+  // partial and it puts each metadata-related item in a two-column grid, and I 
+  // want the date to span both columns
+  grid-column: 1 / -1;
+
+  p.date {
+    margin-bottom: 0 !important;
+  }
+}
+
+// Add some space above the metadata section when there's a date block
+.date-block + .quarto-title-meta {
+  padding-top: 1em;
+}
+
+.bg-class {
+  background-color: $brand-maroon;
+}
+
+.bg-assignment {
+  background-color: $brand-gold;
+}
+
+
+// Footer stuff
+.nav-footer-left {
+  text-align: left;
+}
+
+.nav-footer-right {
+  text-align: right;
+}
+
+// Temporarily hide the middle div since it has unmodifiable GitHub links as of Quarto 1.3.something: https://github.com/quarto-dev/quarto-cli/issues/5283
+.nav-footer-center {
+  display: none;
+}
+
+.nav-footer-left {
+  flex-grow: 3;
+}
+
+
+// tinytable wraps every table in <div class="container">, which collides with 
+// Bootstrap's *grid* .container class, so tables don't appear at full width 
+// even if they're supposed to. This makes it so the .tbl-schedule for the 
+// syllabus schedule table takes up the full widht
+.container:has(> .tbl-schedule) {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+// Remove Zephyr's table border/drop shadow
+.tbl-schedule {
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+thead th {
+  text-transform: none;
+  font-weight: 700;
+}
+
+// Get rid of left indent on lists inside table cells
+.tbl-schedule td ul,
+.tbl-schedule td ol {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+// woohoo neato trick for faking using fontawesome glyphs as bullet points.
+// The {{< fa ... >}} shortcode renders as <i class="fa-...">, so if an li's
+// very first child element is an i with .fa-*, remove the bullet and make
+// the li have a hanging indent
+.tbl-schedule li:has(> i[class^="fa-"]:first-child) {
+  list-style: none;
+  position: relative;
+}
+
+// I copied this from Font Awesome's .fa-ul since there's no way to add a class
+// to a pandoc list
+.course-details ul,
+.readings ul {
+  list-style-type: none;
+  margin-left: var(--fa-li-margin, 1.5em);  // Was originally 2.5
+  padding-left: 0;
+}
+.course-details ul > li,
+.readings ul > li {
+  position: relative;
+}
+
+// Make the fa-based li use a hanging indent
+.tbl-schedule li > i[class^="fa-"]:first-child,
+.course-details ul > li > i[class^="fa-"]:first-child,
+.readings ul > li > i[class^="fa-"]:first-child {
+  position: absolute;
+  left: -1.5em;
+  top: 0.4em;
+  font-size: 0.85em;
+}
+
+.contact-policy p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.course-details-smaller li {
+  font-size: 1rem;
+}
+
+.course-details-smaller h3 {
+  font-size: 1.4rem;
+}
+
+
+// Code stuff
+// Fix the doubled code block background color in the nested list
+// It was displaying with light gray inside the dark monokai area
+// Related to https://github.com/quarto-dev/quarto-cli/issues/13390
+p code.sourceCode, li code.sourceCode, td code.sourceCode {
+    background-color: inherit;
+}
+
+// Slight bottom margin to output
+.cell-output {
+  margin: 0 0 1em;
+}
+
+// Remove margin on pre in output
+.cell-output pre {
+  margin-bottom: 0;
+  color: #ffffff;
+}
+
+// Format output and plain text blocks like code
+.cell-output, pre.text {
+  padding: .4em;
+  background-color: $monokai-bg;
+  border: 1px solid $monokai-bg;
+  border-radius: .25rem;
+}
+
+.cell-output:has(.observablehq) {
+  background-color: white;
+  border: none;
+}
+
+pre.text {
+  color: #ffffff;
+}
+
+
+// Colophon stuff
+.col-bg-white .column-screen {
+    background-color: var(--bs-body-bg);
+}
+
+@mixin bordered-box($border-color, $padding: 1.5em 1.5em 0.75em 1.5em) {
+    background: #ffffff;
+    padding: $padding;
+    border: 1px solid $border-color;
+    border-left-width: 10px;
+}
+
+.font-example {
+    @include bordered-box($brand-gold);
+    margin-bottom: 1rem;
+    font-size: 0.95em;
+}
+
+.fake-heading {
+    font-family: "Charis SIL";
+    font-weight: 700;
+    font-size: 1.3em;
+}
+
+.dictionary-entry {
+    @include bordered-box($brand-red);
+    margin: 1em 0 2em;
+    font-size: 0.95em;
+
+    p {
+        margin-bottom: 0.7em;
+    }
+
+    ol {
+        list-style: none;
+        counter-reset: definition-counter;
+        padding-left: 1em;
+
+        li {
+            counter-increment: definition-counter;
+            margin-bottom: 0.5em;
+            padding-left: 1.25em;
+            position: relative;
+            line-height: 1.2;
+            color: $brand-black;
+
+            &::before {
+                content: counter(definition-counter);
+                position: absolute;
+                left: -1em;
+                top: 0;
+                font-size: 1em;
+                font-weight: 700;
+                color: $brand-gray-500;
+            }
+
+            &::after {
+                content: ":";
+                position: absolute;
+                left: 0.25em;
+                top: 0;
+            }
+        }
+    }
+}
+
+.headword {
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+.part-of-speech {
+    font-size: 1em;
+    color: $brand-gray-600;
+    margin-left: 1rem;
+}
+
+.pronunciation {
+    font-size: 1em;
+    color: $brand-gray-600;
+}

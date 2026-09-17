@@ -1,0 +1,4 @@
+- {{< fa file-lines >}} @ParkKongeArtino2020
+- {{< fa file-lines >}} @MunckMollerSkaaning2020
+- {{< fa file-lines >}} @LuhrmannTannenbergLindberg2018
+- {{< fa binoculars >}}Explore the Arab Barometer website (<https://www.arabbarometer.org/>) and see what kind of data they have

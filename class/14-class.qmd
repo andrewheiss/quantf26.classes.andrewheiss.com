@@ -1,0 +1,12 @@
+---
+title: "Multiple regression II"
+date: "2026-10-06"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_14-class.md >}}
+
+:::

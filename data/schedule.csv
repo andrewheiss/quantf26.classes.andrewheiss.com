@@ -1,0 +1,42 @@
+﻿section,week,session,date,title,reading,class
+Why and how do we measure things?,1,1,2026-08-23,Why use data in political science?,/readings/_01-class.md,01-class
+Why and how do we measure things?,1,2,2026-08-25,What even is data analysis?,/readings/_02-class.md,02-class
+Why and how do we measure things?,2,3,2026-08-30,"Measurement and research design I",/readings/_03-class.md,03-class
+Why and how do we measure things?,2,4,2026-09-01,"Measurement and research design II",/readings/_04-class.md,04-class
+Why and how do we measure things?,,,2026-09-06,"<span class=""fa"">&#xf005;</span> **Problem set 1 due** (submit by 23:59)",[Problem set 1 instructions](/assignment/01-problem-set.qmd),
+How do we work with data?,3,5,2026-09-06,"Data visualization I",/readings/_05-class.md,05-class
+How do we work with data?,3,6,2026-09-08,"Data visualization II",/readings/_06-class.md,06-class
+How do we work with data?,,,2026-09-14,"<span class=""fa"">&#xf005;</span> **Problem set 2 due** (submit by 23:59)",[Problem set 2 instructions](/assignment/02-problem-set.qmd),
+How do we work with data?,4,7,2026-09-13,"Data wrangling I",/readings/_07-class.md,07-class
+How do we work with data?,4,8,2026-09-15,"Data wrangling II",/readings/_08-class.md,08-class
+How do we work with data?,5,9,2026-09-20,"Data importing and tidy data I",/readings/_09-class.md,09-class
+How do we work with data?,5,10,2026-09-22,"Data importing and tidy data II",/readings/_10-class.md,10-class
+How do we work with data?,,,2026-09-26,"<span class=""fa"">&#xf005;</span> **Problem set 3 due** (submit by 23:59)",[Problem set 3 instructions](/assignment/03-problem-set.qmd),
+How do we work with data?,,,2026-09-27,"<span class=""fa"">&#xf0a3;</span> **Quiz 1** (in-class)",,
+How do we model things in the world?,6,11,2026-09-27,"Simple linear regression I",/readings/_11-class.md,11-class
+How do we model things in the world?,6,12,2026-09-29,"Simple linear regression II",/readings/_12-class.md,12-class
+How do we model things in the world?,,,2026-10-03,"<span class=""fa"">&#xf005;</span> **Problem set 4 due** (submit by 23:59)",[Problem set 4 instructions](/assignment/04-problem-set.qmd),
+How do we model things in the world?,7,13,2026-10-04,"Multiple regression I",/readings/_13-class.md,13-class
+How do we model things in the world?,7,14,2026-10-06,"Multiple regression II",/readings/_14-class.md,14-class
+How do we model things in the world?,Break,,2026-10-11,Fall break,Nothing!,
+How do we model things in the world?,Break,,2026-10-13,Fall break,Nothing!,
+How do we model things in the world?,,,2026-10-18,"<span class=""fa"">&#xf005;</span> **Problem set 5 due** (submit by 23:59)",[Problem set 5 instructions](/assignment/05-problem-set.qmd),
+How do we model things in the world?,,,2026-10-18,"<span class=""fa"">&#xf0a3;</span> **Quiz 2** (in-class)",,
+How do we infer things about the world?,8,15,2026-10-18,"Sampling I",/readings/_15-class.md,15-class
+How do we infer things about the world?,8,16,2026-10-20,"Sampling II",/readings/_16-class.md,16-class
+How do we infer things about the world?,9,17,2026-10-25,"Estimation, confidence intervals, and bootstrapping I",/readings/_17-class.md,17-class
+How do we infer things about the world?,9,18,2026-10-27,"Estimation, confidence intervals, and bootstrapping II",/readings/_18-class.md,18-class
+How do we infer things about the world?,,,2026-11-01,"<span class=""fa"">&#xf005;</span> **Problem set 6 due** (submit by 23:59)",[Problem set 6 instructions](/assignment/06-problem-set.qmd),
+How do we infer things about the world?,10,19,2026-11-01,"Hypothesis testing I",/readings/_19-class.md,19-class
+How do we infer things about the world?,10,20,2026-11-03,"Hypothesis testing II",/readings/_20-class.md,20-class
+How do we infer things about the world?,11,21,2026-11-08,"Inference for regression I",/readings/_21-class.md,21-class
+How do we infer things about the world?,11,22,2026-11-10,"Inference for regression II",/readings/_22-class.md,22-class
+How do we infer things about the world?,,,2026-11-14,"<span class=""fa"">&#xf005;</span> **Problem set 7 due** (submit by 23:59)",[Problem set 7 instructions](/assignment/07-problem-set.qmd),
+How do we infer things about the world?,,,2026-11-15,"<span class=""fa"">&#xf0a3;</span> **Quiz 3** (in-class)",,
+Can we do slightly fancier analyses?,12,23,2026-11-15,Marginal effects,/readings/_23-class.md,23-class
+Can we do slightly fancier analyses?,12,24,2026-11-17,Logistic regression,/readings/_24-class.md,24-class
+Can we do slightly fancier analyses?,13,25,2026-11-22,Causation,/readings/_25-class.md,25-class
+Can we do slightly fancier analyses?,13,26,2026-11-24,Prediction,/readings/_26-class.md,26-class
+Can we do slightly fancier analyses?,,,2026-11-29,"<span class=""fa"">&#xf005;</span> **Problem set 8 due** (submit by 23:59)",[Problem set 8 instructions](/assignment/08-problem-set.qmd),
+How can we communicate these results to regular people?,14,27,2026-11-29,"Tell your story with data I",/readings/_27-class.md,27-class
+How can we communicate these results to regular people?,14,28,2026-12-01,"Tell your story with data II",/readings/_28-class.md,28-class

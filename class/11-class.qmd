@@ -1,0 +1,12 @@
+---
+title: "Simple linear regression I"
+date: "2026-09-27"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_11-class.md >}}
+
+:::

@@ -1,0 +1,229 @@
+/*-- scss:defaults --*/
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
+
+$font-headings:  "Atkinson Hyperlegible Next", sans-serif !default;
+$font-code:      "Source Code Pro", monospace !default;
+
+$presentation-heading-font: $font-headings;
+$font-family-monospace:     $font-code;
+
+$body-bg:                   $brand-off-white;
+$body-color:                $brand-black;
+
+// Brand sets heading color to maroon for the site; slides want plain black
+// headings instead, configured separately here. `!default` isn't enough to
+// win against brand's own `!default` assignment (brand's runs first
+// regardless of theme list order), so this has to be a hard assignment.
+$presentation-heading-color: $brand-black;
+
+$code-block-bg:               #ffffff;
+
+$presentation-font-size-root: 40px;
+$presentation-h1-font-size:   100px;
+$presentation-h2-font-size:   64px;
+$presentation-h3-font-size:   46px;
+$presentation-line-height:    1.35;
+$code-block-font-size:        0.75em;
+
+/*-- scss:rules --*/
+
+:root {
+  --hl-1: #f7e896;
+  --hl-2: #FFD0CF;
+  --hl-3: #EFB3FF;
+}
+
+// Inline `code` normally takes the syntax-highlight theme's function color
+// (a11y-friendly on code blocks, but distracting in a heading, where it reads
+// like a leftover link color instead of code). Headings should just be
+// whatever color the heading itself is -- plain black by default, or a
+// section accent color when a .clr-n class (below) is applied.
+.reveal h1 code,
+.reveal h2 code,
+.reveal h3 code,
+.reveal h4 code,
+.reveal h5 code,
+.reveal h6 code {
+  color: inherit;
+  font-weight: 700;
+}
+
+// Apply to a heading (e.g. `## Some title {.clr-3}`) to tint it with one of
+// brand's clr-1..clr-7 accent colors -- handy for flagging which section a
+// slide belongs to, matching the color used on that section's divider slide.
+// Reads the brand colors from CSS custom properties (set on :root by brand)
+// rather than Sass variables, so it stays in sync if _brand.yml changes.
+//
+// Pandoc's reveal writer promotes header attributes (like `.clr-3` here) from
+// the heading onto the enclosing `<section class="slide level2 clr-3">`
+// instead of the `<h1>`/`<h2>` itself, so the class has to be matched as an
+// ancestor of the heading, not on the heading directly.
+@for $i from 1 through 7 {
+  .reveal section.clr-#{$i} h1,
+  .reveal section.clr-#{$i} h2,
+  .reveal section.clr-#{$i} h3,
+  .reveal section.clr-#{$i} h4,
+  .reveal section.clr-#{$i} h5,
+  .reveal section.clr-#{$i} h6 {
+    color: var(--brand-clr-#{$i});
+  }
+}
+
+.huge    { font-size: 2.2em; }
+.large   { font-size: 1.7em; }
+.medium  { font-size: 1.4em; }
+.small   { font-size: 0.8em; }
+.smaller { font-size: 0.65em; }
+.tiny    { font-size: 0.5em; }
+
+.shadow {
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+}
+
+// Quarto cells sometimes clip drop shadows; this stops that
+.cell-output-display:has(.shadow) {
+  overflow: visible;
+}
+
+.bg-hl-1 {
+  background-color: var(--hl-1);
+}
+
+.bg-hl-2 {
+  background-color: var(--hl-2);
+}
+
+.bg-hl-3 {
+  background-color: var(--hl-3);
+}
+
+.tinytable {
+  --tt-font-weight-header: 700 !important;
+  background-color: #ffffff !important;
+}
+
+.tinytable code {
+  font-family: $font-code !important;
+}
+
+.reveal code {
+  font-weight: 500;
+}
+
+// Make it so images have zero padding when needed (like in tables)
+.reveal .no-img-margin img {
+  margin: 0;
+}
+
+// Quarto/revealjs doesn't include any margin below code blocks
+.reveal div.sourceCode {
+  margin-bottom: 0.8em !important;
+}
+
+
+// =============================================================================
+// Title slide
+//
+// The background itself is set in the .qmd YAML (`title-slide-attributes:
+// data-background-color: ...`), the same native mechanism section dividers
+// use -- so text contrast is automatic. This block only handles *layout*:
+// left-aligned, title pinned to the top, subtitle/author/date group pinned
+// to the bottom (the `margin-top: auto` on .subtitle is the trick: in a flex
+// column it pushes itself -- and everything after it -- down).
+//
+// Target the ID, not the `.title-slide` class: Pandoc's reveal writer reuses
+// that class name on *every* top-level (`#`) section wrapper, not just the
+// actual title slide. The real title slide is the only section with this ID.
+//
+// The corner logo isn't CSS `background-image` -- a `url()` written here
+// gets compiled into the theme's CSS file under
+// `<deck>_files/libs/revealjs/dist/theme/`, several directories deeper than
+// the deck itself, and quarto doesn't rewrite or copy local file paths
+// inside compiled Sass, so a plain relative path breaks. Instead the logo is
+// a real `<img>`, added via a `title-slide.html` template partial (see
+// `template-partials` in the deck's YAML) -- that markup lands directly in
+// the deck's own HTML file, so a plain relative `src` next to it resolves
+// normally, same as any other image in the deck.
+//
+// `box-sizing: border-box` is load-bearing, not cosmetic: reveal.js sets
+// this section's `height` to the slide's actual pixel height (700px at this
+// deck's default dimensions). Default `content-box` sizing would add this
+// block's own padding *on top of* that, inflating the section past the real
+// slide bounds -- invisible for the text (which just reflows), but it means
+// a height-percentage logo overshoots past the slide's real bottom edge.
+//
+// `display: flex !important` is also load-bearing: reveal.js's own
+// `.reveal .slides>section.present{ display: block; }` (added to the
+// current slide for stacking/animation) beats a plain `display: flex` here
+// even though this selector has higher specificity (id vs. three classes) --
+// so without `!important`, the whole flex-column layout this block relies on
+// (title top, subtitle group pinned bottom via `margin-top: auto`, logo
+// percentages) silently doesn't apply.
+//
+// Deliberately no `position: relative` here, even though the logo below is
+// `position: absolute` and would normally want a positioned ancestor to
+// anchor to: reveal.js already makes this section `position: absolute`
+// itself (to stack/animate slides), so the logo anchors to it either way --
+// and adding our own `position: relative` on top of that, for reasons not
+// fully pinned down (something in how it interacts with reveal.js's own
+// slide-layout measurement), corrupts the layout of every *later* slide,
+// pushing each one down by roughly one slide-height. Confirmed by testing
+// actual keyboard navigation (not just the title slide render) after any
+// change here.
+// =============================================================================
+
+.reveal .slides section#title-slide {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1em 1em;
+  color: #ffffff;
+
+  // Sized/positioned in %, not px, so it scales with reveal.js's
+  // slide-to-viewport zoom instead of drifting off proportion at other
+  // window sizes. Width is intentionally unset -- the browser derives it
+  // from the SVG's own intrinsic aspect ratio.
+  img.title-slide-logo {
+    position: absolute;
+    right: 4.5%;
+    bottom: 3.5%;
+    height: 47%;
+  }
+
+  h1.title {
+    font-weight: 700;
+    margin-top: 0.5em;
+    margin-bottom: 0;
+    line-height: 1.15;
+    text-align: left;
+    font-size: 2.2em;
+    color: #ffffff;
+  }
+
+  p.subtitle {
+    margin-top: auto;
+    margin-bottom: 0.5em;
+    font-size: 1em;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  p.author,
+  p.institute {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 0.6em;
+    font-weight: 700;
+  }
+
+  p.date {
+    margin-top: 0.6em;
+    margin-bottom: 0;
+    font-size: 0.6em;
+  }
+}

@@ -1,0 +1,16 @@
+<section id="$idprefix$title-slide"$for(title-slide-attributes/pairs)$ $it.key$="$it.value$"$endfor$>
+  <h1 class="title">$title$</h1>
+$if(subtitle)$
+  <p class="subtitle">$subtitle$</p>
+$endif$
+$for(author)$
+  <p class="author">$author$</p>
+$endfor$
+$if(course-info)$
+  <p class="institute">$course-info$</p>
+$endif$
+$if(date)$
+  <p class="date">$date$</p>
+$endif$
+  <img class="title-slide-logo" src="/slides/img/quant-guq_no-text.svg" alt="">
+</section>

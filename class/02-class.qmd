@@ -1,0 +1,25 @@
+---
+title: "What even is data analysis?"
+date: "2026-08-25"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_02-class.md >}}
+
+:::
+
+
+## Slides
+
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="https://docs.google.com/presentation/d/1cB4s53VOGHyI3hThvzDxxdlJCoy7gDfdQkjwQPfU-SM/embed?start=false&loop=false&delayms=3000&hl=en" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+</div>
+
+
+## Intro to R and Positron
+
+- [In-class intro to R `.zip` file](/projects/intro-to-R.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/12779232) (only if you're using an iPad! [Join the workspace here first](https://posit.cloud/spaces/809160/join?access_code=O6LbNkPCSmyUHu4g4H7WskxHqLtHG9azZYGUbqf_))

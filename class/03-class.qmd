@@ -1,0 +1,19 @@
+---
+title: "Measurement and research design I"
+date: "2026-08-30"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_03-class.md >}}
+
+:::
+
+
+## Slides
+
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="https://docs.google.com/presentation/d/10uWYkE32jdHbhCK1Nb-L5sqWpY5SNXmW7sdHFc0OkX0/embed?start=false&loop=false&delayms=3000&hl=en" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+</div>

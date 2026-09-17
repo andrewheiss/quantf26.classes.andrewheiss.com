@@ -1,0 +1,12 @@
+---
+title: "Data importing and tidy data I"
+date: "2026-09-20"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_09-class.md >}}
+
+:::

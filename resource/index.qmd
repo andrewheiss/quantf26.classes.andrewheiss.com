@@ -1,0 +1,5 @@
+---
+title: Helpful resources
+---
+
+I have included a bunch of extra resources and guides related to R, data, statistics and other relevant topics. Enjoy!

@@ -1,0 +1,12 @@
+---
+title: "Estimation, confidence intervals, and bootstrapping I"
+date: "2026-10-25"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_17-class.md >}}
+
+:::

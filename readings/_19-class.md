@@ -1,0 +1,2 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [9.1–9.4](https://moderndive.com/v2/09-hypothesis-testing.html)
+- {{< fa hourglass-half >}} Other readings TBA

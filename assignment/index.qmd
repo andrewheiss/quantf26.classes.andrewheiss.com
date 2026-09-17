@@ -1,0 +1,62 @@
+---
+title: Assignments
+---
+
+You will get the most of out this class if you:
+
+1. Engage with the readings and lecture materials
+2. Regularly use R
+
+Each type of assignment in this class helps with one of these strategies.
+
+## Participation
+
+Given the interactive style of this class, participation will be essential to learning and your success in the course. Attendance is particularly important also because in-class assignments, discussion, and R work will be a critical component for your learning and grade.
+
+While participation is important, I realize that participation looks different for everyone. I've taken classes where professors have a TA dedicated to counting the number of times each student raised their hands. That's bonkers. I'm a naturally introverted and shy person and that kind of forced participation was *horrendous* for me. I preferred to participate from behind the scenes, making shared group Google Docs with notes, organizing review sessions, and helping out other students in online forums. 
+
+Ensure that you are engaged and participate in class. Engagement is defined by you---if that means commenting and answering questions, neat; if it means sitting quietly and being focused and doing work behind the scenes, also neat.
+
+You begin the semester with X participation points. If you do good work throughout the semester, you'll basically stay at this level. If you participate exceptionally well, I'll bump the score up; if you check out and don't participate, I'll bump the score down. **You can ask me at any point in the semester how you're doing participation-wise!**
+
+## Problem sets
+
+To practice writing R code, running and interpreting models, and communicating your findings, you will complete 8 short problem sets. 
+
+You need to show that you made a good faith effort to work each question. I will not grade these in detail. The problem sets will be graded using a check system:
+
+- ✔+: (*29 points (≈115%) in gradebook*) Problem set is 100% completed. Every question was attempted and answered, and most answers are correct. Document is clean and easy to follow. Work is exceptional. I will not assign these often.
+- ✔: (*25 points (100%) in gradebook*) Problem set is 70–99% complete and most answers are correct. **This is the expected level of performance.**
+- ✔−: (*13 points (50%) in gradebook*) Problem set is less than 70% complete and/or most answers are incorrect. This indicates that you need to improve next time. I will hopefully not assign these often.
+
+Note that this is also essentially a pass/fail system. I'm not grading your coding ability, I'm not checking each line of code to make sure it produces some exact final figure or table, and I'm not looking for perfection. Also note that a ✓ does not require 100% completion—you will sometimes get stuck with weird errors that you can't solve, or the demands of life might occasionally become overwhelming. I'm looking for good faith effort, that's all. Try hard, do good work, and you'll get a ✓.
+
+You may (and should!) work together on the problem sets, but *you must turn in your own answers.* You cannot work in groups of more than **four** people, and you must note who participated in the group in your assignment.
+
+You will submit these problem sets using Canvas.
+
+## Quizzes
+
+There will be three short quizzes covering (1) how we work with data, (2) how we model things in the world, and (3) how we infer things about the world.
+
+These quizzes will occur **in-person during class**. They will be done collectively by all of you together.
+
+I used to offer these online on Canvas and they were open book, open notes, and open internet, but LLMs have made that method of quizzes completely useless. Even if I say that AI use is banned, Google's search AI appears at the top of every search result, so it's impossible to avoid LLM output. I hate it all so much.
+
+The rationale for allowing these quizzes to be open book/note/internet is that in the real world you'll consult with other resources when working on statistical things, so you might as well do that here too. The point of these quizzes is not to trip you up on little definitional things (i.e. "What did the 4th paragraph of the 2nd section of chapter 3 say about using `select()` vs. `filter()`?"), but to give you a chance to think more closely about the class materials and practice working with them in different ways.
+
+This group exam approach is a new idea I'm experimenting with this semester—*you're the second class I've done this with.* It will likely be open note and open book, but not open other-sites-on-the-internet (and definitely not open LLM). 
+
+I will provide study guides for each of the exams.
+
+## Final project
+
+At the end of the course, you will demonstrate your knowledge of quantitative methods by completing a final project.
+
+[Complete details for the final project are here.](/assignment/final-project.qmd)
+
+There is no final exam. This project is your final exam.
+
+The project will ***not*** be graded using a check system. Instead I will provide you with a rubric that I'll use to evaluate your work.
+
+If you've engaged with the course content, participated in class, and completed the problem sets throughout the course, you should do just fine with the final project.

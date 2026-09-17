@@ -1,0 +1,3 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [10.1–10.3](https://moderndive.com/v2/10-inference-for-regression.html)
+- {{< fa book >}} @DiezCetinkaya-RundelBarr2019, 8.4
+- {{< fa brands youtube >}} OpenIntro, "Inference for Linear Regression", <https://www.youtube.com/watch?v=depiT-hTaGA>

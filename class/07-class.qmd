@@ -1,0 +1,27 @@
+---
+title: "Data wrangling I"
+date: "2026-09-13"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_07-class.md >}}
+
+:::
+
+## Slides
+
+<p style="line-height: 2.5"><a class="btn btn-success" target="_blank" href="../slides/07-wrangling-data/index.html">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a></p>
+
+```{=html}
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="../slides/07-wrangling-data/index.html" style="border: 1px solid #343a40;"></iframe>
+</div>
+```
+
+## Materials for class today
+
+- [Data wrangling `.zip` project](/projects/data-wrangling.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/12900377) (only if you're using an iPad!)

@@ -1,0 +1,25 @@
+---
+title: "Data visualization I"
+date: "2026-09-06"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_05-class.md >}}
+
+:::
+
+
+## Slides
+
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="https://docs.google.com/presentation/d/1APx3hdYU_X7uADkgpvlnYiE36dSvOwuan4qUvX8KWNQ/embed?start=false&loop=false&delayms=3000&hl=en" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+</div>
+
+
+## Intro to R and Positron + data visualization
+
+- [In-class intro to R `.zip` file](/projects/intro-dataviz.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/12850997) (only if you're using an iPad! [Join the workspace here first](https://posit.cloud/spaces/809160/join?access_code=O6LbNkPCSmyUHu4g4H7WskxHqLtHG9azZYGUbqf_))

@@ -1,0 +1,1 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [10.4–10.7](https://moderndive.com/v2/10-inference-for-regression.html#the-multiple-linear-regression-model)

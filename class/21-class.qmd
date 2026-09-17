@@ -1,0 +1,12 @@
+---
+title: "Inference for regression I"
+date: "2026-11-08"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_21-class.md >}}
+
+:::

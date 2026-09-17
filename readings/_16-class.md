@@ -1,0 +1,2 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [7.4–7.6](https://moderndive.com/v2/07-sampling.html#sec-sampling-activity-mean)
+- {{< fa hourglass-half >}} Other readings TBA

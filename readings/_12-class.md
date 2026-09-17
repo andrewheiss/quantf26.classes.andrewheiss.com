@@ -1,0 +1,1 @@
+- {{< fa book >}} @IsmayKimValdivia2025, [5.2–5.4](https://moderndive.com/v2/05-regression.html#sec-model2)

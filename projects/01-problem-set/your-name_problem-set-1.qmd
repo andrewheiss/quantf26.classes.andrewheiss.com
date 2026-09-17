@@ -1,0 +1,97 @@
+---
+title: "Measurement and research design"
+subtitle: "Problem Set 1 --- IPOL 3270, Fall 2026"
+author: "Your name here"
+date: "Date goes here"
+date-format: "2026-09-07"
+format:
+  typst:
+    toc: true
+  docx: 
+    reference-doc: styles.docx
+---
+
+<!-- Please remove all the placeholder text! -->
+
+## Task 0: Choose a concept
+
+Choose *one* of these concepts:
+
+- Corruption
+- Energy independence
+- National wellbeing
+- Electoral freedom
+- Political violence
+- Civil society
+
+You'll be working with this concept throughout the rest of the problem set.
+
+
+## Task 1: The ladder of abstraction
+
+### Part 1
+
+Create a list of 5--7 attributes of your concept and arrange them by how abstract and general they are, with the most abstract at the top of the list. Make sure you order these hierarchically and cumulatively---every attribute you add should narrows the definition and shrink the set of what counts. Don't make a list of independent definitions. Instead, everything should get more specific.
+
+Put these attributes in a table with two columns. The first column should contain the attribute, and the second column should contain some actual examples of real life people, organizations, countries, or phenomena that would be included if your concept was measured with that attribute (and all previous attributes). Something like what we did in class with witches:
+
+| Attribute      | What would count under this definition                    |
+|----------------|-----------------------------------------------------------|
+| Mammal         | Yourself, cats, wizards, dogs                             |
+| and Enmagicked | Magical humans, trolls, elves, goddesses                  |
+| and Female     | Winky the house elf, Athena the goddess, Hermione Granger |
+| and Human      | Hermione Granger, Elphaba from *The Wizard of Oz*         |
+
+**DO THAT HERE**
+
+### Part 2
+
+Choose one of these levels of abstraction that you think is most appropriate for defining your concept use it as your official definition of the concept (in the witch example, it might be something like "a female, magic-using mammal")
+
+Explain why you like this definition the most and not one that is more or less abstract. Describe at least one case that this definition *excludes* (e.g., something someone might expect to count, but doesn't, given the attributes you chose). Then say whether this exclusion is a problem or is actually correct. (For instance, in the witch example from class, real women from who were accused of witchcraft in the 1600s wouldn't count since they didn't *actually* use magic, but that's probably okay since they weren't actually witches.)
+
+**DO THAT HERE**
+
+## Task 2: Exploring a real world term
+
+Find an actual definition of a term related to your concept published in the wild—it should come from a peer-reviewed article, a report from an NGO (like Freedom House, the Varieties of Democracy project, Transparency International, The Carter Center, Amnesty International, etc.), a government document, or something similar.
+
+In 100-150 words, do the following: 
+
+- Quote the definition and provide a citation to the original source (ideally with Chicago or APA formatting)
+- List the published definition's key attributes. These might be stated explicitly, or they might just be implied. 
+- Explain whether you think this is a good definition and why (or why not). What kind of cases does it cover? What does it miss? 
+- Compare this definition to yours from Task 1. Are there cases that yours misses and this one picks up (and vice versa)? Are there situations where yours is more appropriate (and vice versa)?
+
+**DO THAT HERE**
+
+## Task 3: Ontology and epistemology
+
+### Part 1: Think like an objectivist or constructivist
+
+In a couple sentences for each question, describe the following:
+
+- How would an objectivist researcher think about the concept you have chosen?
+- How would a constructivist researcher think about the concept you have chosen?
+
+**DO THAT HERE**
+
+### Part 2: Think like a positivist or interpretivist
+
+In a couple sentences for each question, describe the following:
+
+- How would a positivist researcher design a research project to explore your concept? What kind of data would they likely collect to understand the principle?
+- How would an interpretivist researcher design a research project to explore your concept? What kind of data would they likely collect to understand the principle?
+
+**DO THAT HERE**
+
+### Part 3: Think like yourself
+
+In 150--200 words, answer and explore the following:
+
+- How do you personally think about the nature of reality of your concept (i.e. what is your ontological perspective)?
+- How do you personally think about how you might understand or know more about your concept (i.e. what is your epistemological perspective)? How would you actually go about learning more about it?
+- If you were designing a research project about this concept, how would your ontology and epistemology change what evidence and data you'd collect?
+- Propose a possible research project to explore your concept, based on your personal ontological and epistemological views. Make sure you name a real country, region, time period, people, population, etc. and the data or evidence you'd collect (i.e. don't just say "I would study BLAH"; that's not specific enough).
+
+**DO THAT HERE**

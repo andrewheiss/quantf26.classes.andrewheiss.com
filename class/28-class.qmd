@@ -1,0 +1,12 @@
+---
+title: "Tell your story with data II"
+date: "2026-12-01"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_28-class.md >}}
+
+:::

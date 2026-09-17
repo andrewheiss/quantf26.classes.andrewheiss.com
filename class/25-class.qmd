@@ -1,0 +1,12 @@
+---
+title: "Causation"
+date: "2026-11-22"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_25-class.md >}}
+
+:::

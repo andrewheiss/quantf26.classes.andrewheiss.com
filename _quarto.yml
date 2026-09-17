@@ -1,0 +1,179 @@
+project:
+  type: website
+  render:
+    - "*.qmd"
+    - "!projects/"
+  resources:
+    - "files/"
+    - "projects/"
+  preview:
+    port: 3333
+
+execute:
+  freeze: auto  # Re-render only when source changes
+
+bibliography: files/bib/references.bib
+csl: files/bib/chicago-author-date.csl
+
+website:
+  title: "Quantitative Methods"
+  description: "Use modern statistical and data scientific tools to answer questions about political science and international relations with data"
+  site-url: "https://quantf26.classes.andrewheiss.com"
+
+  draft-mode: unlinked
+
+  # Help out the robots
+  llms-txt: true
+
+  # announcement:
+  #   icon: calendar-check
+  #   dismissable: true
+  #   content: "**Reminder!** The final deadline for all assignments other than the final project is **Tuesday, April 28 at 11:59 PM** ([details](/news/2026-04-16_final-deadlines.html))"
+  #   type: danger
+  #   position: below-navbar
+
+  favicon: "/files/favicon-512.png"
+
+  twitter-card:
+    image: "/files/social-image-f26.png"
+    card-style: summary_large_image
+    creator: "@andrewheiss"
+    # site: "@andrewheiss"
+
+  open-graph:
+    image: "/files/social-image-f26.png"
+    locale: en_US
+  
+  repo-url: "https://github.com/andrewheiss/quantf26.classes.andrewheiss.com"
+  repo-actions: [source, issue]
+  
+  page-navigation: true
+
+  navbar:
+    pinned: true
+    background: primary
+
+    right:
+      - syllabus.qmd
+      - schedule.qmd
+      - class/index.qmd
+      - assignment/index.qmd
+      - text: "Resources"
+        file: resource/index.qmd
+      - icon: discord
+        href: "https://discord.com/"
+        aria-label: Discord
+
+  sidebar:
+    - title: "Assignments"
+      style: "docked"
+      search: false
+      background: dark
+      collapse-level: 3
+      contents:
+        - section: "Overview"
+          contents:
+            - assignment/index.qmd
+        - section: "Problem sets"
+          contents:
+            - assignment/01-problem-set.qmd
+            - assignment/02-problem-set.qmd
+            - assignment/03-problem-set.qmd
+            - assignment/04-problem-set.qmd
+            - assignment/05-problem-set.qmd
+            - assignment/06-problem-set.qmd
+            - assignment/07-problem-set.qmd
+            - assignment/08-problem-set.qmd
+        - section: "Final project"
+          contents:
+            - assignment/final-project.qmd
+
+    - title: "Classes and readings"
+      collapse-level: 1
+      contents:
+        - section: "Overview"
+          contents:
+            - class/index.qmd
+        - section: "Why and how do we measure things?"
+          contents:
+            - class/01-class.qmd
+            - class/02-class.qmd
+            - class/03-class.qmd
+            - class/04-class.qmd
+        - section: "How do we work with data?"
+          contents:
+            - class/05-class.qmd
+            - class/06-class.qmd
+            - class/07-class.qmd
+            - class/08-class.qmd
+            - class/09-class.qmd
+            - class/10-class.qmd
+        - section: "How do we model things in the world?"
+          contents:
+            - class/11-class.qmd
+            - class/12-class.qmd
+            - class/13-class.qmd
+            - class/14-class.qmd
+        - section: "How do we infer things about the world?"
+          contents:
+            - class/15-class.qmd
+            - class/16-class.qmd
+            - class/17-class.qmd
+            - class/18-class.qmd
+            - class/19-class.qmd
+            - class/20-class.qmd
+            - class/21-class.qmd
+            - class/22-class.qmd
+        - section: "Can we do slightly fancier analyses?"
+          contents:
+            - class/23-class.qmd
+            - class/24-class.qmd
+            - class/25-class.qmd
+            - class/26-class.qmd
+        - section: "How can we communicate these results to regular people?"
+          contents:
+            - class/27-class.qmd
+            - class/28-class.qmd
+
+    - title: "Resources"
+      contents:
+        - section: "Resources"
+          contents:
+            - resource/index.qmd
+            - resource/style.qmd
+            - resource/citations.qmd
+            - resource/colophon.qmd
+        # - section: "Study guides"
+        #   contents:
+        #     - resource/exam1.qmd
+        #     - resource/exam2.qmd
+        - section: "Guides"
+          contents:
+            - resource/how-to-ask-for-help.qmd
+            - resource/install.qmd
+            - resource/markdown.qmd
+            - resource/quarto.qmd
+            - resource/unzipping.qmd
+
+  page-footer:
+    left: |
+      Content {{< fa brands creative-commons >}} {{< var course.copyright_year >}} by [{{< var instructor.name_no_title >}}]({{< var instructor.url >}}) <br>
+      All content licensed under a {{< fa brands creative-commons >}}
+      {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-nc >}}
+      [Creative Commons Attribution-NonCommercial 4.0 International license (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/)
+    right: |
+      Made with {{< fa brands r-project >}} and [Quarto](https://quarto.org/)<br>
+      [View the source at {{< fa brands github >}} GitHub]({{< var course.github >}})
+
+format:
+  html:
+    theme:
+      - zephyr
+      - brand
+      - html/site.scss
+    toc: true
+    highlight-style: monokai
+    knitr:
+      opts_chunk:
+        dev: "ragg_png"
+        dpi: 300

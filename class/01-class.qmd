@@ -1,0 +1,65 @@
+---
+title: "Why use data in political science?"
+date: "2026-08-23"
+---
+
+## Readings
+
+::: {.readings}
+
+{{< include ../readings/_01-class.md >}}
+
+:::
+
+## Slides
+
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="https://docs.google.com/presentation/d/1RtFLX8s6_E2aMg4eP3LiSvdLEm-XXUx96ybgLaTnUSU/embed?start=false&loop=false&delayms=3000&hl=en" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+</div>
+
+## Movies
+
+### Class movies
+
+[Record your movies here!](https://docs.google.com/forms/d/e/1FAIpQLSdopYTxk88zEK9GxYeEQvHAG-5vAdd5cJkxeF0Wvvr7NUgaUA/viewform?usp=dialog)
+
+### All movies
+
+```{r}
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(ggplot2movies)
+library(ggdist)
+
+set.seed(1234)  # Set seed so we get the same sampled rows every time
+
+movies_clean <- movies |>
+  select(title, year, rating, Action, Comedy) |>
+  filter(!(Action == 1 & Comedy == 1)) |>
+  mutate(
+    genre = case_when(
+      Action == 1 ~ "Action",
+      Comedy == 1 ~ "Comedy",
+      TRUE ~ "Neither"
+    )
+  ) |>
+  filter(genre != "Neither") |>
+  mutate(genre = factor(genre)) |>
+  select(-Action, -Comedy) |>
+  # Randomly select 100 movies in each genre
+  group_by(genre) |>
+  sample_n(1000) |>
+  ungroup()
+
+movies_clean |>
+  group_by(genre) |>
+  summarize(avg_rating = mean(rating))
+
+ggplot(movies_clean, aes(x = rating, y = genre, fill = genre)) +
+  geom_dots(layout = "weave", side = "bottom") +
+  stat_slabinterval() + 
+  guides(color = "none", fill = "none") + 
+  labs(x = "IMDB rating", y = NULL)
+```
