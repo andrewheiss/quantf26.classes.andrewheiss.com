@@ -568,7 +568,7 @@ brand_yaml <- str_c(
 #| results: asis
 
 cat(
-  "<details><summary>_brand.yml color section</summary>\n\n",
+  "<details><summary><code>_brand.yml</code> color section</summary>\n\n",
   "```yaml\n", brand_yaml, "\n```\n\n",
   "</details>",
   sep = ""
