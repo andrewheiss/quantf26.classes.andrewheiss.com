@@ -249,7 +249,7 @@ typography:
     weight: 400
 
   link:
-    color: purple
+    color: blue
     decoration: underline
 
 defaults:
