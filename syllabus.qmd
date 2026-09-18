@@ -2,16 +2,22 @@
 title: "Syllabus"
 pdf-title: "Quantitative Methods for International Politics"
 pdf-subtitle: "IPOL 3270 • Fall 2026"
-format: 
+pdf-header-left: "IPOL 3270 • Quantitative Methods for International Politics"
+pdf-header-right: "Fall 2026"
+pdf-footer-left: "Georgetown University in Qatar"
+format:
   html: default
   typst:
+    output-file: "ipol2370-f26-syllabus.pdf"
     citeproc: true
-    csl: "files/bib/chicago-notes-bibliography.csl"
+    csl: "files/bib/chicago-notes.csl"
     papersize: a4
     fontsize: "10.5pt"
     margin: 
       x: 2.5cm
       y: 2.5cm
+    include-in-header: 
+      - "typst-stuff/include-in-header.typ"
     filters:
       - typst-stuff/processing.lua
       - typst-stuff/link-to-footnote.lua
