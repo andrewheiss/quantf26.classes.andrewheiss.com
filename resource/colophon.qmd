@@ -38,6 +38,7 @@ library(tidyverse)
 library(colorspace)
 library(ggtext)
 library(svglite)
+library(swatches)  # https://github.com/hrbrmstr/swatches
 
 clrs <- c(
   navy = "#041E42",   # Georgetown blue
@@ -81,7 +82,30 @@ time_utc <- format(
 
 - **Last built**: `{r} time_updated` ([`{r} time_utc`]{.small})
 - **Software**: Quarto version {{< version >}} and {{< fa brands r-project >}} `{r} R.version$version.string`
+- **Code**: The source for the site is available at {{< fa brands github >}} [GitHub](https://www.github.com/andrewheiss/quantf26.classes.andrewheiss.com). All the packages are managed with {renv} with [this `renv.lock` lockfile](https://github.com/andrewheiss/quantf26.classes.andrewheiss.com/blob/main/renv.lock). 
 
+Here's a bunch of more technical detail for the morbidly curious:
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Show `sessioninfo::session_info()`"
+#| collapse: true
+
+sessioninfo::session_info(
+  pkgs = names(renv::lockfile_read(here::here("renv.lock"))$Packages)
+)
+```
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Show Quarto extensions"
+#| collapse: true
+
+quarto::quarto_list_extensions() |> 
+  filter(str_detect(Id, "/"))
+```
 
 ## Design
 
@@ -112,7 +136,6 @@ Whereas recognition of the *inherent dignity* and of the ***equal and inalienabl
 ### Colors
 
 I use a bunch of colors for this course website. The two main colors are [Georgetown Blue](https://www.georgetown.edu/color-guide/) (` `{r} I(clrs[[1]])` `) and [Al Adaam Maroon](https://www.qatar.qa/en/qatar/al-adaam/) (` `{r} I(clrs[[2]])` `), Qatar's national color. The other colors come largely from CARTOColors's [Prism palette](https://carto.com/carto-colors/), with some tweaks I made by hand in a color picker.
-
 
 ```{r}
 #| label: build-ramp
@@ -312,6 +335,41 @@ ggplot(ramps_df, aes(x = darkness, y = fct_rev(color), fill = hex)) +
   theme_void(base_family = "Atkinson Hyperlegible Next") +
   theme(axis.text = element_text(), axis.text.y = element_text(hjust = 1))
 ```
+
+### Swatches
+
+```{r}
+clrs |>
+  hex_to_ase("global") |>
+  ase_encode() |>
+  writeBin(here::here("files", "swatches", "ipol3270-colors.ase"))
+
+ramps |>
+  imap(\(x, ramp_name) set_names(x$ramp, paste0(ramp_name, "-", names(x$ramp)))) |>
+  list_c() |> 
+  hex_to_ase("global") |>
+  ase_encode() |>
+  writeBin(here::here("files", "swatches", "ipol3270-colors-gradients.ase"))
+```
+
+These colors are available as Adobe swatch files (ASE) that can be opened in Adobe programs like Illustrator, InDesign, and Photoshop, as well as the non-Adobe [Affinity](https://www.affinity.studio/) [(thanks to the neat [{swatches}](https://github.com/hrbrmstr/swatches) package; [see code here](https://github.com/andrewheiss/quantf26.classes.andrewheiss.com/blob/main/resource/colophon.qmd))]{.small}.
+
+:::: {.grid}
+
+::: {.g-col-12 .g-col-md-6 .text-center}
+[![](img/palette-colors.jpg){width="90%"}](/files/swatches/ipol3270-colors.ase)
+
+<p style="line-height: 2.5"><a class="btn btn-success" target="_blank" href="/files/swatches/ipol3270-colors.ase">{{< fa palette >}} &ensp;**ipol3270-colors.ase**</a></p>
+:::
+
+::: {.g-col-12 .g-col-md-6 .text-center}
+[![](img/palette-colors-gradients.jpg){width="90%"}](/files/swatches/ipol3270-colors-gradients.ase)
+
+<p style="line-height: 2.5"><a class="btn btn-success" target="_blank" href="/files/swatches/ipol3270-colors-gradients.ase">{{< fa palette >}} &ensp;**ipol3270-colors-gradients.ase**</a></p>
+:::
+
+::::
+
 
 ### `color` section for `_brand.yml`
 
