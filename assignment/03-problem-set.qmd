@@ -41,7 +41,7 @@ Submit a single rendered PDF on Canvas.
 1. Download this `.zip` file. Make sure you [unzip or extract it after you download it](/resource/unzipping.qmd)! Open the unzipped folder in Positron.
 
    - [{{< fa file-archive >}} `03-problem-set.zip`](/projects/03-problem-set.zip)
-   - [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/12860513): Use this link if you're using Posit.cloud on your iPad.
+   - [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/12900377): Use this link if you're using Posit.cloud on your iPad.
 
 2. Rename the Quarto file named `your-name_problem-set-3.qmd` to something that matches your name.
 
