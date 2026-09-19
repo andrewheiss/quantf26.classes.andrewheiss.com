@@ -13,7 +13,7 @@ date: "2026-09-13"
 
 ## Slides
 
-<p style="line-height: 2.5"><a class="btn btn-success" target="_blank" href="../slides/07-wrangling-data/index.html">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a></p>
+<p style="line-height: 2.5"><a class="btn btn-success me-2" target="_blank" href="../slides/07-wrangling-data/index.html">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a><a class="btn btn-success" target="_blank" href="../slides/07-wrangling-data/07-wrangling-data.pdf">{{< fa file-pdf >}} &ensp;Download PDF of slides</a></p>
 
 ```{=html}
 <div class="ratio ratio-16x9">
