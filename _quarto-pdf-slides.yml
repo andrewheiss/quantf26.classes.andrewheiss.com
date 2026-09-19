@@ -1,3 +1,0 @@
-project:
-  post-render:
-    - ./slides-to-pdf.R

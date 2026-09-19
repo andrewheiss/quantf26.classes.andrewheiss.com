@@ -1,0 +1,64 @@
+---
+title: "Exploring charitable activity in the Middle East"
+format: 
+  html: default
+  typst: default
+  docx: default
+---
+
+## Background
+
+Wave 8 of the Arab Barometer (2023-2024) was conducted in seven different countries: Iraq, Jordan, Kuwait, Lebanon, Mauritania, Morocco, Palestine, and Tunisia. See [their questionnaire code book here](https://www.arabbarometer.org/survey-data/data-downloads/) for complete details of every question they asked.
+
+## Donations to charity
+
+Question 266 asked:
+
+> In a typical month, do you donate money to a charity or those in need?
+
+I want to know if there are country-level differences in charitable activity.
+
+## Data loading and cleaning
+
+First, I'll load the data and clean it up a bit:
+
+```{r}
+#| label: load-data
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(haven)
+
+barometer <- read_stata("data/ArabBarometer_WaveVIII_English_v3.dta") |> 
+  mutate(
+    COUNTRY = as_factor(COUNTRY), 
+    Q266 = as_factor(Q266)
+  )
+```
+
+## Proportion of people donating by country
+
+Here's the proportion of people who responded yes in each country:
+
+```{r}
+donation_by_country <- barometer |>
+  group_by(COUNTRY) |>
+  summarize(
+    total_responses = n(),
+    yes_count = sum(Q266 == "Yes", na.rm = TRUE),
+    prop_yes = mean(Q266 == "Yes", na.rm = TRUE)
+  )
+donation_by_country
+```
+
+Let's look at a picture of that:
+
+```{r}
+donation_by_country |>
+  mutate(COUNTRY = fct_reorder(COUNTRY, prop_yes)) |>
+  ggplot(aes(x = prop_yes, y = COUNTRY)) +
+  geom_col() +
+  scale_x_continuous(labels = scales::label_percent()) +
+  labs(x = "Proportion who donated to charity last month", y = "Country")
+```

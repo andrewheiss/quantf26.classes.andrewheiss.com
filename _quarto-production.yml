@@ -1,0 +1,4 @@
+project:
+  post-render:
+    - ./bin/slides-to-pdf.R
+    - ./bin/zip-projects.R

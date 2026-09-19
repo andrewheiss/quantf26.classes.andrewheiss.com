@@ -1,0 +1,84 @@
+---
+title: "Getting started with R and Positron"
+format: 
+  html: default
+  typst: default
+  docx: default
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(gapminder)
+
+gapminder_2007 <- filter(gapminder, year == 2007)
+```
+
+## Quarto
+
+This is a [Quarto](https://quarto.org/) file (it has a .qmd file extension). When you execute code within the file, the results appear beneath the code. 
+
+R code goes in **code cells** or **code chunks**, denoted by three backticks. Try executing this cell by clicking the *Run* button (a small green triangle) within the cell or by placing your cursor inside it and pressing *Ctrl+Shift+Enter* (or *Cmd+Shift+Enter* on Mac). 
+
+```{r}
+ggplot(data = gapminder_2007) +
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp, color = continent))
+```
+
+## Add a new code cell
+
+Add a new code cell by clicking the *Insert Code Cell* button on the toolbar or by pressing *Cmd/Ctrl+Option+I*. 
+
+Put 2 + 2 in your new code cell and run it.
+
+PUT A NEW CELL HERE
+
+
+## Rendering Quarto files
+
+We'll use Quarto files as notebooks as we learn because we can record text, code and output. 
+
+Quarto files are also a publication format. Try hitting the "Preview" button in the toolbar above. R runs all the code in the document from top to bottom, it collects the output and puts the code, text and output together in an HTML document---you should see it as `01-getting-started.html` in the Files pane. This document is a great way to record or share your work (you can also render to PDF or Word documents).
+
+## Assigning variables
+
+What's the difference between the code in this cell:
+
+```{r}
+filter(gapminder, lifeExp > 70)
+```
+
+And the code in this cell?
+
+```{r}
+high_life_exp <- filter(gapminder, lifeExp > 70)
+```
+
+## Functions
+
+Look at the help page for `seq`
+
+Add a cell here that uses `seq()` to create a list of numbers from 5 to 100, spaced by 5 (so 5, 10, 15, 20, etc.)
+
+CELL HERE
+
+
+## Syntax gone wrong
+
+```{r}
+#| error: true
+sd(pull(.data = starwars, var = mass)
+```
+
+```{r}
+#| error: true
+my_name <- "Andrew'
+```
+
+```{r}
+#| error: true
+pull(.data = "starwars", var = height)
+```

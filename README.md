@@ -1,5 +1,5 @@
 # quantf26
 
 ```sh
-quarto render --profile pdf-slides && ./deploy.sh
+quarto render --profile production && ./bin/deploy.sh
 ```

@@ -1,0 +1,87 @@
+---
+title: "Visualizing data with {ggplot2}"
+format: 
+  html: default
+  typst: default
+  docx: default
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)  # For ggplot2, dplyr, and friends
+
+# Load data and remove rows where the "sex" column is missing
+penguins <- read_csv("data/penguins.csv") |> 
+  drop_na(sex)
+```
+
+## Figuring out what's in the data
+
+```{r}
+penguins
+```
+
+## Your turn #1
+
+Run the code from the the slide to make a graph.
+
+```{r}
+ggplot(data = penguins) + 
+  geom_point(mapping = aes(x = bill_len, y = body_mass))
+```
+
+## Your turn #2: ggplot playground
+
+Add `color`, `size`, `alpha`, or `shape` aesthetics to your graph. Experiment.  
+
+```{r}
+ggplot(data = penguins) + 
+  geom_point(mapping = aes(x = bill_len, y = body_mass, color = "blue"))
+```
+
+## Your turn #3: Switching geoms
+
+Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess.
+
+```{r}
+ggplot(data = penguins) +
+  geom_boxplot(mapping = aes(x = species, y = body_mass))
+```
+
+## Your turn #4: Histograms
+
+Make a histogram of the `body_mass` variable from `penguins`.
+
+```{r}
+ggplot(data = penguins)
+```
+
+## Your turn #5: Density plots
+
+Make a density plot of `body_mass` filled by `species` with 75% transparency.
+
+```{r}
+ggplot(data = penguins) 
+```
+
+## Your turn #6: Complex plots
+
+Predict what this code will do. Then run it.
+
+```{r}
+ggplot(data = penguins) + 
+  geom_point(aes(x = bill_len, y = body_mass)) +
+  geom_smooth(aes(x = bill_len, y = body_mass))
+```
+
+## Takeaways
+
+You can use this code template to any kind of graph with {ggplot2}.
+
+```{.r}
+ggplot(data = <DATA>) +
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
