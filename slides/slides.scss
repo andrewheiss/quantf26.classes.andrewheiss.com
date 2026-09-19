@@ -28,6 +28,13 @@ $code-block-font-size:        0.75em;
   --hl-3: #EFB3FF;
 }
 
+// Decktape struggles with shadows, so turn them off
+// This .decktape-export gets injected with javascript in slides/_metadata.yml
+.decktape-export * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
 // `inline code` normally gets the syntax highlighting theme's color, but when
 // inline code is in a heading/slide title, I actually want it to be the same as
 // all other slide titles

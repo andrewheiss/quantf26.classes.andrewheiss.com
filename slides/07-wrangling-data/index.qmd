@@ -54,7 +54,7 @@ library(countdown)
 - `group_by()`
 :::
 
-# Manipulating data with {dplyr} {background-color="{{< brand color clr-1 >}}"}
+# Manipulating data with {dplyr} {background-color="{{< brand color clr-1 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
 ## Your turn #0: Load data {background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 

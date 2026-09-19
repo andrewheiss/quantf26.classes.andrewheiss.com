@@ -1,0 +1,9 @@
+format:
+  revealjs:
+    include-in-header:
+      - text: |
+          <script>
+            if (window.location.search.includes('decktape=true')) {
+              document.documentElement.classList.add('decktape-export');
+            }
+          </script>
