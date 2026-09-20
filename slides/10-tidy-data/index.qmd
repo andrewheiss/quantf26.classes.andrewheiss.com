@@ -1,0 +1,77 @@
+---
+title: "Data importing and tidy data II"
+subtitle: "Quantitative Methods for<br>International Politics"
+course-info: "IPOL 3270 • Fall 2026"
+date: "2026-09-22"
+date-format: "long"
+format:
+  revealjs:
+    theme: [default, ../slides.scss, brand]
+    template-partials:
+      - ../../html/title-slide.html
+    highlight-style: github
+    slide-number: true
+    incremental: false
+    code-line-numbers: false
+    code-overflow: wrap
+    fig-align: center
+    auto-stretch: false
+
+    title-slide-attributes: 
+      data-background-image: /slides/img/background-hex-shapes.svg
+      data-background-opacity: "0.25"
+      # data-background-color: "{{< brand color clr-1 >}}"
+      data-background-gradient: "linear-gradient(30deg, {{< brand color clr-1 >}}, {{< brand color blue-700 >}})"
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+::: {.incremental}
+- Reading data
+- Tidy data
+- Pivoting data
+:::
+
+# Making and reading data
+
+## 
+
+Download some tidy tuesday datasets
+
+Make some data in Google Sheets, then download and read_csv
+
+##
+
+CSV vs. Excel
+
+## Practice
+
+# Tidy data
+
+##
+
+Each variable forms a column.
+Each observation forms a row.
+Each type of observational unit forms a table.
+
+![](img/tidy-1.png)
+
+## 
+
+##
+
+Column headers are variables/values
+
+##
+
+Extra information in a table
+
+
+# Pivoting
+
+##
+
+tidyexplain animations

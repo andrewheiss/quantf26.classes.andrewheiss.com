@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1005.6 518.76">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #2878b5;
+      }
+
+      .cls-1, .cls-2 {
+        font-size: 55.17px;
+      }
+
+      .cls-2 {
+        fill: #cd503e;
+      }
+
+      .cls-2, .cls-3 {
+        font-family: AtkinsonHyperlegibleNextVFLight-Bold, 'Atkinson Hyperlegible Next VF';
+        font-variation-settings: 'wght' 700, 'ital' 0;
+        font-weight: 700;
+      }
+
+      .cls-4 {
+        fill: none;
+        stroke: #6d6e71;
+        stroke-miterlimit: 10;
+        stroke-width: 6.61px;
+      }
+
+      .cls-5 {
+        font-family: AtkinsonHyperlegibleNextVFLight-Regular, 'Atkinson Hyperlegible Next VF';
+        font-variation-settings: 'wght' 400, 'ital' 0;
+      }
+
+      .cls-6 {
+        letter-spacing: 0em;
+      }
+
+      .cls-7 {
+        fill: #fff;
+      }
+
+      .cls-8 {
+        letter-spacing: 0em;
+      }
+
+      .cls-9 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-10 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-11 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-12 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-13 {
+        letter-spacing: 0em;
+      }
+
+      .cls-14 {
+        letter-spacing: 0em;
+      }
+
+      .cls-15 {
+        letter-spacing: 0em;
+      }
+    </style>
+  </defs>
+  <rect class="cls-7" x="0" width="1005.6" height="518.76"/>
+  <text class="cls-2" transform="translate(345.36 119.56)"><tspan x="0" y="0">C</tspan><tspan class="cls-15" x="36.3" y="0">l</tspan><tspan class="cls-14" x="54.45" y="0">a</tspan><tspan class="cls-8" x="84.57" y="0">ss</tspan><tspan class="cls-10" x="140.84" y="0">r</tspan><tspan class="cls-6" x="160.76" y="0">o</tspan><tspan class="cls-8" x="192.64" y="0">om 1</tspan></text>
+  <text class="cls-1" transform="translate(34.11 330.06)"><tspan class="cls-3"><tspan class="cls-11" x="0" y="0">S</tspan><tspan class="cls-8" x="33.04" y="0">tude</tspan><tspan class="cls-13" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 1</tspan></tspan><tspan class="cls-5"><tspan x="-15.25" y="66.2">Heig</tspan><tspan class="cls-9" x="97.4" y="66.2">h</tspan><tspan x="126.8" y="66.2">t: 170</tspan></tspan><tspan class="cls-5"><tspan x="32.8" y="132.4">Age: 19</tspan></tspan></text>
+  <text class="cls-1" transform="translate(374.27 330.06)"><tspan class="cls-3"><tspan class="cls-11" x="0" y="0">S</tspan><tspan class="cls-8" x="33.04" y="0">tude</tspan><tspan class="cls-13" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 2</tspan></tspan><tspan class="cls-5"><tspan x="-11.67" y="66.2">Heig</tspan><tspan class="cls-9" x="100.98" y="66.2">h</tspan><tspan x="130.39" y="66.2">t: 1</tspan><tspan class="cls-12" x="197.85" y="66.2">5</tspan><tspan x="229.74" y="66.2">5</tspan></tspan><tspan class="cls-5"><tspan x="37.9" y="132.4">Age: 21</tspan></tspan></text>
+  <text class="cls-1" transform="translate(722.04 330.06)"><tspan class="cls-3"><tspan class="cls-11" x="0" y="0">S</tspan><tspan class="cls-8" x="33.04" y="0">tude</tspan><tspan class="cls-13" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 3</tspan></tspan><tspan class="cls-5"><tspan x="-11.78" y="66.2">Heig</tspan><tspan class="cls-9" x="100.87" y="66.2">h</tspan><tspan x="130.28" y="66.2">t: 183</tspan></tspan><tspan class="cls-5"><tspan x="31.83" y="132.4">Age: 20</tspan></tspan></text>
+  <line class="cls-4" x1="346.55" y1="138.34" x2="160.33" y2="259.38"/>
+  <line class="cls-4" x1="658.35" y1="138.34" x2="844.57" y2="259.38"/>
+  <line class="cls-4" x1="502.8" y1="259.38" x2="502.8" y2="138.34"/>
+</svg>

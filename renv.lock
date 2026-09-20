@@ -61,6 +61,44 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
+    "DT": {
+      "Package": "DT",
+      "Version": "0.34.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "A Wrapper of the JavaScript Library 'DataTables'",
+      "Authors@R": "c( person(\"Yihui\", \"Xie\", role = \"aut\"), person(\"Joe\", \"Cheng\", , \"joe@posit.co\", role = \"aut\"), person(\"Xianying\", \"Tan\", role = \"aut\"), person(\"Garrick\", \"Aden-Buie\", , \"garrick@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-7111-0077\")), person(\"JJ\", \"Allaire\", role = \"ctb\"), person(\"Maximilian\", \"Girlich\", role = \"ctb\"), person(\"Greg\", \"Freedman Ellis\", role = \"ctb\"), person(\"Johannes\", \"Rauh\", role = \"ctb\"), person(\"SpryMedia Limited\", role = c(\"ctb\", \"cph\"), comment = \"DataTables in htmlwidgets/lib\"), person(\"Brian\", \"Reavis\", role = c(\"ctb\", \"cph\"), comment = \"selectize.js in htmlwidgets/lib\"), person(\"Leon\", \"Gersen\", role = c(\"ctb\", \"cph\"), comment = \"noUiSlider in htmlwidgets/lib\"), person(\"Bartek\", \"Szopka\", role = c(\"ctb\", \"cph\"), comment = \"jquery.highlight.js in htmlwidgets/lib\"), person(\"Alex\", \"Pickering\", role = \"ctb\"), person(\"William\", \"Holmes\", role = \"ctb\"), person(\"Mikko\", \"Marttila\", role = \"ctb\"), person(\"Andres\", \"Quintero\", role = \"ctb\"), person(\"Stéphane\", \"Laurent\", role = \"ctb\"), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "Data objects in R can be rendered as HTML tables using the JavaScript library 'DataTables' (typically via R Markdown or Shiny). The 'DataTables' library has been included in this R package. The package name 'DT' is an abbreviation of 'DataTables'.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/rstudio/DT",
+      "BugReports": "https://github.com/rstudio/DT/issues",
+      "Imports": [
+        "crosstalk",
+        "htmltools (>= 0.3.6)",
+        "htmlwidgets (>= 1.3)",
+        "jquerylib",
+        "jsonlite (>= 0.9.16)",
+        "magrittr",
+        "promises"
+      ],
+      "Suggests": [
+        "bslib",
+        "future",
+        "httpuv",
+        "knitr (>= 1.8)",
+        "rmarkdown",
+        "shiny (>= 1.6)",
+        "testit",
+        "tibble"
+      ],
+      "VignetteBuilder": "knitr",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "no",
+      "Author": "Yihui Xie [aut], Joe Cheng [aut], Xianying Tan [aut], Garrick Aden-Buie [aut, cre] (ORCID: <https://orcid.org/0000-0002-7111-0077>), JJ Allaire [ctb], Maximilian Girlich [ctb], Greg Freedman Ellis [ctb], Johannes Rauh [ctb], SpryMedia Limited [ctb, cph] (DataTables in htmlwidgets/lib), Brian Reavis [ctb, cph] (selectize.js in htmlwidgets/lib), Leon Gersen [ctb, cph] (noUiSlider in htmlwidgets/lib), Bartek Szopka [ctb, cph] (jquery.highlight.js in htmlwidgets/lib), Alex Pickering [ctb], William Holmes [ctb], Mikko Marttila [ctb], Andres Quintero [ctb], Stéphane Laurent [ctb], Posit Software, PBC [cph, fnd]",
+      "Maintainer": "Garrick Aden-Buie <garrick@posit.co>",
+      "Repository": "CRAN"
+    },
     "R6": {
       "Package": "R6",
       "Version": "2.6.1",
@@ -1006,6 +1044,38 @@
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
       "Repository": "CRAN"
     },
+    "crosstalk": {
+      "Package": "crosstalk",
+      "Version": "1.2.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Inter-Widget Interactivity for HTML Widgets",
+      "Authors@R": "c( person(\"Joe\", \"Cheng\", , \"joe@posit.co\", role = \"aut\"), person(\"Carson\", \"Sievert\", , \"carson@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-4958-2844\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")), person(, \"jQuery Foundation\", role = \"cph\", comment = \"jQuery library and jQuery UI library\"), person(, \"jQuery contributors\", role = c(\"ctb\", \"cph\"), comment = \"jQuery library; authors listed in inst/www/shared/jquery-AUTHORS.txt\"), person(\"Mark\", \"Otto\", role = \"ctb\", comment = \"Bootstrap library\"), person(\"Jacob\", \"Thornton\", role = \"ctb\", comment = \"Bootstrap library\"), person(, \"Bootstrap contributors\", role = \"ctb\", comment = \"Bootstrap library\"), person(, \"Twitter, Inc\", role = \"cph\", comment = \"Bootstrap library\"), person(\"Brian\", \"Reavis\", role = c(\"ctb\", \"cph\"), comment = \"selectize.js library\"), person(\"Kristopher Michael\", \"Kowal\", role = c(\"ctb\", \"cph\"), comment = \"es5-shim library\"), person(, \"es5-shim contributors\", role = c(\"ctb\", \"cph\"), comment = \"es5-shim library\"), person(\"Denis\", \"Ineshin\", role = c(\"ctb\", \"cph\"), comment = \"ion.rangeSlider library\"), person(\"Sami\", \"Samhuri\", role = c(\"ctb\", \"cph\"), comment = \"Javascript strftime library\") )",
+      "Description": "Provides building blocks for allowing HTML widgets to communicate with each other, with Shiny or without (i.e. static .html files). Currently supports linked brushing and filtering.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://rstudio.github.io/crosstalk/, https://github.com/rstudio/crosstalk",
+      "BugReports": "https://github.com/rstudio/crosstalk/issues",
+      "Imports": [
+        "htmltools (>= 0.3.6)",
+        "jsonlite",
+        "lazyeval",
+        "R6"
+      ],
+      "Suggests": [
+        "bslib",
+        "ggplot2",
+        "sass",
+        "shiny",
+        "testthat (>= 2.1.0)"
+      ],
+      "Config/Needs/website": "jcheng5/d3scatter, DT, leaflet, rmarkdown",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "no",
+      "Author": "Joe Cheng [aut], Carson Sievert [aut, cre] (ORCID: <https://orcid.org/0000-0002-4958-2844>), Posit Software, PBC [cph, fnd], jQuery Foundation [cph] (jQuery library and jQuery UI library), jQuery contributors [ctb, cph] (jQuery library; authors listed in inst/www/shared/jquery-AUTHORS.txt), Mark Otto [ctb] (Bootstrap library), Jacob Thornton [ctb] (Bootstrap library), Bootstrap contributors [ctb] (Bootstrap library), Twitter, Inc [cph] (Bootstrap library), Brian Reavis [ctb, cph] (selectize.js library), Kristopher Michael Kowal [ctb, cph] (es5-shim library), es5-shim contributors [ctb, cph] (es5-shim library), Denis Ineshin [ctb, cph] (ion.rangeSlider library), Sami Samhuri [ctb, cph] (Javascript strftime library)",
+      "Maintainer": "Carson Sievert <carson@posit.co>",
+      "Repository": "https://packagemanager.posit.co/cran/latest"
+    },
     "curl": {
       "Package": "curl",
       "Version": "7.1.0",
@@ -1469,6 +1539,40 @@
       "Author": "Hadley Wickham [aut, cre], Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
+    },
+    "formula.tools": {
+      "Package": "formula.tools",
+      "Version": "1.7.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Programmatic Utilities for Manipulating Formulas, Expressions, Calls, Assignments and Other R Objects",
+      "Date": "2018-02-22",
+      "Authors@R": "c( person(\"Christopher\", \"Brown\", , \"chris.brown@decisionpatterns.com\", c(\"aut\", \"cre\") ), person(\"Decision Patterns\", role = \"cph\") )",
+      "Description": "These utilities facilitate the programmatic manipulations of formulas, expressions, calls, assignments and other R language objects.  These objects all share the same structure: a left-hand side, operator and  right-hand side. This packages provides methods for accessing and  modifying this structures as well as extracting and replacing names and  symbols from these objects.",
+      "Depends": [
+        "R (>= 3.0.0)"
+      ],
+      "Imports": [
+        "operator.tools(>= 1.4.0)",
+        "utils",
+        "methods"
+      ],
+      "Suggests": [
+        "magrittr",
+        "testthat"
+      ],
+      "License": "GPL-2 | file LICENSE",
+      "URL": "https://github.com/decisionpatterns/formula.tools",
+      "BugReports": "https://github.com/decisionpatterns/formula.tools/issues",
+      "LazyLoad": "yes",
+      "LazyData": "yes",
+      "Collate": "'as.character.formula.R' 'env.R' 'get.vars.R' 'invert.R' 'is.one.sided.R' 'is.two.sided.R' 'lhs.vars.R' 'op.type.R' 'parts.R' 'parts.lhs.get.R' 'parts.lhs.set.R' 'parts.op.get.R' 'parts.op.set.R' 'parts.rhs.get.R' 'parts.rhs.set.R' 'rhs.vars.R' 'split.terms.R' 'terms.R' 'toggle.sign.R' 'zzz.R'",
+      "RoxygenNote": "6.0.1.9000",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "Christopher Brown [aut, cre], Decision Patterns [cph]",
+      "Maintainer": "Christopher Brown <chris.brown@decisionpatterns.com>"
     },
     "fs": {
       "Package": "fs",
@@ -2409,6 +2513,63 @@
       "Maintainer": "Rich FitzJohn <rich.fitzjohn@gmail.com>",
       "Repository": "CRAN"
     },
+    "infer": {
+      "Package": "infer",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Tidy Statistical Inference",
+      "Authors@R": "c( person(\"Andrew\", \"Bray\", , \"abray@reed.edu\", role = \"aut\"), person(\"Chester\", \"Ismay\", , \"chester.ismay@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0003-2820-2547\")), person(\"Evgeni\", \"Chasnovski\", , \"evgeni.chasnovski@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0002-1617-4019\")), person(\"Simon\", \"Couch\", , \"simon.couch@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0001-5676-5107\")), person(\"Ben\", \"Baumer\", , \"ben.baumer@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0002-3279-0516\")), person(\"Mine\", \"Cetinkaya-Rundel\", , \"mine@stat.duke.edu\", role = \"aut\", comment = c(ORCID = \"0000-0001-6452-2420\")), person(\"Ted\", \"Laderas\", , \"tedladeras@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0002-6207-7068\")), person(\"Nick\", \"Solomon\", , \"nick.solomon@datacamp.com\", role = \"ctb\"), person(\"Johanna\", \"Hardin\", , \"Jo.Hardin@pomona.edu\", role = \"ctb\"), person(\"Albert Y.\", \"Kim\", , \"albert.ys.kim@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0001-7824-306X\")), person(\"Neal\", \"Fultz\", , \"nfultz@gmail.com\", role = \"ctb\"), person(\"Doug\", \"Friedman\", , \"doug.nhp@gmail.com\", role = \"ctb\"), person(\"Richie\", \"Cotton\", , \"richie@datacamp.com\", role = \"ctb\", comment = c(ORCID = \"0000-0003-2504-802X\")), person(\"Brian\", \"Fannin\", , \"captain@pirategrunt.com\", role = \"ctb\") )",
+      "Description": "The objective of this package is to perform inference using an expressive statistical grammar that coheres with the tidy design framework.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/tidymodels/infer, https://infer.tidymodels.org/",
+      "BugReports": "https://github.com/tidymodels/infer/issues",
+      "Depends": [
+        "R (>= 4.1)"
+      ],
+      "Imports": [
+        "broom",
+        "cli",
+        "dplyr (>= 0.7.0)",
+        "generics",
+        "ggplot2 (>= 3.5.2)",
+        "glue (>= 1.3.0)",
+        "grDevices",
+        "lifecycle",
+        "magrittr",
+        "methods",
+        "patchwork",
+        "purrr",
+        "rlang (>= 0.2.0)",
+        "tibble",
+        "tidyr",
+        "vctrs (>= 0.6.5)",
+        "withr"
+      ],
+      "Suggests": [
+        "covr",
+        "devtools (>= 1.12.0)",
+        "fs",
+        "knitr",
+        "nycflights13",
+        "parsnip",
+        "rmarkdown",
+        "stringr",
+        "testthat (>= 3.0.0)",
+        "vdiffr (>= 1.0.0)"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Config/usethis/last-upkeep": "2025-04-25",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "RoxygenNote": "7.3.3",
+      "NeedsCompilation": "no",
+      "Author": "Andrew Bray [aut], Chester Ismay [aut] (ORCID: <https://orcid.org/0000-0003-2820-2547>), Evgeni Chasnovski [aut] (ORCID: <https://orcid.org/0000-0002-1617-4019>), Simon Couch [aut, cre] (ORCID: <https://orcid.org/0000-0001-5676-5107>), Ben Baumer [aut] (ORCID: <https://orcid.org/0000-0002-3279-0516>), Mine Cetinkaya-Rundel [aut] (ORCID: <https://orcid.org/0000-0001-6452-2420>), Ted Laderas [ctb] (ORCID: <https://orcid.org/0000-0002-6207-7068>), Nick Solomon [ctb], Johanna Hardin [ctb], Albert Y. Kim [ctb] (ORCID: <https://orcid.org/0000-0001-7824-306X>), Neal Fultz [ctb], Doug Friedman [ctb], Richie Cotton [ctb] (ORCID: <https://orcid.org/0000-0003-2504-802X>), Brian Fannin [ctb]",
+      "Maintainer": "Simon Couch <simon.couch@posit.co>",
+      "Repository": "CRAN"
+    },
     "isoband": {
       "Package": "isoband",
       "Version": "0.3.0",
@@ -2716,6 +2877,35 @@
       "Maintainer": "Charlie Gao <charlie.gao@posit.co>",
       "Repository": "CRAN"
     },
+    "lazyeval": {
+      "Package": "lazyeval",
+      "Version": "0.2.3",
+      "Source": "Repository",
+      "Title": "Lazy (Non-Standard) Evaluation",
+      "Description": "An alternative approach to non-standard evaluation using formulas. Provides a full implementation of LISP style 'quasiquotation', making it easier to generate code with other code.",
+      "Authors@R": "c( person(\"Hadley\", \"Wickham\", ,\"hadley@rstudio.com\", c(\"aut\", \"cre\")), person(\"RStudio\", role = \"cph\") )",
+      "License": "GPL-3",
+      "Depends": [
+        "R (>= 3.1.0)"
+      ],
+      "Imports": [
+        "rlang"
+      ],
+      "Suggests": [
+        "knitr",
+        "rmarkdown (>= 0.2.65)",
+        "testthat",
+        "covr"
+      ],
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.3",
+      "Config/build/compilation-database": "true",
+      "NeedsCompilation": "yes",
+      "Author": "Hadley Wickham [aut, cre], RStudio [cph]",
+      "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Encoding": "UTF-8"
+    },
     "lifecycle": {
       "Package": "lifecycle",
       "Version": "1.0.5",
@@ -2989,6 +3179,59 @@
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
     },
+    "moderndive": {
+      "Package": "moderndive",
+      "Version": "0.8.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Tidyverse-Friendly Introductory Linear Regression",
+      "Authors@R": "c( person(\"Albert Y.\", \"Kim\", email = \"albert.ys.kim@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0001-7824-306X\")), person(\"Chester\", \"Ismay\", email = \"chester.ismay@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0003-2820-2547\")), person(\"Andrew\", \"Bray\", email = \"abray@reed.edu\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4037-7414\")), person(\"Delaney\", \"Moran\", email = \"delaneyemoran@gmail.com\", role = \"ctb\"), person(\"Evgeni\", \"Chasnovski\", email = \"evgeni.chasnovski@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0002-1617-4019\")), person(\"Will\", \"Hopper\", email = \"wjhopper510@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0002-7848-1946\")), person(\"Benjamin S.\", \"Baumer\", email = \"ben.baumer@gmail.com\", role = c(\"ctb\"), comment = c(ORCID = \"0000-0002-3279-0516\")), person(\"Marium\", \"Tapal\", email = \"mariumtapal@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0001-5093-6462\")), person(\"Wayne\", \"Ndlovu\", email = \"waynedndlovu5@gmail.com\", role = \"ctb\"), person(\"Catherine\", \"Peppers\", email = \"cpeppers@smith.edu\", role = \"ctb\"), person(\"Annah\", \"Mutaya\", email = \"annahmutaya18@gmail.com\", role = \"ctb\"), person(\"Anushree\", \"Goswami\", email = \"anushreeegoswami@gmail.com\", role = \"ctb\"), person(\"Ziyue\", \"Yang\", email = \"zyang2k@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0002-9299-8327\")), person(\"Clara\", \"Li\", email = \"clarasepianli@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0003-2456-0849\")), person(\"Caroline\", \"McKenna\", email = \"carolinemckenna101@gmail.com\", role = \"ctb\"), person(\"Catherine\", \"Park\", email = \"jcathyp@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0002-8273-9620\")), person(\"Abbie\", \"Benfield\", email = \"abbidabbers@gmail.com\", role = \"ctb\"), person(\"Georgia\", \"Gans\", email = \"georgiagans@live.com\", role = \"ctb\"), person(\"Kacey\", \"Jean-Jacques\", email = \"kjeanjacques@smith.edu\", role = \"ctb\"), person(\"Swaha\", \"Bhattacharya\", email = \"itsswahabhattacharya@gmail.com\", role = \"ctb\"), person(\"Vivian\", \"Almaraz\", email = \"viviansofia101@gmail.com\", role = \"ctb\"), person(\"Elle Jo\", \"Whalen\", email = \"ewhalen@smith.edu\", role = \"ctb\"), person(\"Jacqueline\", \"Chen\", email = \"jchen76@smith.edu\", role = \"ctb\"), person(\"Michelle\", \"Flesaker\", email = \"mflesaker@smith.edu\", role = \"ctb\"), person(\"Irene\", \"Foster\", email = \"ifoster25@smith.edu\", role = \"ctb\"), person(\"Aushanae\", \"Haller\", email = \"aushanaenhaller@gmail.com\", role = \"ctb\"), person(\"Benjamin\", \"Bruncati\", email = \"kbruncati@smith.edu\", role = \"ctb\", comment = c(ORCID = \"0000-0001-8545-5984\")), person(\"Quinn\", \"White\", email = \"quinnarlise@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0001-5399-0237\")), person(\"Tianshu\", \"Zhang\", email = \"tzhang26@smith.edu\", role = \"ctb\", comment = c(ORCID = \"0000-0002-3004-4472\")), person(\"Katelyn\", \"Diaz\", email = \"katndiaz@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0001-6108-1682\")), person(\"Rose\", \"Porta\", email = \"rporta@smith.edu\", role = \"ctb\"), person(\"Renee\", \"Wu\", email = \"rwu30@smith.edu\",role =\"ctb\"), person(\"Arris\", \"Moise\", email = \"amoise@smith.edu\", role = \"ctb\"), person(\"Kate\", \"Phan\", email = \"kphan@smith.edu\", role = \"ctb\"), person(\"Grace\", \"Hartley\", email = \"grace.hartley@gmail.com\", role = \"ctb\"), person(\"Silas\", \"Weden\", email = \"silasweden@gmail.com\", role = \"ctb\"), person(\"Emma\", \"Vejcik\", email = \"evejcik@gmail.com\", role = \"ctb\"), person(\"Nikki\", \"Schuldt\", email = \"nikkischuldt@gmail.com\", role = \"ctb\"), person(\"Tess\", \"Goldmann\", email = \"tessgoldmann@aol.com\", role = \"ctb\"), person(\"Hongtong\", \"Lin\", email = \"cccynthialht@gmail.com\", role = \"ctb\"), person(\"Alejandra\", \"Munoz\", email = \"amunozgarcia@smith.edu\", role = \"ctb\"), person(\"Elina\", \"Gordon-Halpern\", email = \"egordonhalpern@smith.edu\", role = \"ctb\"), person(\"Haley\", \"Schmidt\", email = \"heschmidt00@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0002-6184-2266\")) )",
+      "Maintainer": "Albert Y. Kim <albert.ys.kim@gmail.com>",
+      "Description": "Datasets and wrapper functions for tidyverse-friendly introductory linear regression, used in \"Statistical Inference via Data Science: A ModernDive into R and the Tidyverse\" available at <https://moderndive.com/>.",
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "License": "GPL-3",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "URL": "https://moderndive.github.io/moderndive/, https://github.com/moderndive/moderndive/",
+      "BugReports": "https://github.com/moderndive/moderndive/issues",
+      "Imports": [
+        "magrittr",
+        "dplyr",
+        "purrr",
+        "tidyr",
+        "ggplot2",
+        "tibble",
+        "janitor",
+        "broom (>= 0.4.3)",
+        "formula.tools",
+        "stringr",
+        "knitr",
+        "infer",
+        "rlang (>= 0.2.0)",
+        "glue",
+        "DT"
+      ],
+      "Suggests": [
+        "testthat",
+        "covr",
+        "rmarkdown",
+        "vdiffr",
+        "openintro",
+        "patchwork",
+        "viridis",
+        "readr",
+        "nycflights13",
+        "nycflights23",
+        "plotly"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/roxygen2/version": "8.0.0",
+      "NeedsCompilation": "no",
+      "Author": "Albert Y. Kim [aut, cre] (ORCID: <https://orcid.org/0000-0001-7824-306X>), Chester Ismay [aut] (ORCID: <https://orcid.org/0000-0003-2820-2547>), Andrew Bray [ctb] (ORCID: <https://orcid.org/0000-0002-4037-7414>), Delaney Moran [ctb], Evgeni Chasnovski [ctb] (ORCID: <https://orcid.org/0000-0002-1617-4019>), Will Hopper [ctb] (ORCID: <https://orcid.org/0000-0002-7848-1946>), Benjamin S. Baumer [ctb] (ORCID: <https://orcid.org/0000-0002-3279-0516>), Marium Tapal [ctb] (ORCID: <https://orcid.org/0000-0001-5093-6462>), Wayne Ndlovu [ctb], Catherine Peppers [ctb], Annah Mutaya [ctb], Anushree Goswami [ctb], Ziyue Yang [ctb] (ORCID: <https://orcid.org/0000-0002-9299-8327>), Clara Li [ctb] (ORCID: <https://orcid.org/0000-0003-2456-0849>), Caroline McKenna [ctb], Catherine Park [ctb] (ORCID: <https://orcid.org/0000-0002-8273-9620>), Abbie Benfield [ctb], Georgia Gans [ctb], Kacey Jean-Jacques [ctb], Swaha Bhattacharya [ctb], Vivian Almaraz [ctb], Elle Jo Whalen [ctb], Jacqueline Chen [ctb], Michelle Flesaker [ctb], Irene Foster [ctb], Aushanae Haller [ctb], Benjamin Bruncati [ctb] (ORCID: <https://orcid.org/0000-0001-8545-5984>), Quinn White [ctb] (ORCID: <https://orcid.org/0000-0001-5399-0237>), Tianshu Zhang [ctb] (ORCID: <https://orcid.org/0000-0002-3004-4472>), Katelyn Diaz [ctb] (ORCID: <https://orcid.org/0000-0001-6108-1682>), Rose Porta [ctb], Renee Wu [ctb], Arris Moise [ctb], Kate Phan [ctb], Grace Hartley [ctb], Silas Weden [ctb], Emma Vejcik [ctb], Nikki Schuldt [ctb], Tess Goldmann [ctb], Hongtong Lin [ctb], Alejandra Munoz [ctb], Elina Gordon-Halpern [ctb], Haley Schmidt [ctb] (ORCID: <https://orcid.org/0000-0002-6184-2266>)",
+      "Repository": "CRAN"
+    },
     "numDeriv": {
       "Package": "numDeriv",
       "Version": "2016.8-1.1",
@@ -3008,6 +3251,31 @@
       "NeedsCompilation": "no",
       "Repository": "https://packagemanager.posit.co/cran/latest",
       "Encoding": "UTF-8"
+    },
+    "nycflights23": {
+      "Package": "nycflights23",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Title": "Flights and Other Useful Metadata for NYC Outbound Flights in 2023",
+      "Authors@R": "c( person(\"Chester\", \"Ismay\", , \"chester.ismay@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-2820-2547\")), person(\"Simon P.\", \"Couch\", , \"simonpatrickcouch@gmail.com\", role = \"aut\"), person(\"Hadley\", \"Wickham\", , \"hadley@rstudio.com\", role = \"aut\"), person(\"RStudio\", role = \"cph\"), person(\"Jay\", \"Lee\", , \"jaylee@reed.edu\", role = \"ctb\"), person(\"Dennis\", \"Irorere\", , \"denironyx@gmail.com\", role = \"ctb\") )",
+      "Description": "Updating the now 10-year-old 'nycflights13' data package. It contains information about all flights that departed from the three main New York City airports in 2023 and metadata on airlines, airports, weather, and planes.",
+      "License": "CC0",
+      "URL": "https://moderndive.github.io/nycflights23/, https://github.com/moderndive/nycflights23/",
+      "BugReports": "https://github.com/moderndive/nycflights23/issues/",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "Suggests": [
+        "anyflights"
+      ],
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "LazyDataCompression": "bzip2",
+      "RoxygenNote": "7.3.1",
+      "NeedsCompilation": "no",
+      "Author": "Chester Ismay [aut, cre] (<https://orcid.org/0000-0003-2820-2547>), Simon P. Couch [aut], Hadley Wickham [aut], RStudio [cph], Jay Lee [ctb], Dennis Irorere [ctb]",
+      "Maintainer": "Chester Ismay <chester.ismay@gmail.com>",
+      "Repository": "CRAN"
     },
     "openssl": {
       "Package": "openssl",
@@ -3041,6 +3309,32 @@
       "Author": "Jeroen Ooms [aut, cre] (ORCID: <https://orcid.org/0000-0002-4035-0289>), Oliver Keyes [ctb]",
       "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
       "Repository": "CRAN"
+    },
+    "operator.tools": {
+      "Package": "operator.tools",
+      "Version": "1.6.3.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Utilities for Working with R's Operators",
+      "Date": "2017-02-28",
+      "Authors@R": "c( person(\"Christopher\", \"Brown\", , \"chris.brown@decisionpatterns.com\", c(\"aut\", \"cre\") ), person(\"Decision Patterns\", role = \"cph\") )",
+      "Imports": [
+        "utils (>= 3.3.2)"
+      ],
+      "Suggests": [
+        "operators (>= 0.1.8)",
+        "magrittr (>= 1.5)",
+        "testthat (>= 1.0.2)"
+      ],
+      "Description": "Provides a collection of utilities that allow programming with  R's operators. Routines allow classifying operators,  translating to and from an operator and its underlying function, and inverting  some operators (e.g. comparison operators), etc. All methods can be extended to custom infix operators.",
+      "License": "GPL-2 | file LICENSE",
+      "URL": "https://github.com/decisionpatterns/operator.tools",
+      "BugReports": "https://github.com/decisionpatterns/operator.tools/issues",
+      "RoxygenNote": "6.0.1.9000",
+      "Repository": "CRAN",
+      "NeedsCompilation": "no",
+      "Author": "Christopher Brown [aut, cre], Decision Patterns [cph]",
+      "Maintainer": "Christopher Brown <chris.brown@decisionpatterns.com>"
     },
     "optparse": {
       "Package": "optparse",
@@ -3193,6 +3487,50 @@
       "Maintainer": "Gergely Daróczi <daroczig@rapporter.net>",
       "Repository": "CRAN"
     },
+    "patchwork": {
+      "Package": "patchwork",
+      "Version": "1.3.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "The Composer of Plots",
+      "Authors@R": "person(given = \"Thomas Lin\", family = \"Pedersen\", role = c(\"cre\", \"aut\"), email = \"thomasp85@gmail.com\", comment = c(ORCID = \"0000-0002-5147-4711\"))",
+      "Maintainer": "Thomas Lin Pedersen <thomasp85@gmail.com>",
+      "Description": "The 'ggplot2' package provides a strong API for sequentially  building up a plot, but does not concern itself with composition of multiple plots. 'patchwork' is a package that expands the API to allow for  arbitrarily complex composition of plots by, among others, providing  mathematical operators for combining multiple plots. Other packages that try  to address this need (but with a different approach) are 'gridExtra' and  'cowplot'.",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "Imports": [
+        "ggplot2 (>= 3.0.0)",
+        "gtable (>= 0.3.6)",
+        "grid",
+        "stats",
+        "grDevices",
+        "utils",
+        "graphics",
+        "rlang (>= 1.0.0)",
+        "cli",
+        "farver"
+      ],
+      "RoxygenNote": "7.3.2",
+      "URL": "https://patchwork.data-imaginist.com, https://github.com/thomasp85/patchwork",
+      "BugReports": "https://github.com/thomasp85/patchwork/issues",
+      "Suggests": [
+        "knitr",
+        "rmarkdown",
+        "gridGraphics",
+        "gridExtra",
+        "ragg",
+        "testthat (>= 2.1.0)",
+        "vdiffr",
+        "covr",
+        "png",
+        "gt (>= 0.11.0)"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "gifski",
+      "NeedsCompilation": "no",
+      "Author": "Thomas Lin Pedersen [cre, aut] (ORCID: <https://orcid.org/0000-0002-5147-4711>)",
+      "Repository": "https://packagemanager.posit.co/cran/latest"
+    },
     "pillar": {
       "Package": "pillar",
       "Version": "1.11.1",
@@ -3272,6 +3610,42 @@
       "BugReports": "https://github.com/r-lib/pkgconfig/issues",
       "Encoding": "UTF-8",
       "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
+    "pkgsearch": {
+      "Package": "pkgsearch",
+      "Version": "3.1.5",
+      "Source": "Repository",
+      "Title": "Search and Query CRAN R Packages",
+      "Authors@R": "c( person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Maëlle\", \"Salmon\", role = \"aut\", comment = c(ORCID = \"0000-0002-2815-0399\")), person(\"R Consortium\", role = \"fnd\") )",
+      "Description": "Search CRAN metadata about packages by keyword, popularity, recent activity, package name and more. Uses the 'R-hub' search server, see <https://r-pkg.org> and the CRAN metadata database, that contains information about CRAN packages. Note that this is _not_ a CRAN project.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/r-hub/pkgsearch, https://r-hub.github.io/pkgsearch/",
+      "BugReports": "https://github.com/r-hub/pkgsearch/issues",
+      "Imports": [
+        "curl",
+        "jsonlite"
+      ],
+      "Suggests": [
+        "covr",
+        "memoise",
+        "mockery",
+        "pillar",
+        "pingr (>= 2.0.0)",
+        "rstudioapi",
+        "shiny",
+        "shinyjs",
+        "shinyWidgets",
+        "testthat (>= 3.0.0)",
+        "whoami",
+        "withr"
+      ],
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.1.9000",
+      "NeedsCompilation": "no",
+      "Author": "Gábor Csárdi [aut, cre], Maëlle Salmon [aut] (<https://orcid.org/0000-0002-2815-0399>), R Consortium [fnd]",
+      "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
       "Repository": "CRAN"
     },
     "png": {
@@ -3421,6 +3795,53 @@
       "NeedsCompilation": "no",
       "Author": "Gábor Csárdi [aut, cre], Rich FitzJohn [aut], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+      "Repository": "CRAN"
+    },
+    "promises": {
+      "Package": "promises",
+      "Version": "1.5.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Abstractions for Promise-Based Asynchronous Programming",
+      "Authors@R": "c( person(\"Joe\", \"Cheng\", , \"joe@posit.co\", role = \"aut\"), person(\"Barret\", \"Schloerke\", , \"barret@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0001-9986-114X\")), person(\"Winston\", \"Chang\", , \"winston@posit.co\", role = \"aut\", comment = c(ORCID = \"0000-0002-1576-2126\")), person(\"Charlie\", \"Gao\", , \"charlie.gao@posit.co\", role = \"aut\", comment = c(ORCID = \"0000-0002-0750-061X\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"), comment = c(ROR = \"03wc8by49\")) )",
+      "Description": "Provides fundamental abstractions for doing asynchronous programming in R using promises. Asynchronous programming is useful for allowing a single R process to orchestrate multiple tasks in the background while also attending to something else. Semantics are similar to 'JavaScript' promises, but with a syntax that is idiomatic R.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://rstudio.github.io/promises/, https://github.com/rstudio/promises",
+      "BugReports": "https://github.com/rstudio/promises/issues",
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "Imports": [
+        "fastmap (>= 1.1.0)",
+        "later",
+        "lifecycle",
+        "magrittr (>= 1.5)",
+        "otel (>= 0.2.0)",
+        "R6",
+        "rlang"
+      ],
+      "Suggests": [
+        "future (>= 1.21.0)",
+        "knitr",
+        "mirai",
+        "otelsdk (>= 0.2.0)",
+        "purrr",
+        "Rcpp",
+        "rmarkdown",
+        "spelling",
+        "testthat (>= 3.0.0)",
+        "vembedr"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "rsconnect, tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Config/usethis/last-upkeep": "2025-05-27",
+      "Encoding": "UTF-8",
+      "Language": "en-US",
+      "RoxygenNote": "7.3.3",
+      "NeedsCompilation": "no",
+      "Author": "Joe Cheng [aut], Barret Schloerke [aut, cre] (ORCID: <https://orcid.org/0000-0001-9986-114X>), Winston Chang [aut] (ORCID: <https://orcid.org/0000-0002-1576-2126>), Charlie Gao [aut] (ORCID: <https://orcid.org/0000-0002-0750-061X>), Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
+      "Maintainer": "Barret Schloerke <barret@posit.co>",
       "Repository": "CRAN"
     },
     "ps": {
@@ -3628,6 +4049,39 @@
       "SystemRequirements": "freetype2, libpng, libtiff, libjpeg, libwebp, libwebpmux",
       "NeedsCompilation": "yes",
       "Author": "Thomas Lin Pedersen [cre, aut] (ORCID: <https://orcid.org/0000-0002-5147-4711>), Maxim Shemanarev [aut, cph] (Author of AGG), Tony Juricic [ctb, cph] (Contributor to AGG), Milan Marusinec [ctb, cph] (Contributor to AGG), Spencer Garrett [ctb] (Contributor to AGG), Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
+      "Repository": "CRAN"
+    },
+    "randomNames": {
+      "Package": "randomNames",
+      "Version": "1.6-0.0",
+      "Source": "Repository",
+      "Date": "2024-5-2",
+      "Title": "Generate Random Given and Surnames",
+      "Depends": [
+        "R (>= 4.0)"
+      ],
+      "Suggests": [
+        "knitr",
+        "rmarkdown"
+      ],
+      "Imports": [
+        "crayon",
+        "data.table (>= 1.14.0)",
+        "toOrdinal (>= 1.1)"
+      ],
+      "Authors@R": "c(person(given=c(\"Damian\", \"W.\"), family=\"Betebenner\", email=\"dbetebenner@nciea.org\", role=c(\"aut\", \"cre\")), person(given=\"Lambert\", family=\"Joshua\", role=\"ctb\"))",
+      "Maintainer": "Damian W. Betebenner <dbetebenner@nciea.org>",
+      "Description": "Function for generating random gender and ethnicity correct first and/or last names. Names are chosen proportionally based upon their probability of appearing in a large scale data base of real names.",
+      "URL": "https://centerforassessment.github.io/randomNames/, https://github.com/CenterForAssessment/randomNames/, https://cran.r-project.org/package=randomNames",
+      "BugReports": "https://github.com/CenterForAssessment/randomNames/issues/",
+      "VignetteBuilder": "knitr",
+      "LazyLoad": "Yes",
+      "LazyData": "Yes",
+      "LazyDataCompression": "xz",
+      "ByteCompile": "TRUE",
+      "License": "GPL-3",
+      "NeedsCompilation": "no",
+      "Author": "Damian W. Betebenner [aut, cre], Lambert Joshua [ctb]",
       "Repository": "CRAN"
     },
     "rappdirs": {
@@ -5004,6 +5458,37 @@
       "NeedsCompilation": "no",
       "Author": "Yihui Xie [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-0645-5666>), Posit Software, PBC [cph, fnd], Christophe Dervieux [ctb] (ORCID: <https://orcid.org/0000-0003-4474-2498>), Devon Ryan [ctb] (ORCID: <https://orcid.org/0000-0002-8549-0971>), Ethan Heinzen [ctb], Fernando Cagua [ctb]",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
+      "Repository": "CRAN"
+    },
+    "toOrdinal": {
+      "Package": "toOrdinal",
+      "Version": "1.4-0.0",
+      "Source": "Repository",
+      "Date": "2026-2-5",
+      "Title": "Cardinal to Ordinal Number & Date Conversion",
+      "Description": "Language specific cardinal to ordinal number conversion.",
+      "Authors@R": "c(person(given=c(\"Damian\", \"W.\"), family=\"Betebenner\", email=\"dbetebenner@nciea.org\", role=c(\"aut\", \"cre\")), person(given=\"Andrew\", family=\"Martin\", role=\"ctb\"), person(given=\"Jeff\", family=\"Erickson\", role=\"ctb\"))",
+      "Maintainer": "Damian W. Betebenner <dbetebenner@nciea.org>",
+      "Depends": [
+        "R (>= 3.3)"
+      ],
+      "Suggests": [
+        "knitr",
+        "rmarkdown",
+        "testthat"
+      ],
+      "Imports": [
+        "crayon",
+        "pkgsearch"
+      ],
+      "URL": "https://centerforassessment.github.io/toOrdinal/, https://github.com/centerforassessment/toOrdinal/, https://cran.r-project.org/package=toOrdinal",
+      "BugReports": "https://github.com/centerforassessment/toOrdinal/issues/",
+      "VignetteBuilder": "knitr",
+      "LazyLoad": "Yes",
+      "ByteCompile": "TRUE",
+      "License": "GPL-3",
+      "NeedsCompilation": "no",
+      "Author": "Damian W. Betebenner [aut, cre], Andrew Martin [ctb], Jeff Erickson [ctb]",
       "Repository": "CRAN"
     },
     "tzdb": {

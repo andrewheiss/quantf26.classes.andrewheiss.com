@@ -35,6 +35,12 @@ $code-block-font-size:        0.75em;
   text-shadow: none !important;
 }
 
+// .column-gap-top for adding space above a .columns div
+.reveal .slides section .columns.column-gap-top {
+  display: flex;
+  margin-top: 1em;
+}
+
 // `inline code` normally gets the syntax highlighting theme's color, but when
 // inline code is in a heading/slide title, I actually want it to be the same as
 // all other slide titles
@@ -51,14 +57,49 @@ $code-block-font-size:        0.75em;
 
 // Classes to make headings on slides match the overall section color. Use like:
 // ## Some title {.clr-3}
-@for $i from 1 through 7 {
-  .reveal section.clr-#{$i} h1,
+@for $i from 1 through 10 {
+ .reveal section.clr-#{$i} h1,
   .reveal section.clr-#{$i} h2,
   .reveal section.clr-#{$i} h3,
   .reveal section.clr-#{$i} h4,
   .reveal section.clr-#{$i} h5,
   .reveal section.clr-#{$i} h6 {
     color: var(--brand-clr-#{$i});
+  }
+}
+
+// Text/background/box color classes based on the numbered clr-1..clr-10
+// colors in _brand.yml. Each number has a main/saturated shade, a pale
+// "light" shade, and an accessible "text" shade. Use like:
+// [some text]{.text-clr-3} [some text]{.box-clr-3-light}
+%box-base {
+  // Starts full-width when text wraps; a script in slides/_metadata.yml
+  // measures the actual rendered line widths and shrinks the box to match
+  display: inline-block;
+  padding: 0.12em 0.55em;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+@for $i from 1 through 10 {
+  $main:  var(--brand-clr-#{$i});
+  $light: var(--brand-clr-#{$i}-light);
+  $text:  var(--brand-clr-#{$i}-text);
+
+  .text-clr-#{$i}       { color: $text !important; }
+  .text-clr-#{$i}-light { color: $light !important; }
+  .bg-clr-#{$i}         { background-color: $main; }
+  .bg-clr-#{$i}-light   { background-color: $light; }
+
+  .box-clr-#{$i} {
+    @extend %box-base;
+    background-color: $main;
+    color: #FFFFFF;
+  }
+  .box-clr-#{$i}-light {
+    @extend %box-base;
+    background-color: $light;
+    color: $text;
   }
 }
 

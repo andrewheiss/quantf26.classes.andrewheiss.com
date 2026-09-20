@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2164.78 667.42">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #2878b5;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        font-size: 55.17px;
+      }
+
+      .cls-2 {
+        fill: #cd503e;
+      }
+
+      .cls-2, .cls-3, .cls-4 {
+        font-family: AtkinsonHyperlegibleNextVFLight-Bold, 'Atkinson Hyperlegible Next VF';
+        font-variation-settings: 'wght' 700, 'ital' 0;
+        font-weight: 700;
+      }
+
+      .cls-5 {
+        fill: none;
+        stroke: #6d6e71;
+        stroke-miterlimit: 10;
+        stroke-width: 6.61px;
+      }
+
+      .cls-3 {
+        fill: #6f4d9c;
+      }
+
+      .cls-6 {
+        font-family: AtkinsonHyperlegibleNextVFLight-Regular, 'Atkinson Hyperlegible Next VF';
+        font-variation-settings: 'wght' 400, 'ital' 0;
+      }
+
+      .cls-7 {
+        letter-spacing: 0em;
+      }
+
+      .cls-8 {
+        letter-spacing: 0em;
+      }
+
+      .cls-9 {
+        fill: #fff;
+      }
+
+      .cls-10 {
+        letter-spacing: 0em;
+      }
+
+      .cls-11 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-12 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-13 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-14 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-15 {
+        letter-spacing: 0em;
+      }
+
+      .cls-16 {
+        letter-spacing: 0em;
+      }
+
+      .cls-17 {
+        letter-spacing: .02em;
+      }
+
+      .cls-18 {
+        letter-spacing: 0em;
+      }
+    </style>
+  </defs>
+  <rect class="cls-9" x="0" width="2164.78" height="667.42"/>
+  <text class="cls-2" transform="translate(345.36 268.22)"><tspan x="0" y="0">C</tspan><tspan class="cls-18" x="36.3" y="0">l</tspan><tspan class="cls-16" x="54.45" y="0">a</tspan><tspan class="cls-10" x="84.57" y="0">ss</tspan><tspan class="cls-12" x="140.84" y="0">r</tspan><tspan class="cls-8" x="160.76" y="0">o</tspan><tspan class="cls-10" x="192.64" y="0">om 1</tspan></text>
+  <text class="cls-3" transform="translate(962.55 98.34)"><tspan x="0" y="0">S</tspan><tspan class="cls-17" x="33.71" y="0">c</tspan><tspan x="63.05" y="0">h</tspan><tspan class="cls-7" x="94.61" y="0">o</tspan><tspan x="126.5" y="0">ol 1</tspan></text>
+  <text class="cls-1" transform="translate(34.11 478.72)"><tspan class="cls-4"><tspan class="cls-13" x="0" y="0">S</tspan><tspan class="cls-10" x="33.04" y="0">tude</tspan><tspan class="cls-15" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 1</tspan></tspan><tspan class="cls-6"><tspan x="-15.25" y="66.2">Heig</tspan><tspan class="cls-11" x="97.4" y="66.2">h</tspan><tspan x="126.8" y="66.2">t: 170</tspan></tspan><tspan class="cls-6"><tspan x="32.8" y="132.4">Age: 19</tspan></tspan></text>
+  <text class="cls-1" transform="translate(374.27 478.72)"><tspan class="cls-4"><tspan class="cls-13" x="0" y="0">S</tspan><tspan class="cls-10" x="33.04" y="0">tude</tspan><tspan class="cls-15" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 2</tspan></tspan><tspan class="cls-6"><tspan x="-11.67" y="66.2">Heig</tspan><tspan class="cls-11" x="100.98" y="66.2">h</tspan><tspan x="130.39" y="66.2">t: 1</tspan><tspan class="cls-14" x="197.85" y="66.2">5</tspan><tspan x="229.74" y="66.2">5</tspan></tspan><tspan class="cls-6"><tspan x="37.9" y="132.4">Age: 21</tspan></tspan></text>
+  <text class="cls-1" transform="translate(722.05 478.72)"><tspan class="cls-4"><tspan class="cls-13" x="0" y="0">S</tspan><tspan class="cls-10" x="33.04" y="0">tude</tspan><tspan class="cls-15" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 3</tspan></tspan><tspan class="cls-6"><tspan x="-11.78" y="66.2">Heig</tspan><tspan class="cls-11" x="100.87" y="66.2">h</tspan><tspan x="130.28" y="66.2">t: 183</tspan></tspan><tspan class="cls-6"><tspan x="31.83" y="132.4">Age: 20</tspan></tspan></text>
+  <line class="cls-5" x1="346.55" y1="287" x2="160.33" y2="408.04"/>
+  <line class="cls-5" x1="940.65" y1="108.12" x2="502.8" y2="190.55"/>
+  <line class="cls-5" x1="1191.46" y1="108.12" x2="1629.31" y2="190.55"/>
+  <line class="cls-5" x1="658.35" y1="287" x2="844.57" y2="408.04"/>
+  <line class="cls-5" x1="502.8" y1="408.04" x2="502.8" y2="287"/>
+  <text class="cls-2" transform="translate(1461.9834 268.2216)"><tspan x="0" y="0">C</tspan><tspan class="cls-18" x="36.3" y="0">l</tspan><tspan class="cls-16" x="54.45" y="0">a</tspan><tspan class="cls-10" x="84.57" y="0">ss</tspan><tspan class="cls-12" x="140.84" y="0">r</tspan><tspan class="cls-8" x="160.76" y="0">o</tspan><tspan class="cls-10" x="192.64" y="0">om 2</tspan></text>
+  <text class="cls-1" transform="translate(1149.4961 478.7208)"><tspan class="cls-4"><tspan class="cls-13" x="0" y="0">S</tspan><tspan class="cls-10" x="33.04" y="0">tude</tspan><tspan class="cls-15" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 4</tspan></tspan><tspan class="cls-6"><tspan x="-11.09" y="66.2">Heig</tspan><tspan class="cls-11" x="101.56" y="66.2">h</tspan><tspan x="130.97" y="66.2">t: 143</tspan></tspan><tspan class="cls-6"><tspan x="40.19" y="132.4">Age: 17</tspan></tspan></text>
+  <text class="cls-1" transform="translate(1493.9302 478.7208)"><tspan class="cls-4"><tspan class="cls-13" x="0" y="0">S</tspan><tspan class="cls-10" x="33.04" y="0">tude</tspan><tspan class="cls-15" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 5</tspan></tspan><tspan class="cls-6"><tspan x="-10.07" y="66.2">Heig</tspan><tspan class="cls-11" x="102.58" y="66.2">h</tspan><tspan x="131.99" y="66.2">t: 152</tspan></tspan><tspan class="cls-6"><tspan x="37.38" y="132.4">Age: 19</tspan></tspan></text>
+  <text class="cls-1" transform="translate(1841.7583 478.7208)"><tspan class="cls-4"><tspan class="cls-13" x="0" y="0">S</tspan><tspan class="cls-10" x="33.04" y="0">tude</tspan><tspan class="cls-15" x="149.23" y="0">n</tspan><tspan x="180.4" y="0">t 6</tspan></tspan><tspan class="cls-6"><tspan x="-4.05" y="66.2">Heig</tspan><tspan class="cls-11" x="108.6" y="66.2">h</tspan><tspan x="138" y="66.2">t: 1</tspan><tspan class="cls-17" x="205.47" y="66.2">7</tspan><tspan x="234.71" y="66.2">1</tspan></tspan><tspan class="cls-6"><tspan x="39.2" y="132.4">Age: 21</tspan></tspan></text>
+  <line class="cls-5" x1="1466.98" y1="287" x2="1280.76" y2="408.04"/>
+  <line class="cls-5" x1="1778.78" y1="287" x2="1965" y2="408.04"/>
+  <line class="cls-5" x1="1623.23" y1="408.04" x2="1623.23" y2="287"/>
+</svg>

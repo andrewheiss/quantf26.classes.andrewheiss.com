@@ -1,5 +1,9 @@
 format:
   revealjs:
+    knitr:
+      opts_chunk:
+        dev: "ragg_png"
+        dpi: 300
     include-in-header:
       - text: |
           <script>
@@ -7,3 +11,6 @@ format:
               document.documentElement.classList.add('decktape-export');
             }
           </script>
+    include-after-body:
+      - text: |
+          <script src="/slides/box-fit.js"></script>
