@@ -10,3 +10,18 @@ date: "2026-09-22"
 {{< include ../readings/_10-class.md >}}
 
 :::
+
+## Slides
+
+<p style="line-height: 2.5"><a class="btn btn-success me-2" target="_blank" href="../slides/10-tidy-data/index.html">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a><a class="btn btn-success" target="_blank" href="../slides/10-tidy-data/10-tidy-data.pdf">{{< fa file-pdf >}} &ensp;Download PDF of slides</a></p>
+
+```{=html}
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="../slides/10-tidy-data/index.html" style="border: 1px solid #343a40;"></iframe>
+</div>
+```
+
+## Materials for class today
+
+- [`example-data.zip`](/projects/example-data.zip)
+- [Qatar's Open Data Catalog](https://www.data.gov.qa/explore/)

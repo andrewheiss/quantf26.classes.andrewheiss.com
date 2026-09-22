@@ -143,10 +143,14 @@ website:
             - resource/style.qmd
             - resource/citations.qmd
             - resource/colophon.qmd
-        # - section: "Study guides"
-        #   contents:
-        #     - resource/exam1.qmd
-        #     - resource/exam2.qmd
+        - section: "Study guides"
+          contents:
+            - text: "Quiz 1"
+              file: resource/quiz-1.qmd
+            - text: "Quiz 2"
+              file: resource/quiz-2.qmd
+            - text: "Quiz 3"
+              file: resource/quiz-3.qmd
         - section: "Guides"
           contents:
             - resource/how-to-ask-for-help.qmd
