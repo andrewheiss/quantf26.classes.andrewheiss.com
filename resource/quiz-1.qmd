@@ -2,4 +2,231 @@
 title: "Things you should know for Quiz 1"
 ---
 
-Coming soon!
+Quiz 1 covers the "How do we work with data?" section of the class, including stuff that you read and did here:
+
+- [Data visualization I](/class/05-class.qmd)
+- [Data visualization II](/class/06-class.qmd)
+- [Data wrangling I](/class/07-class.qmd)
+- [Data wrangling II](/class/08-class.qmd)
+- [Data importing and tidy data I](/class/09-class.qmd)
+- [Data importing and tidy data II](/class/10-class.qmd)
+- [Problem set 2](/assignment/02-problem-set.qmd)
+- [Problem set 3](/assignment/03-problem-set.qmd)
+
+You'll complete this quiz in-person in class in groups. You won't need to regurgitate memorized content or anything---instead, you'll apply the things we've learned in class in a practical way. You'll describe what different chunks of code will produce, find and correct mistakes in code, come up with your own examples, and explain ideas in your own words. The topics will be mixed together---some questions will need you to think about {ggplot2} and {dplyr} at the same time.
+
+## How to study for the quiz
+
+Don't just read over your notes! Try some of these strategies to study more actively and productively:
+
+- **Try ignoring your notes**: Do one of the "Test yourself!" items below, answer it on paper or out loud *before* looking anything up, and then check your answer. Getting it wrong and then fixing it is good! That's how you learn!
+- **Mix topics together**: Don't study all of the points in the data visualization section and then all of the points in the data wrangling. Jump between them! The ["Test yourself across all the topics!"](#test-yourself-across-all-the-topics) section at the end of this study guide will help you with this.
+- **Draw and sketch things**: You won't have to run any actual code during the quiz, but you will need to predict what the code will produce. On paper, sketch out plots, write out a few rows of a data frame before and after you use it in a function, etc.
+- **Space things out**: Three 20-minute study sessions on different days will be a lot more useful than 1 hour on the morning of the quiz.
+- **Study with other people**: Don't do this on your own! Remember that we're trying to build a class community. Meet with others, take turns quizzing each other, and explain your answers to each other.
+
+## R, Positron, and Quarto basics
+
+#### You should understand…
+
+- …the difference between installing a package (`install.packages("name")`, once per computer) and loading it (`library(name)`, once per R session)
+- …that functions take arguments and return output, and that output disappears unless you assign it to an object with `<-`
+- …how a Quarto document combines text, code, and the output of that code
+
+#### You should be able to…
+
+- …look up a function's help page (`?function_name`, searching for the function in the "Help" panel, or typing {{< kbd F1 >}})
+- …read code that assigns output to an object (like `high_life_exp <- filter(gapminder, lifeExp > 70)`) and explore what that new object contains
+
+## Data visualization with {ggplot2}
+
+#### You should understand…
+
+- …the grammar of graphics, or how you map variables in your **data** to **aesthetic** properties (x, y, color, fill, size, shape, alpha, linewidth, etc.) of **geometric** objects (points, lines, columns)
+- …how the `ggplot(data = DATA) + GEOM_FUNCTION(mapping = aes(AESTHETIC MAPPINGS))` template works, and that layers are added with `+`
+- …the difference between mapping a variable to an aesthetic (inside `aes()`, like `aes(color = species)`) and setting an aesthetic to a specific value (outside `aes()`, like `geom_point(color = "blue")`)
+- …the difference between global aesthetics (in `ggplot(mapping = aes(BLAH))`, used by every layer) and local aesthetics (in a `geom_*(mapping = aes(BLAH))`, used only by that layer)
+- …the five named graphs (scatterplots, linegraphs, histograms, boxplots, barplots), what each is good at showing, and what kinds of variables each one needs
+- …the difference between `geom_bar()` (counts rows for you) and `geom_col()` (requires that you provide your own `y` values, either already in the data or something you calculate yourself)
+- …how changing a histogram's binwidth changes what you can see in the distribution you're plotting
+- …what overplotting is and how transparency (`alpha`) and jittering help with it
+- …what facets are
+
+#### You should be able to…
+
+- …look at a plot and identify how each variable is encoded (which column is on the x-axis, which is mapped to color, which geom is drawing it, etc.)
+- …look at `ggplot()` code and draw the plot it will make, *without running the code*
+- …write `ggplot()` code for each of the five named graphs from *ModernDive*
+- …find and fix common mistakes, like putting a value inside `aes()` instead of a column name, feeding `geom_bar()` a `y` aesthetic, or using `|>` instead of `+` between ggplot layers
+
+#### Test yourself!
+
+- On paper, draw the plot made by this code:
+
+  ```{.r}
+  ggplot(penguins, aes(x = bill_len, y = body_mass, color = species)) +
+    geom_point() +
+    geom_smooth()
+  ```
+
+  Now draw it again with `color = species` moved into `geom_point()`. What changed and why?
+
+- Why does `geom_point(aes(color = "blue"))` make red-ish points and a legend that says "blue"?
+
+- You have a dataset with one row per country and a column for its continent. You want a bar chart of how many countries are in each continent. Which geom should you use: `geom_bar()` or `geom_col()`?
+
+- On paper, draw a histogram of something with a binwidth that's too wide and the same thing with a binwidth that's too narrow. What does each one hide?
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 2 in *ModernDive*](https://moderndive.com/v2/02-visualization.html)
+- {{< fa laptop-code >}} ["Data visualization basics" primer](https://r-primers.andrewheiss.com/basics/01-visualization-basics/)
+- {{< fa book >}} Kieran Healy, ["How ggplot works,"](https://socviz.co/03-ggplot-basics.html#how-ggplot-works) chapter 3 in *Data Visualization: A Practical Introduction*
+- {{< fa file-pdf >}} [{ggplot2} cheatsheet](https://rstudio.github.io/cheatsheets/html/data-visualization.html)
+
+
+## Data wrangling with {dplyr}
+
+#### You should understand…
+
+- …what each core {dplyr} verb does:
+  - `filter()` keeps rows that pass a test
+  - `select()` keeps (or drops, with `-`) columns
+  - `arrange()` sorts rows (use `desc()` to go from biggest to smallest)
+  - `mutate()` adds or changes columns
+  - `summarise()` collapses datasets into summary rows (one row total if the data isn't group; one row per group if the data is grouped)
+  - `group_by()` puts rows into invisible behind-the-scenes groups that later functions can do stuff with
+- …how the pipe (`|>`) passes the object on the left side into the first argument of the function on its right, and why it is easier to read than nested functions or lots of intermediate objects
+- …how logical tests (`<`, `>`, `==`, `!=`, `<=`, `>=`, `%in%`, `is.na()`) and Boolean operators (`&`, `|`, `!`) work inside `filter()`
+- …the difference between `=` (setting an argument) and `==` (testing whether two things are equal)
+- …how `ifelse(TEST, VALUE_IF_TRUE, VALUE_IF_FALSE)` works inside `mutate()` to make new categories
+
+#### You should be able to…
+
+- …translate a regular English question (e.g., "What was the median life expectancy in each continent in 2007?") into a {dplyr} pipeline
+
+- …translate a code pipeline into English, like this:
+
+  ```{.r}
+  gapminder |>
+    filter(year == 2007) |>
+    group_by(continent) |>
+    summarise(median_le = median(lifeExp))
+  ```
+
+- …predict the details of a pipeline's output (how many rows, which columns) before running it
+
+- …use summarising functions like `n()`, `mean()`, `median()`, `min()`, and `max()` inside `summarise()`
+
+- …find and fix common mistakes, like using `=` instead of `==`, forgetting quotes around text values, writing `1960 < year < 1980`, or chaining lots of `|` tests where `%in%` would work
+
+#### Test yourself!
+
+- For each core {dplyr} verb, draw a tiny data frame before and after the verb runs. Which verbs change the number of rows? The number of columns?
+
+- Write code that finds the countries in Asia with a life expectancy above 75 in 2007, sorted from highest to lowest. 
+
+- Make up a table with 10 rows and at least one categorical and one numeric column. Use that table to a grouped summary by hand (e.g. find the average or median or total value in each group). Write out what the {dplyr} code would look like for doing the same thing.
+
+- Describe in English what this will show you---how many rows and columns will it have?
+
+  ```{.r}
+  gapminder |> 
+    group_by(continent, year) |> 
+    summarise(total_pop = sum(pop))
+  ```
+
+- What's wrong with `filter(gapminder, country == Egypt)`? With `filter(gapminder, year = 2007)`?
+
+- Write a `mutate()` line that uses `ifelse()` to create a column that says `"Rich"` if `gdpPercap` is above 20,000 and `"Not rich"` otherwise.
+
+- Why is this…
+
+  ```{.r}
+  filter(country %in% c("Qatar", "Oman", "Kuwait"))
+  ```
+  
+  …better than using this?
+  
+  ```{.r}
+  filter(country == "Qatar" | country == "Oman" | country == "Kuwait")
+  ```
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 3 in *ModernDive*](https://moderndive.com/v2/03-wrangling.html)
+- {{< fa laptop-code >}} ["Working with tibbles"](https://r-primers.andrewheiss.com/transform-data/01-tibbles/), ["Isolating data with {dplyr}"](https://r-primers.andrewheiss.com/transform-data/02-isolating/), and ["Deriving information with {dplyr}"](https://r-primers.andrewheiss.com/transform-data/03-deriving/) primers
+- {{< fa arrow-up-right-from-square >}} [Visualizing {dplyr}'s `mutate()`, `summarize()`, `group_by()`, and `ungroup()` with animations](https://www.andrewheiss.com/blog/2024/04/04/group_by-summarize-ungroup-animations/)
+- {{< fa file-pdf >}} [{dplyr} cheatsheet](https://rstudio.github.io/cheatsheets/html/data-transformation.html)
+
+## Variables, importing data, and tidy data
+
+#### You should understand…
+
+- …the difference between an observation (a value recorded about something) and a variable (a set of observations about the same thing)
+- …what a dataset's unit of observation is (what each row represents, like a person, a country, a country-year, a student-class, a student-class-school, etc.)
+- …the difference between identification variables (things that identify each observation, like `country` and `year`) and measurement variables (things that describe each observation, like `lifeExp`)
+- …the different types of measurement variables: 
+  - Numeric (continuous and count)
+  - Categorical (categorical, binary, and ordinal)
+  - Qualitative
+- …why a variable's type determines which summaries and plots you can use:
+  - Numeric variables: mean, median, standard deviation, min/max, percentiles; histograms, density plots, dot plots
+  - Categorical variables: counts and proportions; barplots, heatmaps
+- …the three rules of tidy data: 
+  1. Each variable is a column
+  2. Each observation is a row
+  3. Each cell is a single value
+- …that untidy (wide) data isn't bad---wide data is often easier for *humans* to read, while long/tidy data is easier for *computers* (e.g., things like {dplyr} and {ggplot2}) to work with
+- …the common ways data is untidy:
+  - Column headers that are really values (like years)
+  - Variables that aren't stored in rows or columns at all (like cell colors in Excel)
+  - Multiple variables hidden in column headers
+- …what `pivot_longer()` (wide → long) and `pivot_wider()` (long → wide) do, and what their arguments mean (`cols`, `names_to`, and `values_to` for controlling how the data gets longer; `names_from` and `values_from` for controlling how the data gets wider)
+
+#### You should be able to…
+
+- …look at a dataset and identify its variables, its unit of observation, which variables are identification vs. measurement, and what type each measurement variable is
+- …look at an untidy table and sketch the first few rows of its tidy version
+- …fill in or write `pivot_longer()` code to make wide data tidy
+- …explain which shape of data you need for a particular plot or summary
+
+#### Test yourself!
+
+- Describe what these datasets would look like (columns and a few rows) and name the unit of observation for each: 
+  - The height, age, and GPA of every student in one classroom
+  - The height, age, GPA, and class year of every student at Georgetown for each of the four years they're in university
+  - The height, age, GPA, class year, and university of every student in Education City for each of the four years they're in university
+- Identify which kind of variable you'd use to measure these:
+  - Percent of seats in a parliament held by women
+  - Number of UN Security Council resolutions a country vetoed in a year
+  - [Freedom House](https://freedomhouse.org/country/scores) political rights (Free, Partly Free, Not Free)
+  - Whether a country is a member of NATO
+  - Official language of a country
+  - Text of speeches at the UN General Assembly
+  - A country's rank in the FIFA world rankings
+- Why can't you calculate the "average continent"? What can you calculate instead?
+- Find a table in a news article or on Wikipedia that uses columns for individual years. What are its variables? Sketch the tidy version.
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 4 in *ModernDive*](https://moderndive.com/v2/04-tidy.html)
+- {{< fa laptop-code >}} ["Reshape data" primer](https://r-primers.andrewheiss.com/tidy-data/01-reshape-data/)
+- {{< fa book >}} ["Data tidying"](https://r4ds.hadley.nz/data-tidy.html) in *R for Data Science*
+- {{< fa file-pdf >}} [{tidyr} cheatsheet](https://rstudio.github.io/cheatsheets/html/tidyr.html)
+
+## Test yourself across all the topics!
+
+This data visualization, data wrangling, and data tidying stuff is neat on its own, but in this class (and in real life), these concepts aren't actually that distinct. You'll use them all together all the time.
+
+So try practicing using them together with these questions! Try doing these without notes, then check your answers against the slides, readings, and problem sets (or try running the code if you're not sure!).
+
+- You're interested in this research question: *"Did life expectancy grow faster in Asia or in Africa between 1952 and 2007?"* Try answering it using the gapminder data we've used throughout the semester. Which {dplyr} verbs would you use? Which kind of plot would show the answer best? Sketch the plot, then write the code.
+
+- Look at any plot from the slides or the readings. Write down (1) what each row of the data behind it probably looks like, (2) which variables are mapped to which aesthetics, and (3) the code that could have made it.
+
+- You have a CSV file you downloaded from the internet that has a row per GCC country and a column for its GDP in each year. You want to make a line graph showing GDP values over time, with a colored line per country. Try sketching out the code you'd need to use to make that plot.
+
+- Write a {dplyr} pipeline that has a mistake in it and trade it with a classmate. Can they find the mistake and explain why it's wrong?
+
+- Think of one variable of each type (continuous, count, categorical, binary, ordinal) from a topic in political science or international politics that you care about. For each one, what summary statistic and what plot would you use?
