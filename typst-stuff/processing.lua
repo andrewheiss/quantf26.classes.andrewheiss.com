@@ -75,4 +75,27 @@ function Div(el)
         blocks:extend(el.content)
         return endTypstBlock(blocks)
     end
+
+    -- Each .schedule-row div has three child divs (date, topic, reading) that
+    -- get passed as separate content arguments to #schedule-row(), which lays
+    -- them out as a grid row. The cells contain regular pandoc content, so
+    -- citations, shortcodes, lists, and links inside them all still work
+    if el.classes:includes('schedule-row') then
+        local blocks = pandoc.List({
+            pandoc.RawBlock('typst', '#schedule-row(header: ' ..
+                tostring(el.classes:includes('schedule-header')) .. ', [')
+        })
+        local first = true
+        for _, cell in ipairs(el.content) do
+            if cell.t == "Div" then
+                if not first then
+                    blocks:insert(pandoc.RawBlock('typst', '], ['))
+                end
+                blocks:extend(cell.content)
+                first = false
+            end
+        end
+        blocks:insert(pandoc.RawBlock('typst', '])'))
+        return blocks
+    end
 end

@@ -2,6 +2,8 @@
 title: "Syllabus"
 pdf-title: "Quantitative Methods for International Politics"
 pdf-subtitle: "IPOL 3270 • Fall 2026"
+pdf-note: |
+  The full version of the course syllabus, schedule, and all course materials is available online at https://quantf26.classes.andrewheiss.com/. This PDF was generated on #today and will not reflect the current version.
 pdf-header-left: "IPOL 3270 • Quantitative Methods for International Politics"
 pdf-header-right: "Fall 2026"
 pdf-footer-left: "Georgetown University in Qatar"
@@ -18,9 +20,14 @@ format:
       y: 2.5cm
     include-in-header: 
       - "typst-stuff/include-in-header.typ"
+    include-before-body:
+      - "typst-stuff/note.typ"
     filters:
-      - typst-stuff/processing.lua
+      # link-to-footnote has to run first so it can see (and skip) the
+      # .no-link-notes div around the schedule before processing.lua
+      # turns it into raw typst
       - typst-stuff/link-to-footnote.lua
+      - typst-stuff/processing.lua
 format-links:
   - html
   - format: typst
@@ -393,3 +400,109 @@ All students have 24/7 access to Canvas technical support via the Help icon in C
 ## Recipes
 
 Once you have read this entire syllabus and [the assignments page](/assignment/index.qmd), post your **favorite recipe** (either a link or the text) to the `#recipes` channel on Discord. I love cooking ([see here for a feed of some of my cooking adventures](https://bsky.app/search?q=from%3Aandrew.heiss.phd+%23pacooks)) and I'm always on the lookout for new things!
+
+
+::: {.content-visible when-format="typst"}
+
+## Schedule
+
+::: {.callout-important title="Check the website!"}
+Find the official schedule at {{< var course.url >}}/schedule.html. 
+
+This is a static version as of `#today`{=typst}.
+:::
+
+```{r}
+#| label: pdf-schedule
+#| echo: false
+#| message: false
+#| results: asis
+#| eval: !expr knitr::pandoc_to("typst")
+
+site_url <- yaml::read_yaml(here::here("_quarto.yml"))$website$`site-url`
+
+# Same as in schedule.qmd: a reading that's a path to readings/_*.md gets
+# swapped for that file's contents
+inject_reading <- function(x) {
+  if (is.na(x) || !str_detect(x, "^/readings/.*\\.md$")) {
+    return(x)
+  }
+  paste(readLines(here::here(str_remove(x, "^/")), warn = FALSE), collapse = "\n")
+}
+
+schedule <- read_csv(here::here("data/schedule.csv")) |>
+  mutate(
+    date = format(date, "%a, %b %e"),
+    # The raw HTML icon spans (<span class="fa">&#xf005;</span>) get dropped
+    # in Typst, so swap them for the same codepoint via the fontawesome package
+    title = str_replace_all(
+      title,
+      '<span class="fa">&#x([0-9a-f]+);</span>',
+      '`#box(width: 1.25em, align(center, fa-icon("\\\\u{\\1}", solid: true)))`{=typst}'
+    ),
+    reading = map_chr(reading, inject_reading) |>
+      replace_na("") |>
+      # Site-relative links like /assignment/blah.qmd point nowhere in a PDF
+      str_replace_all("\\]\\(/([^)]+)\\.qmd\\)", str_glue("]({site_url}/\\1.html)"))
+  )
+
+# The syllabus uses footnote-based citations, but the schedule should use the
+# same full in-text citations as the website. So all the readings get run
+# through pandoc + citeproc with chicago-syllabus.csl here (in one pass, so
+# repeated works get the short form after their first full citation), and
+# come back as plain markdown with the citations already filled in
+split_marker <- "SCHEDULESPLITMARKER"
+
+readings_in <- tempfile(fileext = ".md")
+readings_out <- tempfile(fileext = ".md")
+writeLines(
+  paste(c(schedule$reading, ""), collapse = paste0("\n\n", split_marker, "\n\n")),
+  readings_in
+)
+
+quarto_bin <- if (nzchar(Sys.getenv("QUARTO_BIN_PATH"))) {
+  file.path(Sys.getenv("QUARTO_BIN_PATH"), "quarto")
+} else {
+  "quarto"
+}
+
+system2(quarto_bin, c(
+  "pandoc", readings_in,
+  "--from", "markdown", "--to", "markdown-citations", "--wrap=none",
+  "--citeproc",
+  "--csl", here::here("files/bib/chicago-syllabus.csl"),
+  "--bibliography", here::here("files/bib/references.bib"),
+  "--metadata", "suppress-bibliography=true",
+  "--output", readings_out
+))
+
+schedule$reading <- readLines(readings_out, warn = FALSE) |>
+  paste(collapse = "\n") |>
+  str_split_1(str_glue("\\s*{split_marker}\\s*")) |>
+  head(nrow(schedule)) |>
+  # pandoc escapes the < > in {{< shortcodes >}}, so unescape them
+  str_replace_all("\\{\\{\\\\<", "{{<") |>
+  str_replace_all("\\\\>\\}\\}", ">}}")
+
+schedule_row <- function(date, title, reading, header = FALSE) {
+  str_glue(
+    "::: {{.schedule-row{if (header) ' .schedule-header' else ''}}}\n",
+    "::: {{.schedule-cell}}\n{date}\n:::\n\n",
+    "::: {{.schedule-cell}}\n{title}\n:::\n\n",
+    "::: {{.schedule-cell}}\n{reading}\n:::\n",
+    ":::\n\n"
+  )
+}
+
+schedule |>
+  nest(.by = section) |>
+  pwalk(\(section, data) {
+    cat("\n\n###", section, "\n\n")
+    cat(":::: {.schedule-table .no-link-notes}\n\n")
+    cat(schedule_row("Date", "Topic", "Reading (before class!)", header = TRUE))
+    cat(pmap_chr(select(data, date, title, reading), schedule_row), sep = "")
+    cat("::::\n\n")
+  })
+```
+
+:::

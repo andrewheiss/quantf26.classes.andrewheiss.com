@@ -45,11 +45,41 @@
   align(center, body)
 }
 
-// ...aaaand center tables in the .schedule-table div too
+// Schedule rows. Each row is its own little grid so that page breaks can
+// happen between rows
 #let schedule-table(body) = {
-  // set text(size: 0.85em)
+  set text(size: 0.85em)
   set par(justify: false)
+  // No bullets, since the fontawesome icons act as bullets (like on the
+  // website), and indent wrapped lines so they line up with the text after
+  // the 1.25em-wide icon
+  // (par(hanging-indent:) doesn't reach tight list items, so pad the whole
+  // item and pull the first line back out instead)
+  set list(spacing: 0.5em, marker: [], indent: 0pt, body-indent: 0pt)
+  show list.item: it => block(
+    spacing: 0.5em,
+    inset: (left: 1.25em),
+    h(-1.25em) + it.body
+  )
   body
+}
+
+#let schedule-row(header: false, date, topic, reading) = {
+  set text(weight: "bold") if header
+  // Keep the header row on the same page as the first real row
+  block(
+    sticky: header,
+    width: 100%,
+    above: 0pt,
+    below: 0pt,
+    inset: (y: 0.5em),
+    stroke: (bottom: if header { 1pt + luma(120) } else { 0.5pt + luma(210) }),
+    grid(
+      columns: (5.5em, 1fr, 2fr),
+      column-gutter: 1em,
+      date, topic, reading
+    )
+  )
 }
 
 // 3-column course details section that matches what the website has
@@ -63,8 +93,10 @@
     below: 2em,
     width: 100%,
     {
-      set text(size: 0.9em)
+      set text(size: 0.8em)
       set par(justify: false)
+      // No bullets, since the fontawesome icons act as bullets (like on the website)
+      set list(marker: [], indent: 0pt, body-indent: 0pt)
       // Get rid of empty elements
       let cols = body.children.filter(c => c != [ ] and c != [
 ])

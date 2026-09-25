@@ -55,6 +55,13 @@ return {
     Note = function(el)
       return el, false
     end,
+    -- Leave links alone inside anything marked .no-link-notes (like the
+    -- schedule, which would otherwise get dozens of footnotes)
+    Div = function(el)
+      if el.classes:includes("no-link-notes") then
+        return el, false
+      end
+    end,
     Link = Link,
   },
 }

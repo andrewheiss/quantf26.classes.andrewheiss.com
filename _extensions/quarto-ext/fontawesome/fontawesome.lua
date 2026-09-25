@@ -82,6 +82,14 @@ return {
       else
         return pandoc.RawInline('tex', "{\\" .. size .. icons .. "}")
       end
+    -- typst, via the @preview/fontawesome package (which Quarto's typst
+    -- template already imports). Brand icons get picked up automatically since
+    -- the package falls back to the Font Awesome 6 Brands font. Icons get a
+    -- fixed-width box (like .fa-fw/.fa-li in HTML) so text after them lines up
+    elseif quarto.doc.is_format("typst") then
+      local solid = (group == "solid") and "true" or "false"
+      return pandoc.RawInline('typst',
+        '#box(width: 1.25em, align(center, fa-icon("' .. icon .. '", solid: ' .. solid .. ')))')
     else
       return pandoc.Null()
     end
