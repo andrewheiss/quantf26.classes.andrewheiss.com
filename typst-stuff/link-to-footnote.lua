@@ -11,6 +11,10 @@
 --   filters:
 --     - link-to-footnote.lua
 
+-- Pandoc's type stubs say filter functions return one value, but topdown
+-- traversal accepts a second `false` return to skip an element's children
+---@diagnostic disable: redundant-return-value
+
 -- Only run for formats that don't already have native links-as-notes support
 local target_formats = { typst = true, docx = true }
 
