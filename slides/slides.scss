@@ -103,7 +103,7 @@ $code-block-font-size:        0.75em;
   }
 }
 
-// Some helpers for size and shadows
+// Some helpers for size and shadows and spacing
 .huge    { font-size: 2.2em; }
 .large   { font-size: 1.7em; }
 .medium  { font-size: 1.4em; }
@@ -117,6 +117,23 @@ $code-block-font-size:        0.75em;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
   border-radius: 5px;
 }
+
+.sp-before {
+    margin-top: 1em !important;
+}
+
+.sp-before-half {
+    margin-top: 0.7em !important;
+}
+
+.sp-after {
+    margin-bottom: 1em !important;
+}
+
+.sp-after-half {
+    margin-bottom: 0.7em !important;
+}
+
 
 .reveal code {
   font-weight: 500;
@@ -153,6 +170,24 @@ $code-block-font-size:        0.75em;
 // Make it so images have zero padding when needed (like in tables)
 .reveal .no-img-margin img {
   margin: 0;
+}
+
+// Plot output is wrapped in div.quarto-figure > figure > p > img, and the
+// figure's default margin, the p's block margin, the img's own margin, and
+// the inline img's descender gap all stack up into a huge space below plots.
+// Collapse all that into a single block margin below the figure.
+.reveal div.quarto-figure {
+  margin-bottom: var(--r-block-margin);
+
+  figure,
+  figure > p {
+    margin: 0;
+  }
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
 }
 
 // Quarto/revealjs doesn't include any margin below code blocks

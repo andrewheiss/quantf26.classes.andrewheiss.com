@@ -7,10 +7,27 @@
   function fitBox(box) {
     const range = document.createRange();
     range.selectNodeContents(box);
-    const rects = Array.from(range.getClientRects());
+    const rects = Array.from(range.getClientRects()).filter((r) => r.width > 0);
     if (rects.length === 0) return;
+    // getClientRects() returns one rect per text/element fragment, not per
+    // line, so a line mixing plain and <strong>/<em> text comes back as
+    // several rects. Group fragments into lines by vertical overlap and
+    // measure each line from its leftmost to rightmost edge.
+    const lines = [];
+    rects.forEach((r) => {
+      const mid = (r.top + r.bottom) / 2;
+      const line = lines.find((l) => mid >= l.top && mid <= l.bottom);
+      if (line) {
+        line.left = Math.min(line.left, r.left);
+        line.right = Math.max(line.right, r.right);
+        line.top = Math.min(line.top, r.top);
+        line.bottom = Math.max(line.bottom, r.bottom);
+      } else {
+        lines.push({ left: r.left, right: r.right, top: r.top, bottom: r.bottom });
+      }
+    });
     const scale = window.Reveal && Reveal.getScale ? Reveal.getScale() : 1;
-    const maxWidth = Math.max(...rects.map((r) => r.width)) / scale;
+    const maxWidth = Math.max(...lines.map((l) => l.right - l.left)) / scale;
     const style = getComputedStyle(box);
     // box-sizing here is content-box (reveal.js's own CSS, not the page's
     // default), so "width" must NOT include padding

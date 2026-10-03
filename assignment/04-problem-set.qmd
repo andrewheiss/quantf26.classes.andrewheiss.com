@@ -1,5 +1,55 @@
 ---
 title: "Problem set 4"
-# subtitle: "Introduction to R and the tidyverse"
-date: "2026-10-03"
+subtitle: "Simple linear regression"
+date: "2026-10-08"
 ---
+
+## Purpose
+
+[Chapter 5](https://moderndive.com/v2/05-regression.html) in *ModernDive* introduces simple linear regression: using a straight line to describe the relationship between an outcome variable ($y$) and a single explanatory variable ($x$). It also introduces the correlation coefficient ($r$), a single number that summarizes how strongly two numeric variables are related.
+
+In this problem set, you'll practice calculating correlations and running and interpreting regression models using real data from the [V-Dem (Varieties of Democracy) project](https://www.v-dem.net/). You'll also keep using the {dplyr} and {ggplot2} skills you've built so far. By the end, you should be able to:
+
+- Make a scatterplot with `ggplot()` to explore the relationship between two numeric variables before calculating anything
+- Calculate a correlation coefficient with `get_correlation()` and interpret its direction and strength
+- Use `group_by()` and `summarise()` with `cor()` to compare correlations across groups, and recognize when a correlation is based on too few observations to trust
+- Fit a regression model with `lm()` and look at the results with `get_regression_table()`
+- Interpret the intercept and slope of a regression with a numeric explanatory variable, paying attention to the units of each variable
+- Explain how rescaling a variable (like putting a 0--1 index on a 0--10 scale) changes the coefficients without changing the underlying relationship
+- Use a regression equation to calculate predicted values, and use `get_regression_points()` to find fitted values and residuals
+- Interpret the intercept and coefficients of a regression with a categorical explanatory variable as averages and differences from a baseline group
+- Add a regression line to a scatterplot with `geom_smooth(method = "lm")`
+- Explain why correlation (or a regression coefficient) does not necessarily mean causation
+
+## Criteria for success
+
+This problem is graded using a ✔+/✔/✔− system. I'm looking for correct code and genuine attempts at the interpretation questions, not polished prose.
+
+- **✔+**: All chunks run without errors and use the correct functions, variables, and models. The datasets, models, and plots you create match the expected output shown in the instructions. The written answers correctly interpret correlations and coefficients in plain language with the correct units (e.g., "a 1-point increase in polyarchy (on a 0--10 scale) is associated with a 0.82-point decrease in corruption (on a 0--10 scale), on average," not just "the slope is −0.82"), and the extension does something new and exciting rather than only copying a previous chunk.
+- **✔**: This is the expected level of performance. All chunks run and produce mostly correct results; minor mismatches (e.g., column names or rounding) are fine. Written interpretations are attempted and reasonable, though they may be missing units or mix up small details.
+- **✔−**: Chunks are missing, don't run, or use the wrong variables or model (e.g., switching x and y in `lm()`). Written answers are left blank or only restate numbers from the output without interpreting them.
+
+You may work together in groups of up to four, but you must turn in your own answers and note who you worked with.
+
+And remember: **everything human-facing must be human-generated**. Don't submit AI-generated text. I want to hear *your* voice.
+
+Also, if you do use LLMs to help with the code (I recommend not!), make sure you [follow the guidelines from the syllabus](/syllabus.qmd#rule-2-you-are-responsible-for-understanding-verifying-and-citing-everything-an-llm-generates) about how to cite what you use.
+
+## How to submit
+
+Submit a single rendered PDF on Canvas.
+
+## Instructions
+
+1. Download this `.zip` file. Make sure you [unzip or extract it after you download it](/resource/unzipping.qmd)! Open the unzipped folder in Positron.
+
+   - [{{< fa file-archive >}} `04-problem-set.zip`](/projects/04-problem-set.zip)
+   - [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/13019473): Use this link if you're using Posit.cloud on your iPad.
+
+2. Rename the Quarto file named `your-name_problem-set-4.qmd` to something that matches your name.
+
+3. Complete the tasks given in the Quarto file. You can definitely copy, paste, and adapt from other code in the document---don't try to write everything from scratch!
+
+   This problem set uses the {moderndive} package. If you get an error saying `there is no package called 'moderndive'`, install it first by going to the Packages panel and searching for "moderndive," or by running `install.packages("moderndive")` in the console.
+
+4. When you're all done, render the document to Typst (pdf), PDF, or Word. Upload that file to Canvas. **Do not upload a rendered HTML file** (they don't work on Canvas).

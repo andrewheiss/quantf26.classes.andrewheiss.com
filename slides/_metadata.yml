@@ -2,8 +2,8 @@ format:
   revealjs:
     knitr:
       opts_chunk:
-        dev: "ragg_png"
-        dpi: 300
+        dev: "svglite"
+        fig.align: "center"
     include-in-header:
       - text: |
           <script>

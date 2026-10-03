@@ -1,0 +1,96 @@
+---
+title: "Simple linear regression"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For get_correlation(), get_regression_table(), etc
+
+# Load the World Happiness Report data and only keep 2024
+world_happiness <- read_csv("data/world_happiness.csv") |>
+  filter(year == 2024)
+```
+
+## World happiness
+
+This data comes from the [World Happiness Report](https://www.worldhappiness.report/) (happiness scores) and the [World Bank](https://data.worldbank.org/) (life expectancy, GDP per capita, and continent)
+
+- `happiness`: Average life evaluation score, on a scale of 0–10 (higher = happier)
+- `life_expectancy`: Average life expectancy in years
+- `gdp_per_cap`: GDP per capita
+- `continent`: Africa, Americas, Asia, Europe, or Oceania
+
+```{r}
+world_happiness
+```
+
+
+## Your turn #2: Happiness and life expectancy
+
+Does a country's life expectancy predict its happiness?
+
+Make a scatterplot with `life_expectancy` on the x-axis and `happiness` on the y-axis:
+
+```{r}
+ggplot(data = world_happiness)
+```
+
+Find the correlation between the two with `get_correlation()`:
+
+```{r}
+world_happiness
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_life_exp <- lm(...)
+```
+
+Interpret the slope:
+
+> On average, a one-year increase in life expectancy is associated with a ___ ...
+
+Interpret the intercept:
+
+> In a country where life expectancy is 0 years, ...
+
+
+## Your turn #3: Happiness and continents
+
+Is happiness different across continents?
+
+Make a plot that shows `happiness` across each `continent` (try `geom_point()` with `position = position_jitter(width = 0.15)`, or `geom_boxplot()`):
+
+```{r}
+ggplot(data = world_happiness)
+```
+
+Find the average happiness in each continent with `group_by()` and `summarize()`:
+
+```{r}
+world_happiness
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_continent <- lm(...)
+```
+
+What's the base case?
+
+> ...
+
+Interpret the intercept:
+
+> ...
+
+Interpret the coefficient for Europe:
+
+> On average, happiness in Europe is ___ ...
