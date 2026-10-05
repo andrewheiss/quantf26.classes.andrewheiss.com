@@ -1,0 +1,130 @@
+---
+title: "Multiple regression"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For get_regression_table(), geom_parallel_slopes(), etc
+
+# Load the World Happiness Report data and only keep 2024
+world_happiness <- read_csv("data/world_happiness.csv") |>
+  filter(year == 2024) |>
+  mutate(
+    # GDP per capita in thousands of dollars, so that a "one unit increase" is
+    # $1,000 instead of $1
+    gdp_per_cap_1000 = gdp_per_cap / 1000,
+    # Put the income groups in order (otherwise R puts them in alphabetical order)
+    income_group = factor(
+      income_group,
+      levels = c("Low income", "Lower middle income", "Upper middle income", "High income")
+    )
+  )
+```
+
+## World happiness
+
+This data comes from the [World Happiness Report](https://www.worldhappiness.report/) (happiness scores) and the [World Bank](https://data.worldbank.org/) (everything else). Each row is a country in 2024.
+
+- `country`: Country name
+- `year`: Year
+- `continent`: Africa, Americas, Asia, Europe, or Oceania
+- `region`: World Bank region (East Asia & Pacific, Sub-Saharan Africa, etc.)
+- `income_group`: World Bank income group (Low income, Lower middle income, Upper middle income, High income)
+- `iso3c`: Three-letter country code
+- `happiness`: Average life evaluation score, on a scale of 0–10 (higher = happier)
+- `life_expectancy`: Average life expectancy at birth, in years
+- `gdp_per_cap`: GDP per capita (constant 2015 US dollars)
+- `gdp_per_cap_1000`: GDP per capita, in thousands of dollars
+- `internet_use_prop`: Percent of the population that uses the internet (0–100)
+- `urban_prop`: Percent of the population that lives in cities (0–100)
+- `women_parliament_prop`: Percent of seats in the national parliament held by women (0–100)
+- `unemployment_rate`: Percent of the labor force that is unemployed (0–100)
+- `population_millions`: Population, in millions
+
+```{r}
+world_happiness
+```
+
+
+## Our turn #3: Happiness, wealth, internet access, and continents
+
+Is national happiness explained by wealth, internet access, *and* continent?
+
+Fit a model with `lm()` that explains `happiness` with `gdp_per_cap_1000`, `internet_use_prop`, and `continent`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_happiness <- lm(...)
+```
+
+Write out the model as an equation (fill in the numbers):
+
+$$
+\widehat{\text{happiness}} = b_0 + b_1 \times \text{GDP}_{1000} + b_2 \times \text{internet} + b_3 \times \text{Americas} + b_4 \times \text{Asia} + b_5 \times \text{Europe} + b_6 \times \text{Oceania}
+$$
+
+Interpret the intercept:
+
+> In an African country with a GDP per capita of \$0 and 0% internet use, ...
+
+Interpret the coefficient for GDP per capita:
+
+> Taking internet use and continent into account, a \$1,000 increase in GDP per capita is associated with a ___ ...
+
+Interpret the coefficient for internet use:
+
+> ...
+
+Interpret the coefficient for Europe:
+
+> ...
+
+Bonus: plot `happiness` and `gdp_per_cap_1000` with one line for each continent using `geom_parallel_slopes(se = FALSE)` (this plot ignores internet use, so the lines won't match the model exactly!):
+
+```{r}
+ggplot(data = world_happiness)
+```
+
+
+## Your turn #3: Happiness, health, jobs, and income
+
+Is national happiness explained by health, jobs, and income?
+
+Fit a model that explains `happiness` with `life_expectancy`, `unemployment_rate`, and `income_group`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_income <- lm(...)
+```
+
+What's the base case for `income_group`?
+
+> ...
+
+Interpret the coefficient for life expectancy:
+
+> ...
+
+Interpret the coefficient for unemployment:
+
+> ...
+
+Interpret the coefficient for high income:
+
+> ...
+
+
+## Playground
+
+Build your own model! Pick an outcome and a few explanatory variables (try mixing continuous ones like `urban_prop`, `women_parliament_prop`, or `population_millions` with categorical ones like `region` or `income_group`). Fit the model, look at the coefficients, and interpret each one.
+
+```{r}
+# model_playground <- lm(...)
+```
+
+Interpretations:
+
+> ...

@@ -21,3 +21,6 @@ projects/*.zip
 /.luarc.json
 
 **/*.quarto_ipynb
+
+# Draft slides that aren't ready yet
+/slides-drafts/

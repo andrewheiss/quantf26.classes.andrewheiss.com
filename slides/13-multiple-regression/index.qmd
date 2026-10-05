@@ -1,0 +1,1541 @@
+---
+title: "Multiple regression I"
+subtitle: "Quantitative Methods for<br>International Politics"
+course-info: "IPOL 3270 • Fall 2026"
+date: "2026-10-04"
+date-format: "long"
+format:
+  revealjs:
+    theme: [default, ../slides.scss, brand]
+    template-partials:
+      - ../../html/title-slide.html
+    highlight-style: github
+    slide-number: true
+    incremental: false
+    code-line-numbers: false
+    code-overflow: wrap
+    fig-align: center
+    auto-stretch: false
+
+    title-slide-attributes:
+      data-background-image: /slides/img/background-hex-shapes.svg
+      data-background-opacity: "0.25"
+      # data-background-color: "{{< brand color clr-1 >}}"
+      data-background-gradient: "linear-gradient(30deg, {{< brand color clr-1 >}}, {{< brand color blue-700 >}})"
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(tinytable)
+library(countdown)
+library(patchwork)
+library(moderndive)
+library(gapminder)
+
+# Colors from _brand.yml
+clrs <- list(
+  blue = "#2878B5",
+  orange = "#E17C05",
+  maroon = "#8A1538",
+  purple = "#6F4C9B",
+  green = "#2D934F",
+  gray = "#696A6F"
+)
+
+theme_set(theme_grey(base_size = 14))
+```
+
+```{r}
+#| label: make-data
+#| include: false
+
+# Toy data for drawing lines
+cookies <- tibble(
+  happiness = c(0.5, 2, 1, 2.5, 3, 1.5, 2, 2.5, 2, 3),
+  cookies = 1:10
+)
+
+cookies_model <- lm(happiness ~ cookies, data = cookies)
+cookies_b0 <- coef(cookies_model)[["(Intercept)"]]
+cookies_b1 <- coef(cookies_model)[["cookies"]]
+
+# ModernDive's UN data
+UN_data_ch5 <- un_member_states_2024 |>
+  select(
+    country,
+    life_exp = life_expectancy_2022,
+    fert_rate = fertility_rate_2022
+  ) |>
+  na.omit()
+
+demographics_model <- lm(fert_rate ~ life_exp, data = UN_data_ch5)
+b0 <- coef(demographics_model)[["(Intercept)"]]
+b1 <- coef(demographics_model)[["life_exp"]]
+
+# Gapminder
+gapminder_2007 <- gapminder |>
+  filter(year == 2007) |>
+  select(country, continent, lifeExp, gdpPercap) |>
+  mutate(gdp_1000 = gdpPercap / 1000)
+
+continent_means <- gapminder_2007 |>
+  group_by(continent) |>
+  summarize(n = n(), mean = mean(lifeExp), median = median(lifeExp))
+
+lifeexp_model <- lm(lifeExp ~ continent, data = gapminder_2007)
+lifeexp_points <- get_regression_points(lifeexp_model, ID = "country")
+
+cont_b0 <- coef(lifeexp_model)[["(Intercept)"]]
+cont_b <- coef(lifeexp_model)[-1] |>
+  set_names(levels(gapminder_2007$continent)[-1])
+
+# Example country for observed vs. fitted
+afg <- lifeexp_points |> filter(country == "Afghanistan")
+
+# Multiple regression
+gdp_model <- lm(lifeExp ~ gdp_1000, data = gapminder_2007)
+gdp_b1 <- coef(gdp_model)[["gdp_1000"]]
+
+lifeexp_lots_model <- lm(lifeExp ~ gdp_1000 + continent, data = gapminder_2007)
+mr_b0 <- coef(lifeexp_lots_model)[["(Intercept)"]]
+mr_gdp <- coef(lifeexp_lots_model)[["gdp_1000"]]
+mr_cont <- coef(lifeexp_lots_model)[-(1:2)] |>
+  set_names(levels(gapminder_2007$continent)[-1])
+
+# Offsets from Africa's line, staggered across the x-axis so the arrows don't overlap
+mr_offsets <- tibble(
+  continent = factor(names(mr_cont), levels = levels(gapminder_2007$continent)),
+  offset = mr_cont,
+  gdp_1000 = c(36, 12, 28, 44)
+) |>
+  mutate(
+    africa = mr_b0 + mr_gdp * gdp_1000,
+    lifeExp = africa + offset,
+    label = paste0("+", round(offset, 2))
+  )
+
+# Two sliders and a bunch of switches
+un_data <- un_member_states_2024 |>
+  select(
+    country,
+    continent,
+    life_exp = life_expectancy_2022,
+    fert_rate = fertility_rate_2022,
+    gdp_per_capita
+  ) |>
+  mutate(gdp_1000 = gdp_per_capita / 1000) |>
+  drop_na(life_exp, fert_rate, gdp_1000)
+
+un_model <- lm(life_exp ~ fert_rate + gdp_1000 + continent, data = un_data)
+un_b <- coef(un_model)
+
+# Hypothetical country for moving one slider (or switch) at a time
+un_scenarios <- tribble(
+  ~scenario,            ~fert_rate, ~gdp_1000, ~continent,
+  "Start",              3,          10,        "Africa",
+  "Fertility + 1",      4,          10,        "Africa",
+  "GDP + $1,000",       3,          11,        "Africa",
+  "Europe",             3,          10,        "Europe"
+) |>
+  mutate(life_exp_hat = predict(un_model, newdata = pick(everything())))
+
+# Interpretation practice
+# Predicted lines across one continuous x for each category of a group, holding
+# all other continuous variables at their averages
+model_lines <- function(model, x, group) {
+  mf <- model.frame(model)
+  held <- mf |>
+    summarize(across(where(is.numeric) & !all_of(c(x, names(mf)[1])), mean))
+
+  expand_grid(
+    !!x := seq(min(mf[[x]]), max(mf[[x]]), length.out = 100),
+    !!group := unique(mf[[group]])
+  ) |>
+    cross_join(held) |>
+    mutate(.fitted = predict(model, newdata = pick(everything())))
+}
+
+schools_model <- lm(average_sat_math ~ perc_disadvan + size, data = MA_schools)
+schools_b <- coef(schools_model)
+
+evals_model <- lm(score ~ age + bty_avg + gender, data = evals)
+evals_b <- coef(evals_model)
+
+penguins_model <- lm(body_mass ~ flipper_len + bill_len + species, data = penguins)
+penguins_b <- coef(penguins_model)
+
+houses_model <- lm(price ~ living_area + age + fireplace, data = saratoga_houses)
+houses_b <- coef(houses_model)
+```
+
+## Plan for today {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+[Lines and regression (review)]{.box-clr-7 .medium .fragment}
+
+[Categories and regression]{.box-clr-8 .medium .fragment}
+
+[Multiple regression]{.box-clr-2 .medium .fragment}
+
+[Interpretation practice!]{.box-clr-3 .medium .fragment}
+
+# Lines and regression<br>(review) {background-color="{{< brand color clr-7 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## Models {.clr-7}
+
+Models are simplified representations of complex things
+
+:::: {.columns}
+
+::: {.column .fragment}
+![](img/Tyrannosaurus_Rex_Holotype.jpg){.shadow}
+:::
+
+::: {.column .fragment}
+![](img/trexmodel.png){.shadow}
+:::
+
+::::
+
+## Goal of regression {.clr-7}
+
+[Use a model to explain (or predict) variation in an outcome using one or more explanatory variables]{.box-clr-7-light .large}
+
+## Drawing lines with stats {.clr-7}
+
+| $y = mx + b$ | | $\widehat{y} = b_0 + b_1 x$ |
+|:---:|:---:|:---:|
+| $y$ | Outcome variable (**Y**) | $\widehat{y}$ |
+| $x$ | Explanatory variable (**X**) | $x$ | 
+| $m$ | Slope | $b_1$ | 
+| $b$ | y-intercept | $b_0$ | 
+
+## Building models in R {.clr-7}
+
+```{.r}
+name_of_model <- lm(<Y> ~ <X>, data = <DATA>)
+```
+
+:::: {.columns}
+
+::: {.column width="35%"}
+::: {.fragment .small}
+- `lm()` = **l**inear **m**odel
+- `<Y> ~ <X>` is a **model formula** (same as in `get_correlation()`!)
+:::
+:::
+
+::: {.column width="65%"}
+::: {.fragment .small}
+```{.r}
+library(moderndive)
+
+# Make the model
+name_of_model <- lm(..., data = BLAH)
+
+# Coefficients in a nice table
+get_regression_table(name_of_model)
+
+# Fitted values and residuals for 
+# every observation
+get_regression_points(name_of_model)
+```
+:::
+:::
+
+::::
+
+##  {.clr-7}
+
+:::: {.columns}
+
+::: {.column width="60%"}
+```{r}
+#| label: plot-cookies-review
+#| fig-width: 8
+#| fig-height: 4.5
+#| out-width: "100%"
+
+ggplot(cookies, aes(x = cookies, y = happiness)) +
+  geom_point(size = 3) +
+  coord_cartesian(xlim = c(0, 10), ylim = c(0, 3)) +
+  scale_x_continuous(breaks = 0:10) +
+  labs(x = "Cookies eaten", y = "Level of happiness") + 
+  geom_smooth(method = "lm", formula = y ~ x, color = clrs$blue, se = FALSE)
+```
+:::
+
+::: {.column .small width="40%"}
+
+```{r}
+#| echo: true
+
+cookies_model <- lm(
+  happiness ~ cookies,
+  data = cookies
+)
+```
+:::
+
+::::
+
+:::: {.columns}
+
+::: {.column width="60%" .small}
+$$
+\begin{aligned}
+\widehat{\text{happiness}} &= b_0 + b_1 \times \text{cookies} \\
+\widehat{\text{happiness}} &= `r round(cookies_b0, 2)` + `r round(cookies_b1, 3)` \times \text{cookies}
+\end{aligned}
+$$
+:::
+
+::: {.column .smaller width="40%"}
+
+```{r}
+#| echo: true
+
+cookies_model |>
+  get_regression_table() |>
+  select(term, estimate)
+```
+:::
+
+::::
+
+
+## Templates (continuous X) {.clr-7}
+
+::: {.small}
+$$
+\widehat{\text{happiness}} = b_0 + b_1 \times \text{cookies} \qquad
+\widehat{\text{happiness}} = `r round(cookies_b0, 2)` + `r round(cookies_b1, 3)` \times \text{cookies}
+$$
+:::
+
+::: {.list-table widths="1,0.5,3" .small}
+
+- - Parameter
+  - Term
+  - Template
+
+- - Intercept
+  - $b_0$
+  - Average value of **Y** when **X** is 0
+
+- - Slope 
+  - $b_1$
+  - A one unit increase in **X** is *associated* with a $b_1$ increase (or decrease) in **Y**, on average
+
+:::
+
+::: {.list-table widths="0.5,4" .smaller .sp-before}
+
+- - Parameter
+  - Interpretation
+
+- - Intercept
+  - Average happiness is `r round(cookies_b0, 2)` for someone who eats 0 cookies
+
+- - Slope 
+  - On average, eating one more cookie is associated with a `r round(cookies_b1, 3)` increase in happiness
+
+:::
+
+## {.clr-7 .center}
+
+![](img/slider-only.jpg){.shadow width="75%" fig-align="center"}
+
+## {.clr-7}
+
+:::: {.columns}
+
+::: {.column width="60%"}
+```{r}
+#| label: plot-demographics-review
+#| fig-width: 8
+#| fig-height: 4.5
+#| out-width: "100%"
+
+ggplot(UN_data_ch5, aes(x = life_exp, y = fert_rate)) +
+  geom_point(size = 2, alpha = 0.6) +
+  labs(x = "Life expectancy (2022)", y = "Fertility rate (2022)") +
+  geom_smooth(method = "lm", formula = y ~ x, color = clrs$blue, se = FALSE)
+```
+:::
+
+::: {.column .small width="40%"}
+
+```{r}
+#| echo: true
+
+demographics_model <- lm(
+  fert_rate ~ life_exp,
+  data = UN_data_ch5
+)
+```
+:::
+
+::::
+
+:::: {.columns}
+
+::: {.column width="60%" .small}
+$$
+\begin{aligned}
+\widehat{\text{fert}\_\text{rate}} &= b_0 + b_1 \times \text{life}\_\text{exp} \\
+\widehat{\text{fert}\_\text{rate}} &= `r round(b0, 2)` + (`r round(b1, 3)`) \times \text{life}\_\text{exp}
+\end{aligned}
+$$
+:::
+
+::: {.column .smaller width="40%"}
+
+```{r}
+#| echo: true
+
+demographics_model |>
+  get_regression_table() |>
+  select(term, estimate)
+```
+:::
+
+::::
+
+
+## Templates (continuous X) {.clr-7}
+
+::: {.small}
+$$
+\widehat{\text{fert}\_\text{rate}} = b_0 + b_1 \times \text{life}\_\text{exp} \qquad
+\widehat{\text{fert}\_\text{rate}} = `r round(b0, 2)` + (`r round(b1, 3)`) \times \text{life}\_\text{exp}
+$$
+:::
+
+::: {.list-table widths="1,0.5,3" .small}
+
+- - Parameter
+  - Term
+  - Template
+
+- - Intercept
+  - $b_0$
+  - Average value of **Y** when **X** is 0
+
+- - Slope 
+  - $b_1$
+  - A one unit increase in **X** is *associated* with a $b_1$ increase (or decrease) in **Y**, on average
+
+:::
+
+::: {.list-table widths="0.5,4" .smaller .sp-before}
+
+- - Parameter
+  - Interpretation
+
+- - Intercept
+  - In a country where life expectancy is 0 years, the average fertility rate would be `r round(b0, 2)`
+
+- - Slope 
+  - On average, a one-year increase in life expectancy is associated with a `r abs(round(b1, 3))` decrease in the fertility rate
+
+:::
+
+## {.clr-7 .center}
+
+![](img/slider-only.jpg){.shadow width="75%" fig-align="center"}
+
+
+## Our turn #1 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+Does a country's life expectancy predict its happiness?
+
+[Use `simple-regression.qmd` in the "Regression playground" project]{.small}
+
+1. Make a scatterplot of `happiness` and `life_expectancy`
+2. Find the correlation between the two with `get_correlation()`
+3. Fit a model with `lm()` and look at the coefficients with `get_regression_table()`
+4. Interpret the slope and the intercept
+
+## Your turn #1 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+Does access to the internet predict national happiness?
+
+1. Make a scatterplot of `happiness` and `internet_use_prop`
+2. Find the correlation between the two with `get_correlation()`
+3. Fit a model with `lm()` and look at the coefficients with `get_regression_table()`
+4. Interpret the slope and the intercept
+
+# Categories<br>and regression {background-color="{{< brand color clr-8 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## Life expectancy & continents [(2007)]{.small} {.clr-8}
+
+```{r}
+gapminder_2007 |>
+  select(-gdp_1000) |>
+  slice_head(n = 10) |>
+  tt() |>
+  format_tt(j = "gdpPercap", digits = 0, num_fmt = "decimal", num_mark_big = ",") |>
+  style_tt(fontsize = 0.7) |>
+  theme_html(class = "tinytable shadow")
+```
+
+## Plot X and Y {.clr-8}
+
+```{r}
+#| label: plot-gapminder-base
+#| fig-width: 8
+#| fig-height: 4.25
+#| out-width: "100%"
+
+gapminder_base <- ggplot(gapminder_2007, aes(x = continent, y = lifeExp)) +
+  geom_point(
+    position = position_jitter(width = 0.15, height = 0, seed = 1234),
+    size = 2, alpha = 0.5
+  ) +
+  labs(x = "Continent", y = "Life expectancy (2007)")
+
+gapminder_base
+```
+
+## Averages for each continent {.clr-8}
+
+:::: {.columns}
+
+::: {.column width="50%" .small}
+```{.r}
+gapminder_2007 |>
+  group_by(continent) |>
+  summarize(
+    n = n(),
+    mean = mean(lifeExp),
+    median = median(lifeExp)
+  )
+```
+
+::: {.fragment}
+```{r}
+continent_means |>
+  tt(digits = 4) |>
+  theme_html(class = "tinytable shadow")
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r}
+#| label: plot-gapminder-means
+#| fig-width: 4.5
+#| fig-height: 4.2
+#| out-width: "100%"
+
+gapminder_means <- gapminder_base +
+  geom_segment(
+    data = continent_means,
+    aes(
+      x = as.numeric(continent) - 0.3, xend = as.numeric(continent) + 0.3,
+      y = mean, yend = mean
+    ),
+    color = clrs$purple, linewidth = 1.5
+  )
+
+gapminder_means
+```
+:::
+
+::::
+
+## Can we draw a line through this? {.clr-8}
+
+:::: {.columns}
+
+::: {.column width="45%"}
+::: {.incremental}
+- **X** isn't a number!
+- There's no "one unit increase" in continent
+- …but `lm()` works anyway!
+:::
+:::
+
+::: {.column width="55%"}
+```{r}
+#| fig-width: 4.8
+#| fig-height: 4.2
+#| out-width: "100%"
+
+gapminder_base
+```
+:::
+
+::::
+
+## Building the model {.clr-8}
+
+::: {.smaller}
+```{r}
+#| echo: true
+lifeexp_model <- lm(lifeExp ~ continent, data = gapminder_2007)
+get_regression_table(lifeexp_model)
+```
+:::
+
+::: {.fragment}
+[Where'd Africa go?!]{.box-clr-8-light}
+:::
+
+## The base case {.clr-8}
+
+[One category gets left out and<br>becomes the **base case**]{.box-clr-8 .medium}
+
+::: {.fragment .small .sp-before}
+Also called the baseline, reference category, or omitted category
+:::
+
+::: {.fragment}
+R uses the first category (alphabetically, by default) as the base case, so here it's [Africa]{.text-clr-8}
+:::
+
+::: {.fragment}
+[Every other coefficient is measured<br>relative to the base case]{.box-clr-8-light}
+:::
+
+## Translating results to math {.clr-8}
+
+::: {.smaller}
+```{r}
+get_regression_table(lifeexp_model) |>
+  select(term, estimate) |>
+  tt() |>
+  theme_html(class = "tinytable shadow")
+```
+:::
+
+::: {.fragment}
+$$
+\begin{aligned}
+\widehat{\text{lifeExp}} = &\ b_0 + b_1 \times \text{Americas} + b_2 \times \text{Asia} \\
+&+ b_3 \times \text{Europe} + b_4 \times \text{Oceania}
+\end{aligned}
+$$
+:::
+
+::: {.fragment}
+$$
+\begin{aligned}
+\widehat{\text{lifeExp}} = &\ `r round(cont_b0, 2)` + `r round(cont_b[["Americas"]], 2)` \times \text{Americas} + `r round(cont_b[["Asia"]], 2)` \times \text{Asia} \\
+&+ `r round(cont_b[["Europe"]], 2)` \times \text{Europe} + `r round(cont_b[["Oceania"]], 2)` \times \text{Oceania}
+\end{aligned}
+$$
+:::
+
+## Switches {.clr-8}
+
+:::: {.columns}
+
+::: {.column width="50%" .small}
+```{r}
+get_regression_table(lifeexp_model) |>
+  select(term, estimate) |>
+  tt() |>
+  theme_html(class = "tinytable shadow")
+```
+
+:::
+
+::: {.column width="50%"}
+![](img/switch-only.jpg){.shadow}
+:::
+
+::::
+
+## Template for the intercept {.clr-8}
+
+[$b_0$ is the average value of **Y**<br>for the base case]{.box-clr-8 .medium}
+
+$$
+\widehat{\text{lifeExp}} = `r round(cont_b0, 2)` + `r round(cont_b[["Americas"]], 2)` \times \text{Americas} + \dots
+$$
+
+::: {.fragment}
+[Average life expectancy in Africa is `r round(cont_b0, 2)` years]{.box-clr-8-light}
+:::
+
+::: {.fragment .small}
+All switches are off, so this is just the average of the base case
+:::
+
+## Template for the other coefficients {.clr-8}
+
+[On average, **Y** is $b$ higher (or lower) in this category, compared to the base case]{.box-clr-8 .medium}
+
+$$
+\widehat{\text{lifeExp}} = `r round(cont_b0, 2)` + `r round(cont_b[["Americas"]], 2)` \times \text{Americas} + \dots
+$$
+
+::: {.fragment}
+[On average, life expectancy in the Americas is `r round(cont_b[["Americas"]], 2)` years higher than in Africa]{.box-clr-8-light}
+:::
+
+::: {.fragment .small}
+It's **not** "a one unit increase in continent"!  
+It's the offset from the base case
+:::
+
+## Flip the switches! {.clr-8}
+
+:::: {.columns}
+
+::: {.column width="55%" .small}
+| Switch on | $\widehat{\text{lifeExp}}$ |
+|:---|:---|
+| None (Africa) | $`r round(cont_b0, 2)`$ |
+| Americas | $`r round(cont_b0, 2)` + `r round(cont_b[["Americas"]], 2)` = `r round(cont_b0 + cont_b[["Americas"]], 2)`$ |
+| Asia | $`r round(cont_b0, 2)` + `r round(cont_b[["Asia"]], 2)` = `r round(cont_b0 + cont_b[["Asia"]], 2)`$ |
+| Europe | $`r round(cont_b0, 2)` + `r round(cont_b[["Europe"]], 2)` = `r round(cont_b0 + cont_b[["Europe"]], 2)`$ |
+| Oceania | $`r round(cont_b0, 2)` + `r round(cont_b[["Oceania"]], 2)` = `r round(cont_b0 + cont_b[["Oceania"]], 2)`$ |
+:::
+
+::: {.column width="45%" .fragment}
+::: {.small}
+```{r}
+#| echo: true
+
+gapminder |> 
+  filter(year == 2007) |> 
+  group_by(continent) |> 
+  summarise(avg = mean(lifeExp))
+```
+:::
+
+[These are just the averages for each continent!]{.box-clr-8-light .small}
+
+:::
+
+::::
+
+## Offsets from the base case {.clr-8}
+
+```{r}
+#| label: plot-gapminder-offsets
+#| fig-width: 8
+#| fig-height: 4.5
+#| out-width: "100%"
+
+continent_offsets <- continent_means |>
+  filter(continent != "Africa") |>
+  mutate(
+    offset = mean - cont_b0,
+    label = paste0("+", round(offset, 2))
+  )
+
+gapminder_means +
+  geom_hline(yintercept = cont_b0, color = clrs$purple, linetype = "dashed") +
+  geom_segment(
+    data = continent_offsets,
+    aes(x = continent, xend = continent, y = cont_b0, yend = mean),
+    color = clrs$orange, linewidth = 1.25,
+    arrow = arrow(length = unit(0.1, "inches"), type = "closed")
+  ) +
+  geom_label(
+    data = continent_offsets,
+    aes(x = continent, y = (cont_b0 + mean) / 2, label = label),
+    fontface = "bold", size = 4, color = clrs$orange
+  ) +
+  annotate(
+    geom = "label", x = 1, y = cont_b0 - 6,
+    label = paste0("Base case\n(intercept)\n", round(cont_b0, 2)),
+    fontface = "bold", size = 3.5, color = clrs$purple
+  )
+```
+
+## Observed vs. fitted values {.clr-8}
+
+```{r}
+#| label: plot-gapminder-afg
+#| fig-width: 8
+#| fig-height: 3
+#| out-width: "100%"
+
+# Drop Afghanistan's jittered point so it only shows up once
+(gapminder_means %+% filter(gapminder_2007, country != "Afghanistan")) +
+  geom_segment(
+    data = afg,
+    aes(x = continent, xend = continent, y = lifeExp, yend = lifeExp_hat),
+    color = clrs$orange, linewidth = 1.25,
+    arrow = arrow(length = unit(0.1, "inches"), ends = "first", type = "closed")
+  ) +
+  geom_point(data = afg, aes(y = lifeExp), size = 4, color = clrs$maroon) +
+  geom_point(data = afg, aes(y = lifeExp_hat), size = 4, shape = 15, color = clrs$maroon) +
+  annotate(
+    geom = "label", x = 3.25, y = afg$lifeExp,
+    label = "Afghanistan", hjust = 0, fontface = "bold", size = 3.5
+  )
+```
+
+::: {.smaller}
+[●]{.text-clr-2} **Observed value** ($y$): Afghanistan's actual life expectancy = `r round(afg$lifeExp, 2)`  
+[■]{.text-clr-2} **Fitted value** ($\widehat{y}$): $`r round(cont_b0, 2)` + `r round(cont_b[["Asia"]], 2)` \times 1 = `r round(afg$lifeExp_hat, 2)`$ (the Asia average)  
+[↓]{.text-clr-8} **Residual** ($y - \widehat{y}$): $`r round(afg$lifeExp, 2)` - `r round(afg$lifeExp_hat, 2)` = `r round(afg$residual, 2)`$
+:::
+
+## Residuals for every country {.clr-8}
+
+::: {.small}
+```{r}
+#| echo: true
+#| eval: false
+get_regression_points(lifeexp_model, ID = "country")
+```
+:::
+
+```{r}
+lifeexp_points |>
+  slice_head(n = 8) |>
+  tt() |>
+  style_tt(fontsize = 0.65) |>
+  theme_html(class = "tinytable shadow")
+```
+
+## Templates (categorical X) {.clr-8}
+
+::: {.small}
+$$
+\begin{aligned}
+\widehat{\text{lifeExp}} = &\ `r round(cont_b0, 2)` + `r round(cont_b[["Americas"]], 2)` \times \text{Americas} + `r round(cont_b[["Asia"]], 2)` \times \text{Asia} \\
+&+ `r round(cont_b[["Europe"]], 2)` \times \text{Europe} + `r round(cont_b[["Oceania"]], 2)` \times \text{Oceania}
+\end{aligned}
+$$
+:::
+
+::: {.list-table widths="1,0.5,3" .small}
+
+- - Parameter
+  - Term
+  - Template
+
+- - Intercept
+  - $b_0$
+  - Average value of **Y** for the base case
+
+- - Coefficient
+  - $b_n$
+  - On average, **Y** is $b_n$ higher (or lower) in this category, compared to the base case
+
+:::
+
+::: {.list-table widths="0.5,4" .smaller .sp-before}
+
+- - Parameter
+  - Interpretation
+
+- - Intercept
+  - Average life expectancy in Africa is `r round(cont_b0, 2)` years
+
+- - Americas
+  - On average, life expectancy in the Americas is `r round(cont_b[["Americas"]], 2)` years higher than in Africa
+
+:::
+
+## Sliders and switches {.clr-8}
+
+![](img/slider-switch.jpg){.shadow width="80%" fig-align="center"}
+
+:::: {.columns .small .box-center}
+
+::: {.column width="50%"}
+[Categorical **X**]{.box-clr-8 .large}
+
+**Y** shifts by $b_n$<br>compared to the base case
+:::
+
+::: {.column width="50%"}
+[Continuous **X**]{.box-clr-7 .large}
+
+**Y** changes by $b_n$
+:::
+
+::::
+
+## Our turn #2 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+Is happiness different across continents?
+
+[Keep using `simple-regression.qmd`]{.small}
+
+1. Make a plot of `happiness` across `continent`
+2. Find the average `happiness` in each continent with `group_by()` and `summarize()`
+3. Fit a model with `lm()` and look at the coefficients with `get_regression_table()`
+4. Interpret the intercept and the coefficient for Europe
+
+## Your turn #2 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+Is internet access different across continents?
+
+[Keep using `simple-regression.qmd`]{.small}
+
+1. Make a plot of `internet_use_prop` across `continent`
+2. Find the average `internet_use_prop` in each continent with `group_by()` and `summarize()`
+3. Fit a model with `lm()` and look at the coefficients with `get_regression_table()`
+4. Interpret the intercept and the coefficient for Asia
+
+```{r}
+#| label: clock-categories
+#| echo: false
+
+countdown(minutes = 8, seconds = 0, play_sound = TRUE, warn_when = 1 * 60)
+```
+
+# Multiple regression {background-color="{{< brand color clr-2 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## Many explanations! {.clr-2}
+
+```{r}
+#| label: plot-gdp-continent
+#| fig-width: 10
+#| fig-height: 4.25
+#| out-width: "100%"
+
+plot_gdp <- ggplot(gapminder_2007, aes(x = gdp_1000, y = lifeExp)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", formula = y ~ x, color = clrs$blue, se = FALSE) +
+  labs(x = "GDP per capita (thousands of $)", y = "Life expectancy (2007)")
+
+plot_gdp + gapminder_means + plot_layout(axes = "collect")
+```
+
+Wealth *and* continent-level differences each explain some of the variation in life expectancy
+
+## One at a time {.clr-2}
+
+:::: {.columns}
+
+::: {.column width="50%" .smaller .fragment}
+```{r}
+#| echo: true
+
+gdp_model <- lm(
+  lifeExp ~ gdp_1000,
+  data = gapminder_2007
+)
+
+gdp_model |>
+  get_regression_table() |>
+  select(term, estimate)
+```
+:::
+
+::: {.column width="50%" .smaller .fragment}
+```{r}
+#| echo: true
+
+lifeexp_model <- lm(
+  lifeExp ~ continent,
+  data = gapminder_2007
+)
+
+lifeexp_model |>
+  get_regression_table() |>
+  select(term, estimate)
+```
+:::
+
+::::
+
+## Both at the same time {.clr-2}
+
+[GDP per capita and continent both explain<br>*some* variation in life expectancy]{.box-clr-2}
+
+::: {.small .incremental}
+- On its own, a \$1,000 increase in GDP per capita is associated with a `r round(gdp_b1, 2)` year increase in life expectancy, on average
+- On its own, life expectancy in Europe is `r round(cont_b[["Europe"]], 2)` years higher than in Africa, on average
+:::
+
+::: {.fragment}
+[Some of that explanation is shared!]{.box-clr-2-light .medium}
+:::
+
+::: {.fragment .small}
+Richer countries are concentrated in some continents, so each variable is partly getting credit for the other
+:::
+
+## Building the model {.clr-2}
+
+Add more explanatory variables with `+`
+
+::: {.smaller}
+```{r}
+#| echo: true
+
+lifeexp_lots_model <- lm(lifeExp ~ gdp_1000 + continent, data = gapminder_2007)
+get_regression_table(lifeexp_lots_model)
+```
+:::
+
+## Translating results to math {.clr-2}
+
+::: {.smaller}
+```{r}
+get_regression_table(lifeexp_lots_model) |>
+  select(term, estimate) |>
+  tt() |>
+  theme_html(class = "tinytable shadow")
+```
+:::
+
+::: {.fragment .small}
+$$
+\begin{aligned}
+\widehat{\text{lifeExp}} = &\ b_0 + b_1 \times \text{GDP}_{1000} + b_2 \times \text{Americas} + b_3 \times \text{Asia} \\
+&+ b_4 \times \text{Europe} + b_5 \times \text{Oceania}
+\end{aligned}
+$$
+:::
+
+::: {.fragment .small}
+$$
+\begin{aligned}
+\widehat{\text{lifeExp}} = &\ `r round(mr_b0, 2)` + `r round(mr_gdp, 3)` \times \text{GDP}_{1000} + `r round(mr_cont[["Americas"]], 2)` \times \text{Americas} + `r round(mr_cont[["Asia"]], 2)` \times \text{Asia} \\
+&+ `r round(mr_cont[["Europe"]], 2)` \times \text{Europe} + `r round(mr_cont[["Oceania"]], 2)` \times \text{Oceania}
+\end{aligned}
+$$
+:::
+
+## One line per continent {.clr-2}
+
+```{r}
+#| label: plot-parallel-slopes
+#| fig-width: 8
+#| fig-height: 4.25
+#| out-width: "100%"
+
+clrs_continent <- c(
+  Africa = clrs$purple, Americas = clrs$orange, Asia = clrs$green,
+  Europe = clrs$blue, Oceania = clrs$maroon
+)
+
+plot_parallel <- ggplot(gapminder_2007, aes(x = gdp_1000, y = lifeExp, color = continent)) +
+  geom_point(size = 2, alpha = 0.4) +
+  geom_parallel_slopes(se = FALSE, linewidth = 1.25) +
+  scale_color_manual(values = clrs_continent) +
+  labs(
+    x = "GDP per capita (thousands of $)", y = "Life expectancy (2007)",
+    color = NULL
+  )
+
+plot_parallel
+```
+
+::: {.smaller}
+Same slope for GDP (`r round(mr_gdp, 3)`) in every continent; the continent switches shift the intercept
+:::
+
+## Switches shift the line {.clr-2}
+
+```{r}
+#| label: plot-parallel-shifts
+#| fig-width: 8
+#| fig-height: 4.25
+#| out-width: "100%"
+
+plot_parallel +
+  geom_abline(
+    intercept = mr_b0, slope = mr_gdp,
+    color = clrs$purple, linetype = "dashed", linewidth = 1
+  ) +
+  geom_segment(
+    data = mr_offsets,
+    aes(x = gdp_1000, xend = gdp_1000, y = africa, yend = lifeExp),
+    linewidth = 1, arrow = arrow(length = unit(0.1, "inches"), type = "closed")
+  ) +
+  geom_label(
+    data = mr_offsets,
+    aes(x = gdp_1000, y = (africa + lifeExp) / 2, label = label),
+    fontface = "bold", size = 3.5, show.legend = FALSE
+  ) +
+  annotate(
+    geom = "label", x = 47, y = mr_b0 + mr_gdp * 47 - 4,
+    label = paste0("Base case: Africa\n(intercept = ", round(mr_b0, 2), ")"),
+    fontface = "bold", size = 3.5, color = clrs$purple, hjust = 1
+  )
+```
+
+::: {.smaller}
+Each continent's coefficient is how far its line is shifted above (or below) Africa's line
+:::
+
+## {.clr-2 .center}
+
+![](img/mixer-board.jpg){.shadow width="100%" fig-align="center"}
+
+## Filtering out variation {.clr-2}
+
+[Each **X** in the model explains<br>some portion of the variation in **Y**]{.box-clr-2 .medium}
+
+::: {.fragment .small}
+This will often change the simple regression coefficients
+:::
+
+::: {.fragment .small}
+| | On its own | In the model with both |
+|:---|:---:|:---:|
+| GDP per capita (\$1,000s) | `r round(gdp_b1, 3)` | `r round(mr_gdp, 3)` |
+| Europe | `r round(cont_b[["Europe"]], 2)` | `r round(mr_cont[["Europe"]], 2)` |
+:::
+
+::: {.fragment}
+[Interpretation is trickier, since you can only ever move **one** slider or switch at a time]{.box-clr-2-light}
+:::
+
+## Templates (multiple X) {.clr-2}
+
+::: {.small}
+$$
+\widehat{y} = b_0 + b_1 \times x_1 + b_2 \times x_2 + \dots + b_n \times x_n
+$$
+:::
+
+::: {.small}
+$$
+\begin{aligned}
+\widehat{\text{lifeExp}} = &\ b_0 + b_1 \times \text{GDP}_{1000} + b_2 \times \text{Americas} + b_3 \times \text{Asia} \\
+&+ b_4 \times \text{Europe} + b_5 \times \text{Oceania}
+\end{aligned}
+$$
+:::
+
+::: {.list-table widths="1,0.5,3" .smaller}
+
+- - Parameter
+  - Term
+  - Template
+
+- - Intercept
+  - $b_0$
+  - Average value of **Y** when all continuous **X**s are 0 and all categorical **X**s are the base case
+
+- - Continuous
+  - $b_n$
+  - *Taking all other variables in the model into account*, a one unit increase in **X**~n~ is associated with a $b_n$ increase (or decrease) in **Y**, on average
+
+- - Categorical
+  - $b_n$
+  - *Taking all other variables in the model into account*, **Y** is $b_n$ higher (or lower) in this category compared to the base case, on average
+
+:::
+
+## Templates (multiple X) {.clr-2}
+
+::: {.small}
+$$
+\begin{aligned}
+\widehat{\text{lifeExp}} = &\ `r round(mr_b0, 2)` + `r round(mr_gdp, 3)` \times \text{GDP}_{1000} + `r round(mr_cont[["Americas"]], 2)` \times \text{Americas} + `r round(mr_cont[["Asia"]], 2)` \times \text{Asia} \\
+&+ `r round(mr_cont[["Europe"]], 2)` \times \text{Europe} + `r round(mr_cont[["Oceania"]], 2)` \times \text{Oceania}
+\end{aligned}
+$$
+:::
+
+::: {.list-table widths="0.6,4" .small .sp-before}
+
+- - Parameter
+  - Interpretation
+
+- - Intercept
+  - In an African country with a GDP per capita of \$0, average life expectancy would be `r round(mr_b0, 2)` years
+
+- - GDP
+  - Controlling for continent, a \$1,000 increase in GDP per capita is associated with a `r round(mr_gdp, 2)` year increase in life expectancy, on average
+
+- - Europe
+  - Controlling for GDP per capita, life expectancy in Europe is `r round(mr_cont[["Europe"]], 2)` years higher than in Africa, on average
+
+:::
+
+## "Controlling for…" {.clr-2}
+
+::: {.incremental}
+- Controlling for…
+- Taking all other variables in the model into account…
+- Holding … constant
+- Accounting for…
+- Adjusting for…
+:::
+
+::: {.fragment .small .sp-before}
+These all mean the same thing—we're comparing countries that have the same values for every other variable in the model, or filtering out the variation that comes from the other variables and isolating just one slider or switch
+:::
+
+## Lots of sliders and switches! {.clr-2}
+
+:::: {.columns}
+
+::: {.column width="50%" .small}
+```{r}
+#| echo: true
+
+un_model <- lm(
+  life_exp ~ fert_rate +
+    gdp_1000 + continent,
+  data = un_data
+)
+```
+:::
+
+::: {.column width="50%"}
+::: {.small}
+- **Sliders**: fertility rate *and* GDP per capita
+- **Switches**: continent (Africa is the base case)
+:::
+:::
+
+::::
+
+:::: {.columns .fragment}
+
+::: {.column .small}
+```{.r}
+un_model |> 
+  get_regression_table() |> 
+  select(term, estimate)
+```
+:::
+
+::: {.column .small}
+
+```{r}
+un_model |> 
+  get_regression_table() |> 
+  select(term, estimate)
+```
+:::
+
+::::
+
+## Move one slider/switch at a time {.clr-2}
+
+::: {.small}
+Imagine an African country with a fertility rate of 3 and a GDP per capita of \$10,000
+:::
+
+```{r}
+un_scenarios |>
+  mutate(
+    gdp_1000 = scales::label_dollar()(gdp_1000 * 1000),
+    change = round(life_exp_hat - first(life_exp_hat), 3),
+    life_exp_hat = round(life_exp_hat, 2)
+  ) |>
+  set_names(c("Scenario", "Fertility rate", "GDP per capita", "Continent", "Predicted life exp.", "Change")) |>
+  tt() |>
+  style_tt(fontsize = 0.7) |>
+  theme_html(class = "tinytable shadow")
+```
+
+::: {.fragment}
+[You can only interpret one slider or switch at a time;<br>keep the others constant]{.box-clr-2-light}
+:::
+
+## Interpreting everything {.clr-2}
+
+::: {.list-table widths="0.6,4" .small}
+
+- - Parameter
+  - Interpretation
+
+- - Intercept
+  - In an African country with a fertility rate of 0 and a GDP per capita of \$0, average life expectancy would be `r round(un_b[["(Intercept)"]], 2)` years (not a real country!)
+
+- - Fertility
+  - Taking GDP per capita and continent into account, a one-child increase in the fertility rate is associated with a `r abs(round(un_b[["fert_rate"]], 2))` year decrease in life expectancy, on average
+
+- - GDP
+  - Holding fertility and continent constant, a \$1,000 increase in GDP per capita is associated with a `r round(un_b[["gdp_1000"]], 3)` year increase in life expectancy, on average
+
+- - Europe
+  - Controlling for fertility and GDP per capita, life expectancy in Europe is `r round(un_b[["continentEurope"]], 2)` years higher than in Africa, on average
+
+:::
+
+## Our turn #3 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+Is national happiness explained by wealth, internet access, *and* continent?
+
+[Use `multiple-regression.qmd` in the "Regression playground" project]{.small}
+
+1. Fit a model with `lm()` that explains `happiness` with `gdp_per_cap_1000`, `internet_use_prop`, and `continent`
+2. Look at the coefficients with `get_regression_table()`
+3. Write out the model as an equation
+4. Interpret the intercept and the coefficients for GDP per capita, internet use, and Europe
+
+## Your turn #3 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+Is national happiness explained by health, jobs, and income?
+
+1. Fit a model that explains `happiness` with `life_expectancy`, `unemployment_rate`, and `income_group`
+2. Look at the coefficients with `get_regression_table()`
+3. What's the base case for `income_group`?
+4. Interpret the coefficients for life expectancy, unemployment, and high income
+
+```{r}
+#| label: clock-multiple
+#| echo: false
+
+countdown(minutes = 10, seconds = 0, play_sound = TRUE, warn_when = 1 * 60)
+```
+
+# Interpretation<br>practice! {background-color="{{< brand color clr-3 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## SAT scores in Massachusetts {.clr-3}
+
+::: {.small}
+$$
+\begin{aligned}
+\widehat{\text{SAT}\_\text{math}} =&\ `r round(schools_b[["(Intercept)"]], 2)` + (`r round(schools_b[["perc_disadvan"]], 2)`) \times \text{perc}\_\text{disadvan}\ + \\
+& (`r round(schools_b[["sizemedium"]], 2)`) \times \text{medium} + (`r round(schools_b[["sizelarge"]], 2)`) \times \text{large}
+\end{aligned}
+$$
+:::
+
+:::: {.columns}
+
+::: {.column width="55%"}
+```{r}
+#| label: plot-practice-schools
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: "100%"
+
+ggplot(MA_schools, aes(x = perc_disadvan, y = average_sat_math, color = size)) +
+  geom_point(size = 1.5, alpha = 0.4) +
+  geom_parallel_slopes(se = FALSE, linewidth = 1.25) +
+  scale_color_manual(values = c(clrs$blue, clrs$orange, clrs$maroon)) +
+  labs(
+    x = "% economically disadvantaged students",
+    y = "Average math SAT score",
+    color = "School size"
+  ) +
+  theme(legend.position = "bottom")
+```
+:::
+
+::: {.column width="45%" .smaller}
+```{.r}
+lm(average_sat_math ~
+     perc_disadvan + size,
+   data = MA_schools)
+```
+
+```{r}
+get_regression_table(schools_model) |>
+  select(term, estimate) |>
+  tt() |>
+  theme_html(class = "tinytable shadow")
+```
+:::
+
+::::
+
+## SAT scores in Massachusetts {.clr-3}
+
+::: {.incremental .small}
+- **Intercept**: A *small* school with 0% economically disadvantaged students would have an average math SAT score of `r round(schools_b[["(Intercept)"]], 2)`
+- **% disadvantaged**: Controlling for school size, a one percentage point increase in economically disadvantaged students is associated with a `r abs(round(schools_b[["perc_disadvan"]], 2))` point decrease in average math SAT scores, on average
+- **Medium**: Taking the % of disadvantaged students into account, medium schools score `r abs(round(schools_b[["sizemedium"]], 2))` points lower than small schools, on average
+- **Large**: Taking the % of disadvantaged students into account, large schools score `r abs(round(schools_b[["sizelarge"]], 2))` points lower than small schools, on average
+:::
+
+## Teaching evaluations {.clr-3}
+
+::: {.small}
+$$
+\widehat{\text{score}} = `r round(evals_b[["(Intercept)"]], 2)` + (`r round(evals_b[["age"]], 3)`) \times \text{age} + `r round(evals_b[["bty_avg"]], 3)` \times \text{bty}\_\text{avg} + `r round(evals_b[["gendermale"]], 3)` \times \text{male}
+$$
+:::
+
+:::: {.columns}
+
+::: {.column width="55%"}
+```{r}
+#| label: plot-practice-evals
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: "100%"
+
+ggplot(evals, aes(x = bty_avg, y = score, color = gender)) +
+  geom_point(size = 1.5, alpha = 0.4) +
+  geom_line(
+    data = model_lines(evals_model, "bty_avg", "gender"),
+    aes(y = .fitted),
+    linewidth = 1.25
+  ) +
+  scale_color_manual(values = c(clrs$purple, clrs$green)) +
+  labs(
+    x = "Average beauty rating (1–10)",
+    y = "Teaching evaluation score (1–5)",
+    color = NULL
+  ) +
+  theme(legend.position = "bottom")
+```
+:::
+
+::: {.column width="45%" .smaller}
+```{.r}
+lm(score ~ age + bty_avg + gender,
+   data = evals)
+```
+
+```{r}
+get_regression_table(evals_model) |>
+  select(term, estimate) |>
+  tt() |>
+  theme_html(class = "tinytable shadow")
+```
+:::
+
+::::
+
+## Teaching evaluations {.clr-3}
+
+::: {.incremental .small}
+- **Intercept**: A 0-year-old female professor with a beauty rating of 0 would have an average evaluation score of `r round(evals_b[["(Intercept)"]], 2)` (not a real professor!)
+- **Age**: Controlling for beauty and gender, a one-year increase in a professor's age is associated with a `r abs(round(evals_b[["age"]], 3))` point decrease in evaluation scores, on average
+- **Beauty**: Holding age and gender constant, a one-point increase in beauty rating is associated with a `r round(evals_b[["bty_avg"]], 3)` point increase in evaluation scores, on average
+- **Male**: Taking age and beauty into account, male professors have evaluation scores that are `r round(evals_b[["gendermale"]], 3)` points higher than female professors, on average
+:::
+
+## Penguin weights {.clr-3}
+
+::: {.small}
+$$
+\begin{aligned}
+\widehat{\text{body}\_\text{mass}} = &\ (`r round(penguins_b[["(Intercept)"]], 1)`) + `r round(penguins_b[["flipper_len"]], 1)` \times \text{flipper}\_\text{len} + `r round(penguins_b[["bill_len"]], 1)` \times \text{bill}\_\text{len} \\
+&+ (`r round(penguins_b[["speciesChinstrap"]], 1)`) \times \text{Chinstrap} + `r round(penguins_b[["speciesGentoo"]], 1)` \times \text{Gentoo}
+\end{aligned}
+$$
+:::
+
+:::: {.columns}
+
+::: {.column width="55%"}
+```{r}
+#| label: plot-practice-penguins
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: "100%"
+
+ggplot(
+  drop_na(penguins, body_mass),
+  aes(x = flipper_len, y = body_mass, color = species)
+) +
+  geom_point(size = 1.5, alpha = 0.4) +
+  geom_line(
+    data = model_lines(penguins_model, "flipper_len", "species"),
+    aes(y = .fitted),
+    linewidth = 1.25
+  ) +
+  scale_color_manual(values = c(clrs$orange, clrs$purple, clrs$green)) +
+  labs(
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = NULL
+  ) +
+  theme(legend.position = "bottom")
+```
+:::
+
+::: {.column width="45%" .smaller}
+```{.r}
+lm(body_mass ~ flipper_len +
+     bill_len + species,
+   data = penguins)
+```
+
+```{r}
+get_regression_table(penguins_model) |>
+  select(term, estimate) |>
+  tt() |>
+  theme_html(class = "tinytable shadow")
+```
+:::
+
+::::
+
+## Penguin weights {.clr-3}
+
+::: {.incremental .small}
+- **Intercept**: An Adelie penguin with 0 mm flippers and a 0 mm bill would weigh `r round(penguins_b[["(Intercept)"]], 1)` grams (not a real penguin!)
+- **Flipper length**: Controlling for bill length and species, a one-mm increase in flipper length is associated with a `r round(penguins_b[["flipper_len"]], 1)` gram increase in body mass, on average
+- **Bill length**: Holding flipper length and species constant, a one-mm increase in bill length is associated with a `r round(penguins_b[["bill_len"]], 1)` gram increase in body mass, on average
+- **Chinstrap**: Taking flipper and bill length into account, Chinstrap penguins weigh `r abs(round(penguins_b[["speciesChinstrap"]], 1))` grams less than Adelie penguins, on average
+- **Gentoo**: Taking flipper and bill length into account, Gentoo penguins weigh `r round(penguins_b[["speciesGentoo"]], 1)` grams more than Adelie penguins, on average
+:::
+
+## House prices {.clr-3}
+
+::: {.small}
+$$
+\widehat{\text{price}} = `r scales::label_comma(accuracy = 1, big.mark = "{,}")(houses_b[["(Intercept)"]])` + `r round(houses_b[["living_area"]], 2)` \times \text{living}\_\text{area} + (`r round(houses_b[["age"]], 2)`) \times \text{age} + `r scales::label_comma(accuracy = 1, big.mark = "{,}")(houses_b[["fireplaceTRUE"]])` \times \text{fireplace}
+$$
+:::
+
+:::: {.columns}
+
+::: {.column width="55%"}
+```{r}
+#| label: plot-practice-houses
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: "100%"
+
+ggplot(saratoga_houses, aes(x = living_area, y = price, color = fireplace)) +
+  geom_point(size = 1, alpha = 0.3) +
+  geom_line(
+    data = model_lines(houses_model, "living_area", "fireplace"),
+    aes(y = .fitted),
+    linewidth = 1.25
+  ) +
+  scale_color_manual(
+    values = c(clrs$gray, clrs$maroon),
+    labels = c("No fireplace", "Fireplace")
+  ) +
+  scale_y_continuous(labels = scales::label_dollar()) +
+  scale_x_continuous(labels = scales::label_comma()) +
+  labs(
+    x = "Living area (square feet)",
+    y = "Price",
+    color = NULL
+  ) +
+  theme(legend.position = "bottom")
+```
+:::
+
+::: {.column width="45%" .smaller}
+```{.r}
+lm(price ~ living_area +
+     age + fireplace,
+   data = saratoga_houses)
+```
+
+```{r}
+get_regression_table(houses_model) |>
+  select(term, estimate) |>
+  tt() |>
+  theme_html(class = "tinytable shadow")
+```
+:::
+
+::::
+
+## House prices {.clr-3}
+
+::: {.incremental .small}
+- **Intercept**: A brand new house with 0 square feet and no fireplace would cost `r scales::label_dollar(accuracy = 1)(houses_b[["(Intercept)"]])` (not a real house!)
+- **Living area**: Controlling for age and fireplaces, a one-square-foot increase in living area is associated with a `r scales::label_dollar(accuracy = 0.01)(houses_b[["living_area"]])` increase in price, on average
+- **Age**: Holding living area and fireplaces constant, a one-year increase in a house's age is associated with a `r scales::label_dollar(accuracy = 0.01)(abs(houses_b[["age"]]))` decrease in price, on average
+- **Fireplace**: Taking living area and age into account, houses with a fireplace cost `r scales::label_dollar(accuracy = 1)(houses_b[["fireplaceTRUE"]])` more than houses without one, on average
+:::

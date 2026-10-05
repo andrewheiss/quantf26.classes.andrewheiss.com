@@ -1,0 +1,168 @@
+---
+title: "Simple linear regression"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For get_correlation(), get_regression_table(), etc
+
+# Load the World Happiness Report data and only keep 2024
+world_happiness <- read_csv("data/world_happiness.csv") |>
+  filter(year == 2024)
+```
+
+## World happiness
+
+This data comes from the [World Happiness Report](https://www.worldhappiness.report/) (happiness scores) and the [World Bank](https://data.worldbank.org/) (everything else). Each row is a country in 2024.
+
+- `country`: Country name
+- `year`: Year
+- `continent`: Africa, Americas, Asia, Europe, or Oceania
+- `region`: World Bank region (East Asia & Pacific, Sub-Saharan Africa, etc.)
+- `income_group`: World Bank income group (Low income, Lower middle income, Upper middle income, High income)
+- `iso3c`: Three-letter country code
+- `happiness`: Average life evaluation score, on a scale of 0–10 (higher = happier)
+- `life_expectancy`: Average life expectancy at birth, in years
+- `gdp_per_cap`: GDP per capita (constant 2015 US dollars)
+- `internet_use_prop`: Percent of the population that uses the internet (0–100)
+- `urban_prop`: Percent of the population that lives in cities (0–100)
+- `women_parliament_prop`: Percent of seats in the national parliament held by women (0–100)
+- `unemployment_rate`: Percent of the labor force that is unemployed (0–100)
+- `population_millions`: Population, in millions
+
+```{r}
+world_happiness
+```
+
+
+## Our turn #1: Happiness and life expectancy
+
+Does a country's life expectancy predict its happiness?
+
+Make a scatterplot with `life_expectancy` on the x-axis and `happiness` on the y-axis:
+
+```{r}
+ggplot(data = world_happiness)
+```
+
+Find the correlation between the two with `get_correlation()`:
+
+```{r}
+world_happiness
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_life_exp <- lm(...)
+```
+
+Interpret the slope:
+
+> On average, a one-year increase in life expectancy is associated with a ___ ...
+
+Interpret the intercept:
+
+> In a country where life expectancy is 0 years, ...
+
+
+## Your turn #1: Happiness and internet access
+
+Does access to the internet predict national happiness?
+
+Make a scatterplot with `internet_use_prop` on the x-axis and `happiness` on the y-axis:
+
+```{r}
+ggplot(data = world_happiness)
+```
+
+Find the correlation between the two with `get_correlation()`:
+
+```{r}
+world_happiness
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_internet <- lm(...)
+```
+
+Interpret the slope:
+
+> On average, a one percentage point increase in internet use is associated with a ___ ...
+
+Interpret the intercept:
+
+> ...
+
+
+## Our turn #2: Happiness and continents
+
+Is happiness different across continents?
+
+Make a plot that shows `happiness` across each `continent` (try `geom_point()` with `position = position_jitter(width = 0.15)`, or `geom_boxplot()`):
+
+```{r}
+ggplot(data = world_happiness)
+```
+
+Find the average happiness in each continent with `group_by()` and `summarize()`:
+
+```{r}
+world_happiness
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_continent <- lm(...)
+```
+
+What's the base case?
+
+> ...
+
+Interpret the intercept:
+
+> ...
+
+Interpret the coefficient for Europe:
+
+> On average, happiness in Europe is ___ ...
+
+
+## Your turn #2: Internet access and continents
+
+Is internet access different across continents?
+
+Make a plot that shows `internet_use_prop` across each `continent`:
+
+```{r}
+ggplot(data = world_happiness)
+```
+
+Find the average internet use in each continent with `group_by()` and `summarize()`:
+
+```{r}
+world_happiness
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_internet_continent <- lm(...)
+```
+
+Interpret the intercept:
+
+> ...
+
+Interpret the coefficient for Asia:
+
+> ...

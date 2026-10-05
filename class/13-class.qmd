@@ -3,6 +3,19 @@ title: "Multiple regression I"
 date: "2026-10-04"
 ---
 
+```{r}
+#| include: false
+
+knitr::opts_chunk$set(
+  fig.width = 5,
+  fig.height = (5 * 0.618),
+  fig.align = "center",
+  fig.retina = 3,
+  out.width = "75%",
+  collapse = TRUE
+)
+```
+
 ## Readings
 
 ::: {.readings}
@@ -10,3 +23,249 @@ date: "2026-10-04"
 {{< include ../readings/_13-class.md >}}
 
 :::
+
+## Slides
+
+<p style="line-height: 2.5"><a class="btn btn-success me-2" target="_blank" href="../slides/13-multiple-regression/index.html">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a><a class="btn btn-success" target="_blank" href="../slides/13-multiple-regression/13-multiple-regression.pdf">{{< fa file-pdf >}} &ensp;Download PDF of slides</a></p>
+
+```{=html}
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="../slides/13-multiple-regression/index.html" style="border: 1px solid #343a40;"></iframe>
+</div>
+```
+
+## Materials for class today
+
+- [Regression playground `.zip` project](/projects/regression-playground.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/13061645) (only if you're using an iPad!)
+
+## In-class examples
+
+Here's the code from the two "Our Turn"s and "Your Turns"s from class today. The CSV file of the data is in the `.zip` file that you downloaded above, or you can grab if from here:
+
+- {{< fa file-csv >}} [`world_happiness.csv`](/projects/regression-playground/data/world_happiness.csv)
+
+If you're curious about how I made this data, you can see the R code I used to build, combine, and clean the data here:
+
+- {{< fa brands r-project >}} [`make-world-happiness.R`](/data/make-world-happiness.R)
+
+---
+
+```{.r}
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For get_correlation(), get_regression_table(), etc
+
+# Load the World Happiness Report data and only keep 2024
+world_happiness <- read_csv("data/world_happiness.csv") |>
+  filter(year == 2024)
+```
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(moderndive)
+
+world_happiness <- read_csv(here::here(
+  "projects",
+  "regression-playground",
+  "data",
+  "world_happiness.csv"
+)) |>
+  filter(year == 2024)
+```
+
+### World happiness
+
+This data comes from the [World Happiness Report](https://www.worldhappiness.report/) (happiness scores) and the [World Bank](https://data.worldbank.org/) (everything else). Each row is a country in 2024.
+
+- `country`: Country name
+- `year`: Year
+- `continent`: Africa, Americas, Asia, Europe, or Oceania
+- `region`: World Bank region (East Asia & Pacific, Sub-Saharan Africa, etc.)
+- `income_group`: World Bank income group (Low income, Lower middle income, Upper middle income, High income)
+- `iso3c`: Three-letter country code
+- `happiness`: Average life evaluation score, on a scale of 0–10 (higher = happier)
+- `life_expectancy`: Average life expectancy at birth, in years
+- `gdp_per_cap`: GDP per capita (constant 2015 US dollars)
+- `internet_use_prop`: Percent of the population that uses the internet (0–100)
+- `urban_prop`: Percent of the population that lives in cities (0–100)
+- `women_parliament_prop`: Percent of seats in the national parliament held by women (0–100)
+- `unemployment_rate`: Percent of the labor force that is unemployed (0–100)
+- `population_millions`: Population, in millions
+
+```{r}
+world_happiness
+```
+
+
+### Our turn #1: Happiness and life expectancy
+
+Does a country's life expectancy predict its happiness?
+
+Make a scatterplot with `life_expectancy` on the x-axis and `happiness` on the y-axis:
+
+```{r}
+#| message: false
+
+ggplot(world_happiness, aes(x = life_expectancy, y = happiness)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+Find the correlation between the two with `get_correlation()`:
+
+```{r}
+get_correlation(world_happiness, happiness ~ life_expectancy)
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+model_life_exp <- lm(
+  happiness ~ life_expectancy,
+  data = world_happiness
+)
+
+get_regression_table(model_life_exp)
+```
+
+Interpret the slope:
+
+> On average, a one-year increase in life expectancy is associated with a 0.116 increase in happiness points.
+
+Interpret the intercept:
+
+> In a country where life expectancy is 0 years (which doesn't exist!), average happiness is -2.99.
+
+
+### Your turn #1: Happiness and internet access
+
+Does access to the internet predict national happiness?
+
+Make a scatterplot with `internet_use_prop` on the x-axis and `happiness` on the y-axis:
+
+```{r}
+#| message: false
+#| warning: false
+
+ggplot(data = world_happiness, aes(x = internet_use_prop, y = happiness)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+Find the correlation between the two with `get_correlation()`:
+
+```{r}
+get_correlation(world_happiness, happiness ~ internet_use_prop, na.rm = TRUE)
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+model_internet <- lm(
+  happiness ~ internet_use_prop, 
+  data = world_happiness
+)
+
+get_regression_table(model_internet)
+```
+
+Interpret the slope:
+
+> On average, a one percentage point increase in internet use is associated with a 0.035 point increase in happiness.
+
+Interpret the intercept:
+
+> In a country where the proportion of people with access to the internet is 0% (which is potentially plausible!), average happiness is 3.02.
+
+
+### Our turn #2: Happiness and continents
+
+Is happiness different across continents?
+
+Make a plot that shows `happiness` across each `continent` (try `geom_point()` with `position = position_jitter(width = 0.15)`, or `geom_boxplot()`):
+
+```{r}
+#| include: false
+
+set.seed(1234)
+```
+
+```{r}
+ggplot(data = world_happiness, aes(x = continent, y = happiness)) + 
+  geom_point(position = position_jitter(width = 0.15))
+```
+
+Find the average happiness in each continent with `group_by()` and `summarise()`:
+
+```{r}
+world_happiness |> 
+  group_by(continent) |> 
+  summarise(avg_happiness = mean(happiness))
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+model_happiness_continent <- lm(
+  happiness ~ continent,
+  data = world_happiness
+)
+
+get_regression_table(model_happiness_continent)
+```
+
+What's the base case?
+
+> The base case, or omitted continent, is Africa.
+
+Interpret the intercept:
+
+> Average happiness in Africa is 4.42.
+
+Interpret the coefficient for Europe:
+
+> On average, happiness in Europe is 2.06 points higher than in Africa.
+
+
+### Your turn #2: Internet access and continents
+
+Is internet access different across continents?
+
+Make a plot that shows `internet_use_prop` across each `continent`:
+
+```{r}
+#| warning: false
+
+ggplot(data = world_happiness, aes(x = continent, y = internet_use_prop)) + 
+  geom_point(position = position_jitter(width = 0.15))
+```
+
+Find the average internet use in each continent with `group_by()` and `summarise()`:
+
+```{r}
+world_happiness |> 
+  group_by(continent) |> 
+  summarise(avg_internet = mean(internet_use_prop, na.rm = TRUE))
+```
+
+Fit a model with `lm()` and look at the coefficients with `get_regression_table()`:
+
+```{r}
+model_internet_continent <- lm(
+  internet_use_prop ~ continent,
+  data = world_happiness
+)
+
+get_regression_table(model_internet_continent)
+```
+
+Interpret the intercept:
+
+> The average proportion of internet use in Africa is 44.3%.
+
+Interpret the coefficient for Asia:
+
+> On average, the proportion of internet use in Asia is 36.8 percentage points higher than in Africa.
