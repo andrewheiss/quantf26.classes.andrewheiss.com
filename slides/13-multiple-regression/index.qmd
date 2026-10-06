@@ -1,5 +1,5 @@
 ---
-title: "Multiple regression I"
+title: "Multiple regression I & II"
 subtitle: "Quantitative Methods for<br>International Politics"
 course-info: "IPOL 3270 • Fall 2026"
 date: "2026-10-04"
