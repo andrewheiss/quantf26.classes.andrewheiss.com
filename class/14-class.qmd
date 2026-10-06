@@ -3,10 +3,214 @@ title: "Multiple regression II"
 date: "2026-10-06"
 ---
 
+```{r}
+#| include: false
+
+knitr::opts_chunk$set(
+  fig.width = 5,
+  fig.height = (5 * 0.618),
+  fig.align = "center",
+  fig.retina = 3,
+  out.width = "75%",
+  collapse = TRUE
+)
+```
+
 ## Readings
 
 ::: {.readings}
 
 {{< include ../readings/_14-class.md >}}
+
+:::
+
+## Materials for class today
+
+- [Regression playground `.zip` project](/projects/regression-playground.zip) (use `multiple-regression.qmd`)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/13061645) (only if you're using an iPad!)
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(moderndive)
+
+world_happiness <- read_csv(here::here(
+  "projects",
+  "regression-playground",
+  "data",
+  "world_happiness.csv"
+)) |>
+  filter(year == 2024) |>
+  mutate(
+    gdp_per_cap_1000 = gdp_per_cap / 1000,
+    income_group = factor(
+      income_group,
+      levels = c("Low income", "Lower middle income", "Upper middle income", "High income")
+    )
+  )
+```
+
+::: {.content-hidden}
+
+## In-class examples
+
+Here's the code from the "We do" and "You do" activities from class today. The CSV file of the data is in the `.zip` file that you downloaded above, or you can grab if from here:
+
+- {{< fa file-csv >}} [`world_happiness.csv`](/projects/regression-playground/data/world_happiness.csv)
+
+If you're curious about how I made this data, you can see the R code I used to build, combine, and clean the data here:
+
+- {{< fa brands r-project >}} [`make-world-happiness.R`](/data/make-world-happiness.R)
+
+---
+
+```{.r}
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For get_regression_table(), geom_parallel_slopes(), etc
+
+# Load the World Happiness Report data and only keep 2024
+world_happiness <- read_csv("data/world_happiness.csv") |>
+  filter(year == 2024) |>
+  mutate(
+    # GDP per capita in thousands of dollars, so that a "one unit increase" is
+    # $1,000 instead of $1
+    gdp_per_cap_1000 = gdp_per_cap / 1000,
+    # Put the income groups in order (otherwise R puts them in alphabetical order)
+    income_group = factor(
+      income_group,
+      levels = c("Low income", "Lower middle income", "Upper middle income", "High income")
+    )
+  )
+```
+
+The "I do" example (happiness, life expectancy, urbanization, and region) is already fully worked out in `multiple-regression.qmd`, so it's not repeated here.
+
+
+### We do: Happiness, wealth, internet access, and continents
+
+Is national happiness explained by wealth, internet access, *and* continent?
+
+Fit a model with `lm()` that explains `happiness` with `gdp_per_cap_1000`, `internet_use_prop`, and `continent`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+model_happiness <- lm(
+  happiness ~ gdp_per_cap_1000 + internet_use_prop + continent,
+  data = world_happiness
+)
+
+get_regression_table(model_happiness)
+```
+
+What's the base case for `continent`?
+
+> The base case is Africa, because it's first alphabetically and it's the continent that's missing from the table.
+
+Write out the model as an equation (fill in the numbers):
+
+$$
+\begin{aligned}
+\widehat{\text{happiness}} = &\ 3.50 + 0.015 \times \text{GDP}_{1000} + 0.020 \times \text{internet} + 1.00 \times \text{Americas} \\
+&+ 0.12 \times \text{Asia} + 0.64 \times \text{Europe} + 0.77 \times \text{Oceania}
+\end{aligned}
+$$
+
+Interpret the intercept:
+
+> In an African country with a GDP per capita of \$0 and 0% internet use, average happiness would be 3.50 (no country actually has a GDP per capita of \$0!).
+
+Interpret the coefficient for GDP per capita:
+
+> Taking internet use and continent into account, a \$1,000 increase in GDP per capita is associated with a 0.015 point increase in happiness, on average.
+
+Interpret the coefficient for internet use:
+
+> Taking GDP per capita and continent into account, a 1 percentage point increase in internet use is associated with a 0.020 point increase in happiness, on average.
+
+Interpret the coefficient for Europe:
+
+> Taking GDP per capita and internet use into account, happiness in European countries is 0.64 points higher compared to African countries, on average.
+
+Bonus: plot `happiness` and `gdp_per_cap_1000` with one line for each continent using `geom_parallel_slopes(se = FALSE)` (this plot ignores internet use, so the lines won't match the model exactly!):
+
+```{r}
+ggplot(data = world_happiness, aes(x = gdp_per_cap_1000, y = happiness, color = continent)) +
+  geom_point() +
+  geom_parallel_slopes(se = FALSE)
+```
+
+
+### You do together: Happiness, health, jobs, and income
+
+Is national happiness explained by health, jobs, and income?
+
+Fit a model that explains `happiness` with `life_expectancy`, `unemployment_rate`, and `income_group`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+model_income <- lm(
+  happiness ~ life_expectancy + unemployment_rate + income_group,
+  data = world_happiness
+)
+
+get_regression_table(model_income)
+```
+
+What's the base case for `income_group`, and how do you know?
+
+> The base case is "Low income." It's not alphabetical (that would be "High income")—the setup chunk used `factor()` to put the income groups in order from lowest to highest, so R uses the first level, "Low income," as the base case. It's also the income group that's missing from the table.
+
+Write out the model as an equation with the numbers from your table:
+
+$$
+\begin{aligned}
+\widehat{\text{happiness}} = &\ 2.21 + 0.031 \times \text{life expectancy} + (-0.035) \times \text{unemployment} \\
+&+ 0.67 \times \text{Lower middle} + 1.51 \times \text{Upper middle} + 2.05 \times \text{High}
+\end{aligned}
+$$
+
+Interpret the coefficient for life expectancy:
+
+> Taking unemployment and income group into account, a one-year increase in life expectancy is associated with a 0.031 point increase in happiness, on average.
+
+Interpret the coefficient for unemployment:
+
+> Taking life expectancy and income group into account, a 1 percentage point increase in the unemployment rate is associated with a 0.035 point decrease in happiness, on average.
+
+Interpret the coefficient for high income:
+
+> Taking life expectancy and unemployment into account, happiness in high income countries is 2.05 points higher than in low income countries, on average.
+
+
+### You do alone: Women in parliament, wealth, and income
+
+Is the share of women in parliament explained by wealth and income group?
+
+Fit a model that explains `women_parliament_prop` with `gdp_per_cap_1000` and `income_group`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+model_women <- lm(
+  women_parliament_prop ~ gdp_per_cap_1000 + income_group,
+  data = world_happiness
+)
+
+get_regression_table(model_women)
+```
+
+What's the base case for `income_group`?
+
+> The base case is "Low income," since the setup chunk put the income groups in order with `factor()`.
+
+Interpret the coefficient for GDP per capita:
+
+> Taking income group into account, a \$1,000 increase in GDP per capita is associated with a 0.18 percentage point increase in the share of parliamentary seats held by women, on average.
+
+Interpret the coefficient for one of the income groups:
+
+> Taking GDP per capita into account, the share of parliamentary seats held by women in high income countries is 0.49 percentage points lower than in low income countries, on average.
+
+Does anything about these results surprise you?
+
+> All the income group coefficients are tiny (less than 1 percentage point) even though high income countries are much richer than low income countries. That's because GDP per capita and income group measure almost the same thing—the World Bank *defines* income groups using income per person. Once the GDP slider is in the model, there's very little left over for the income group switches to explain.
 
 :::
