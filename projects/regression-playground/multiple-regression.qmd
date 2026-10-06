@@ -51,7 +51,93 @@ world_happiness
 ```
 
 
-## Our turn #3: Happiness, wealth, internet access, and continents
+## I do: Happiness, health, and region
+
+*I'll walk through this one on the screen—just follow along and read; you don't need to type anything (~8 minutes)*
+
+Is national happiness explained by health, urbanization, *and* region?
+
+### Fit the model
+
+The model explains `happiness` with two continuous variables (sliders: `life_expectancy` and `urban_prop`) and one categorical variable (switches: `region`):
+
+```{r}
+model_region <- lm(
+  happiness ~ life_expectancy + urban_prop + region,
+  data = world_happiness
+)
+
+get_regression_table(model_region)
+```
+
+### Find the base case
+
+`region` has 7 categories, but there are only 6 region coefficients in the table. The missing one is the **base case**. We didn't put the regions in any special order with `factor()` in the setup chunk, so R used alphabetical order and the first region alphabetically—**East Asia & Pacific**—became the base case. Every region coefficient is measured relative to East Asia & Pacific.
+
+### Write the equation
+
+Here's the model as an equation, with the numbers from the table (region names shortened so they fit):
+
+$$
+\begin{aligned}
+\widehat{\text{happiness}} = &\ 0.19 + 0.062 \times \text{life expectancy} + 0.014 \times \text{urban} \\
+&+ 0.30 \times \text{Europe/Central Asia} + 0.40 \times \text{Latin America/Caribbean} \\
+&+ (-0.81) \times \text{Middle East/North Africa} + 0.46 \times \text{North America} \\
+&+ (-0.94) \times \text{South Asia} + (-0.43) \times \text{Sub-Saharan Africa}
+\end{aligned}
+$$
+
+### Interpret the coefficients
+
+Interpret the intercept:
+
+> In an East Asian or Pacific country with a life expectancy of 0 years and 0% of the population living in cities, average happiness would be 0.19.
+
+That's nonsense! No country has a life expectancy of 0 (the lowest in the data is around 55 years), so the intercept is just a mathematical starting point for the line, not something to take seriously.
+
+Interpret the coefficient for life expectancy (a slider):
+
+> Taking urbanization and region into account, a one-year increase in life expectancy is associated with a 0.062 point increase in happiness, on average.
+
+Interpret the coefficient for urbanization (a slider):
+
+> Taking life expectancy and region into account, a 1 percentage point increase in the share of people living in cities is associated with a 0.014 point increase in happiness, on average.
+
+(That seems tiny, but remember the units: `urban_prop` goes from 0 to 100, so a 10 percentage point jump in urbanization would be associated with a 0.14 point increase in happiness.)
+
+Interpret the coefficient for Latin America & Caribbean (a switch):
+
+> Taking life expectancy and urbanization into account, happiness in Latin America & the Caribbean is 0.40 points higher than in East Asia & the Pacific, on average.
+
+Interpret the coefficient for Sub-Saharan Africa (a switch):
+
+> Taking life expectancy and urbanization into account, happiness in Sub-Saharan Africa is 0.43 points lower than in East Asia & the Pacific, on average.
+
+A word of caution: some regions have hardly any countries in them. North America only has 2 countries (the United States and Canada) and South Asia only has 4 in this data, so their coefficients are based on very little information. Be careful about reading too much into them.
+
+### Plot it
+
+We can see the switches shifting the line up and down with `geom_parallel_slopes()`. This plot only uses life expectancy and region—it ignores `urban_prop`—so the lines won't match the model exactly, but it shows the general idea: one slope, shifted up or down for each region.
+
+```{r}
+ggplot(world_happiness, aes(x = life_expectancy, y = happiness, color = region)) +
+  geom_point() +
+  geom_parallel_slopes(se = FALSE)
+```
+
+**Things to notice**: these are the moves you'll repeat in every section below:
+
+1. **Find the base case**: which category of each categorical variable is missing from the table? (Alphabetical, unless the categories were put in order with `factor()`)
+2. **Write the equation**: plug each estimate from `get_regression_table()` into $\widehat{y} = b_0 + b_1 \times x_1 + \dots$
+3. **Interpret each coefficient with the template**:
+    - Sliders: "Taking [the other variables] into account, a one unit increase in X is associated with a $b$ increase (or decrease) in Y, on average"
+    - Switches: "Taking [the other variables] into account, Y is $b$ higher (or lower) in this category compared to the base case, on average"
+4. **Sanity check**: are the units right (years? percentage points? \$1,000s?), and does the intercept make any sense or is it an impossible country?
+
+
+## We do: Happiness, wealth, internet access, and continents
+
+*We'll work through this one together—type along with me and fill in the blanks as we go (~12 minutes)*
 
 Is national happiness explained by wealth, internet access, *and* continent?
 
@@ -60,6 +146,10 @@ Fit a model with `lm()` that explains `happiness` with `gdp_per_cap_1000`, `inte
 ```{r}
 # model_happiness <- lm(...)
 ```
+
+What's the base case for `continent`?
+
+> The base case is ___, because ...
 
 Write out the model as an equation (fill in the numbers):
 
@@ -77,11 +167,11 @@ Interpret the coefficient for GDP per capita:
 
 Interpret the coefficient for internet use:
 
-> ...
+> Taking GDP per capita and continent into account, a 1 percentage point increase in internet use is associated with a ___ ...
 
 Interpret the coefficient for Europe:
 
-> ...
+> Taking GDP per capita and internet use into account, happiness in European countries is ___ points ___ (higher/lower) compared to ___, on average.
 
 Bonus: plot `happiness` and `gdp_per_cap_1000` with one line for each continent using `geom_parallel_slopes(se = FALSE)` (this plot ignores internet use, so the lines won't match the model exactly!):
 
@@ -90,7 +180,9 @@ ggplot(data = world_happiness)
 ```
 
 
-## Your turn #3: Happiness, health, jobs, and income
+## You do together: Happiness, health, jobs, and income
+
+*Work through this one with a partner—you write the code and interpretations, and I'll walk around to help (~10 minutes)*
 
 Is national happiness explained by health, jobs, and income?
 
@@ -100,13 +192,19 @@ Fit a model that explains `happiness` with `life_expectancy`, `unemployment_rate
 # model_income <- lm(...)
 ```
 
-What's the base case for `income_group`?
+First, find the base case. What's the base case for `income_group`, and how do you know? (Hint: look at what the setup chunk at the top of this file does to `income_group` with `factor()`—is it still alphabetical?)
 
 > ...
+
+Write out the model as an equation with the numbers from your table:
+
+$$
+\widehat{\text{happiness}} = ...
+$$
 
 Interpret the coefficient for life expectancy:
 
-> ...
+> Taking unemployment and income group into account, ...
 
 Interpret the coefficient for unemployment:
 
@@ -116,10 +214,45 @@ Interpret the coefficient for high income:
 
 > ...
 
+**Check with your partner**: Which coefficient surprised you the most? Is the sign of the unemployment coefficient what you expected? Why or why not?
+
+> ...
+
+
+## You do alone: Women in parliament, wealth, and income
+
+*Try this one on your own—no fill-in-the-blanks this time; use the moves from the "I do" section (~8 minutes)*
+
+Is the share of women in parliament explained by wealth and income group?
+
+Fit a model that explains `women_parliament_prop` with `gdp_per_cap_1000` and `income_group`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# Fit your model and look at the coefficients here
+```
+
+What's the base case for `income_group`?
+
+> ...
+
+Interpret the coefficient for GDP per capita:
+
+> ...
+
+Interpret the coefficient for one of the income groups (your choice):
+
+> ...
+
+Does anything about these results surprise you? (Think about what GDP per capita and income group are each measuring, and how much they might overlap.)
+
+> ...
+
 
 ## Playground
 
-Build your own model! Pick an outcome and a few explanatory variables (try mixing continuous ones like `urban_prop`, `women_parliament_prop`, or `population_millions` with categorical ones like `region` or `income_group`). Fit the model, look at the coefficients, and interpret each one.
+*More independent practice—if you finish early, or want more practice later, build your own model*
+
+Build your own model! Pick an outcome and a few explanatory variables (try mixing continuous ones like `urban_prop`, `women_parliament_prop`, or `population_millions` with categorical ones like `region` or `income_group`). Fit the model, look at the coefficients, find the base case, write out the equation, and interpret each coefficient.
 
 ```{r}
 # model_playground <- lm(...)

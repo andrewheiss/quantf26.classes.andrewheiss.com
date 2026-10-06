@@ -1261,25 +1261,27 @@ un_scenarios |>
 
 :::
 
-## Our turn #3 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+## We do {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
 
 Is national happiness explained by wealth, internet access, *and* continent?
 
-[Use `multiple-regression.qmd` in the "Regression playground" project]{.small}
+[Use `multiple-regression.qmd` in the "Regression playground" project; start by reading the worked "I do" example at the top]{.small}
 
 1. Fit a model with `lm()` that explains `happiness` with `gdp_per_cap_1000`, `internet_use_prop`, and `continent`
 2. Look at the coefficients with `get_regression_table()`
 3. Write out the model as an equation
 4. Interpret the intercept and the coefficients for GDP per capita, internet use, and Europe
 
-## Your turn #3 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+## You do together {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
 
 Is national happiness explained by health, jobs, and income?
 
+[With a partner; then try "You do alone" on your own]{.small}
+
 1. Fit a model that explains `happiness` with `life_expectancy`, `unemployment_rate`, and `income_group`
 2. Look at the coefficients with `get_regression_table()`
-3. What's the base case for `income_group`?
-4. Interpret the coefficients for life expectancy, unemployment, and high income
+3. What's the base case for `income_group`? How do you know?
+4. Write out the equation and interpret the coefficients for life expectancy, unemployment, and high income
 
 ```{r}
 #| label: clock-multiple
