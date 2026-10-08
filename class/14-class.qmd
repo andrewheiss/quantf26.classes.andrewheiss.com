@@ -36,8 +36,8 @@ knitr::opts_chunk$set(
 
 ## Materials for class today
 
-- [Regression playground `.zip` project](/projects/regression-playground.zip) (use `multiple-regression.qmd`)
-- [Posit.cloud project](https://posit.cloud/spaces/809160/content/13061645) (only if you're using an iPad!)
+- [Multiple regression playground `.zip` project](/projects/multiple-regression-playground.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/13077436) (only if you're using an iPad!)
 
 ```{r}
 #| label: setup
@@ -48,7 +48,7 @@ library(moderndive)
 
 world_happiness <- read_csv(here::here(
   "projects",
-  "regression-playground",
+  "multiple-regression-playground",
   "data",
   "world_happiness.csv"
 )) |>
@@ -68,7 +68,7 @@ world_happiness <- read_csv(here::here(
 
 Here's the code from the "We do" and "You do" activities from class today. The CSV file of the data is in the `.zip` file that you downloaded above, or you can grab if from here:
 
-- {{< fa file-csv >}} [`world_happiness.csv`](/projects/regression-playground/data/world_happiness.csv)
+- {{< fa file-csv >}} [`world_happiness.csv`](/projects/multiple-regression-playground/data/world_happiness.csv)
 
 If you're curious about how I made this data, you can see the R code I used to build, combine, and clean the data here:
 
@@ -102,6 +102,18 @@ The "I do" example (happiness, life expectancy, urbanization, and region) is alr
 
 Is national happiness explained by wealth, internet access, *and* continent?
 
+Use `select()` and `cor()` to make a correlation matrix of `happiness`, `gdp_per_cap_1000`, and `internet_use_prop`. A few countries are missing `internet_use_prop`, so add `use = "complete.obs"` inside `cor()` to make it ignore the missing values:
+
+```{r}
+world_happiness |>
+  select(happiness, gdp_per_cap_1000, internet_use_prop) |>
+  cor(use = "complete.obs")
+```
+
+Which variable is more strongly correlated with happiness? How correlated are GDP per capita and internet use with each other?
+
+> Internet use is more strongly correlated with happiness (r = 0.76) than GDP per capita is (r = 0.64). GDP per capita and internet use have a correlation of 0.56, which means richer countries tend to have more people online, so some of the explanation they each give for happiness is shared.
+
 Fit a model with `lm()` that explains `happiness` with `gdp_per_cap_1000`, `internet_use_prop`, and `continent`, and look at the coefficients with `get_regression_table()`:
 
 ```{r}
@@ -132,7 +144,7 @@ Interpret the intercept:
 
 Interpret the coefficient for GDP per capita:
 
-> Taking internet use and continent into account, a \$1,000 increase in GDP per capita is associated with a 0.015 point increase in happiness, on average.
+> Controlling for internet use and continent, a \$1,000 increase in GDP per capita is associated with a 0.015 point increase in happiness, on average.
 
 Interpret the coefficient for internet use:
 
@@ -140,7 +152,7 @@ Interpret the coefficient for internet use:
 
 Interpret the coefficient for Europe:
 
-> Taking GDP per capita and internet use into account, happiness in European countries is 0.64 points higher compared to African countries, on average.
+> Holding GDP per capita and internet use constant, happiness in European countries is 0.64 points higher compared to African countries, on average.
 
 Bonus: plot `happiness` and `gdp_per_cap_1000` with one line for each continent using `geom_parallel_slopes(se = FALSE)` (this plot ignores internet use, so the lines won't match the model exactly!):
 
@@ -154,6 +166,18 @@ ggplot(data = world_happiness, aes(x = gdp_per_cap_1000, y = happiness, color = 
 ### You do together: Happiness, health, jobs, and income
 
 Is national happiness explained by health, jobs, and income?
+
+Make a correlation matrix of `happiness`, `life_expectancy`, and `unemployment_rate` (some countries are missing `unemployment_rate`, so use `use = "complete.obs"`):
+
+```{r}
+world_happiness |>
+  select(happiness, life_expectancy, unemployment_rate) |>
+  cor(use = "complete.obs")
+```
+
+How is happiness related to life expectancy and unemployment? Are life expectancy and unemployment related to each other?
+
+> Happiness is strongly and positively correlated with life expectancy (r = 0.75) and weakly and negatively correlated with unemployment (r = −0.22). Life expectancy and unemployment are barely related to each other (r = −0.12), so they're mostly explaining different parts of the variation in happiness.
 
 Fit a model that explains `happiness` with `life_expectancy`, `unemployment_rate`, and `income_group`, and look at the coefficients with `get_regression_table()`:
 
@@ -170,18 +194,9 @@ What's the base case for `income_group`, and how do you know?
 
 > The base case is "Low income." It's not alphabetical (that would be "High income")—the setup chunk used `factor()` to put the income groups in order from lowest to highest, so R uses the first level, "Low income," as the base case. It's also the income group that's missing from the table.
 
-Write out the model as an equation with the numbers from your table:
-
-$$
-\begin{aligned}
-\widehat{\text{happiness}} = &\ 2.21 + 0.031 \times \text{life expectancy} + (-0.035) \times \text{unemployment} \\
-&+ 0.67 \times \text{Lower middle} + 1.51 \times \text{Upper middle} + 2.05 \times \text{High}
-\end{aligned}
-$$
-
 Interpret the coefficient for life expectancy:
 
-> Taking unemployment and income group into account, a one-year increase in life expectancy is associated with a 0.031 point increase in happiness, on average.
+> Controlling for unemployment and income group, a one-year increase in life expectancy is associated with a 0.031 point increase in happiness, on average.
 
 Interpret the coefficient for unemployment:
 

@@ -1,5 +1,5 @@
 ---
-title: "Multiple regression I & II"
+title: "Multiple regression<br>I & II"
 subtitle: "Quantitative Methods for<br>International Politics"
 course-info: "IPOL 3270 • Fall 2026"
 date: "2026-10-04"
@@ -1159,6 +1159,10 @@ $$
 
 ## "Controlling for…" {.clr-2}
 
+::: {.fragment}
+[These all mean the same thing!]{.box-clr-2-light}
+:::
+
 ::: {.incremental}
 - Controlling for…
 - Taking all other variables in the model into account…
@@ -1167,8 +1171,50 @@ $$
 - Adjusting for…
 :::
 
-::: {.fragment .small .sp-before}
-These all mean the same thing—we're comparing countries that have the same values for every other variable in the model, or filtering out the variation that comes from the other variables and isolating just one slider or switch
+::: {.fragment .sp-before-half .small}
+We're (1) comparing countries that have the same values for every other variable in the model, or (2) filtering out the variation that comes from the other variables, or (3) and isolating just one slider or switch
+:::
+
+## Lots of correlations at once {.clr-2}
+
+::: {.small}
+`get_correlation()` only works with two variables at a time; `select()` a bunch of numeric columns and pipe them into `cor()` to get a **correlation matrix**
+:::
+
+:::: {.columns}
+
+::: {.column width="45%" .small}
+```{r}
+#| echo: true
+#| eval: false
+
+un_data |>
+  select(
+    life_exp,
+    fert_rate,
+    gdp_1000
+  ) |>
+  cor()
+```
+:::
+
+::: {.column width="55%" .small .fragment}
+```{r}
+un_data |>
+  select(life_exp, fert_rate, gdp_1000) |>
+  cor() |>
+  round(2)
+```
+:::
+
+::::
+
+::: {.fragment .small}
+How is **Y** related to each **X**, *and* how are the **X**s related to each other?
+:::
+
+::: {.fragment .smaller}
+If any columns have missing values, add `use = "complete.obs"` (it's like `na.rm = TRUE`): `cor(use = "complete.obs")`
 :::
 
 ## Lots of sliders and switches! {.clr-2}
@@ -1265,8 +1311,6 @@ un_scenarios |>
 
 Is national happiness explained by wealth, internet access, *and* continent?
 
-[Use `multiple-regression.qmd` in the "Regression playground" project; start by reading the worked "I do" example at the top]{.small}
-
 1. Fit a model with `lm()` that explains `happiness` with `gdp_per_cap_1000`, `internet_use_prop`, and `continent`
 2. Look at the coefficients with `get_regression_table()`
 3. Write out the model as an equation
@@ -1276,12 +1320,10 @@ Is national happiness explained by wealth, internet access, *and* continent?
 
 Is national happiness explained by health, jobs, and income?
 
-[With a partner; then try "You do alone" on your own]{.small}
-
 1. Fit a model that explains `happiness` with `life_expectancy`, `unemployment_rate`, and `income_group`
 2. Look at the coefficients with `get_regression_table()`
 3. What's the base case for `income_group`? How do you know?
-4. Write out the equation and interpret the coefficients for life expectancy, unemployment, and high income
+4. Interpret the coefficients for life expectancy, unemployment, and high income
 
 ```{r}
 #| label: clock-multiple
