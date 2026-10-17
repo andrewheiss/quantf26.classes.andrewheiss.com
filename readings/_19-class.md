@@ -1,2 +1,2 @@
-- {{< fa book >}} @IsmayKimValdivia2025, [9.1–9.4](https://moderndive.com/v2/09-hypothesis-testing.html)
+- {{< fa book >}} @IsmayKimValdivia2025, [8.1–8.2](https://moderndive.com/v2/08-confidence-intervals.html)
 - {{< fa hourglass-half >}} Other readings TBA

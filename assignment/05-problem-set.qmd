@@ -1,7 +1,7 @@
 ---
 title: "Problem set 5"
 subtitle: "Multiple regression"
-date: "2026-10-19"
+date: "2026-10-20"
 ---
 
 ## Purpose

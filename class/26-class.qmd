@@ -1,5 +1,5 @@
 ---
-title: "Prediction"
+title: "Logistic regression"
 date: "2026-11-24"
 ---
 

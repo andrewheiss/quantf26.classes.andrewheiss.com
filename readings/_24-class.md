@@ -1,3 +1,1 @@
-- {{< fa book >}} @DiezCetinkaya-RundelBarr2019, 9.5
-- {{< fa arrow-up-right-from-square >}} @Kubinec2024
-- {{< fa arrow-up-right-from-square >}} @Miller2024
+- {{< fa book >}} @IsmayKimValdivia2025, [10.4–10.7](https://moderndive.com/v2/10-inference-for-regression.html#the-multiple-linear-regression-model)

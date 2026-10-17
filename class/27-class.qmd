@@ -1,5 +1,5 @@
 ---
-title: "Tell your story with data I"
+title: "Causation and prediction"
 date: "2026-11-29"
 ---
 

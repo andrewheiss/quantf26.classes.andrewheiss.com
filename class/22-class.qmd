@@ -1,5 +1,5 @@
 ---
-title: "Inference for regression II"
+title: "Hypothesis testing II"
 date: "2026-11-10"
 ---
 

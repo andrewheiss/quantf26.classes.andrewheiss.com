@@ -1,5 +1,5 @@
 ---
-title: "Sampling I"
+title: "Multiple regression III"
 date: "2026-10-18"
 ---
 

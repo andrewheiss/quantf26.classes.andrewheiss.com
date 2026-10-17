@@ -1,5 +1,5 @@
 ---
-title: "Marginal effects"
+title: "Inference for regression I"
 date: "2026-11-15"
 ---
 

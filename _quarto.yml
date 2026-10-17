@@ -115,25 +115,25 @@ website:
             - class/12-class.qmd
             - class/13-class.qmd
             - class/14-class.qmd
-        - section: "How do we infer things about the world?"
-          contents:
             - class/15-class.qmd
             - class/16-class.qmd
+        - section: "How do we infer things about the world?"
+          contents:
             - class/17-class.qmd
             - class/18-class.qmd
             - class/19-class.qmd
             - class/20-class.qmd
             - class/21-class.qmd
             - class/22-class.qmd
-        - section: "Can we do slightly fancier analyses?"
-          contents:
             - class/23-class.qmd
             - class/24-class.qmd
+        - section: "Can we do slightly fancier analyses?"
+          contents:
             - class/25-class.qmd
             - class/26-class.qmd
+            - class/27-class.qmd
         - section: "How can we communicate these results to regular people?"
           contents:
-            - class/27-class.qmd
             - class/28-class.qmd
 
     - title: "Resources"

@@ -1,5 +1,5 @@
 ---
-title: "Logistic regression"
+title: "Inference for regression II"
 date: "2026-11-17"
 ---
 

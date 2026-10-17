@@ -1,5 +1,5 @@
 ---
-title: "Causation"
+title: "Marginal effects"
 date: "2026-11-22"
 ---
 

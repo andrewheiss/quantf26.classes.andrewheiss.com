@@ -1,5 +1,5 @@
 ---
-title: "Hypothesis testing II"
+title: "Estimation, confidence intervals, and bootstrapping II"
 date: "2026-11-03"
 ---
 

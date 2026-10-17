@@ -1,2 +1,2 @@
-- {{< fa book >}} @IsmayKimValdivia2025, [11.1–11.3](https://moderndive.com/v2/11-tell-your-story-with-data.html)
+- {{< fa file-lines >}} @Heiss2025
 - {{< fa hourglass-half >}} Other readings TBA

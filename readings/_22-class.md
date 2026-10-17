@@ -1,1 +1,2 @@
-- {{< fa book >}} @IsmayKimValdivia2025, [10.4–10.7](https://moderndive.com/v2/10-inference-for-regression.html#the-multiple-linear-regression-model)
+- {{< fa book >}} @IsmayKimValdivia2025, [9.5–9.7](https://moderndive.com/v2/09-hypothesis-testing.html#sec-ht-interpretation)
+- {{< fa hourglass-half >}} Other readings TBA

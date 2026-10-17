@@ -62,8 +62,6 @@ world_happiness <- read_csv(here::here(
   )
 ```
 
-::: {.content-hidden}
-
 ## In-class examples
 
 Here's the code from the "We do" and "You do" activities from class today. The CSV file of the data is in the `.zip` file that you downloaded above, or you can grab if from here:
@@ -237,5 +235,3 @@ Interpret the coefficient for one of the income groups:
 Does anything about these results surprise you?
 
 > All the income group coefficients are tiny (less than 1 percentage point) even though high income countries are much richer than low income countries. That's because GDP per capita and income group measure almost the same thing—the World Bank *defines* income groups using income per person. Once the GDP slider is in the model, there's very little left over for the income group switches to explain.
-
-:::

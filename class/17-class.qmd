@@ -1,5 +1,5 @@
 ---
-title: "Estimation, confidence intervals, and bootstrapping I"
+title: "Sampling I"
 date: "2026-10-25"
 ---
 

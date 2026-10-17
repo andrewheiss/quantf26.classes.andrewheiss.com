@@ -1,2 +1,1 @@
-- {{< fa book >}} @IsmayKimValdivia2025, [7.1–7.3](https://moderndive.com/v2/07-sampling.html)
-- {{< fa hourglass-half >}} Other readings TBA
+- {{< fa hourglass-half >}} No new readings! Review the readings from [Multiple regression I](/class/13-class.qmd) and [Multiple regression II](/class/14-class.qmd)
