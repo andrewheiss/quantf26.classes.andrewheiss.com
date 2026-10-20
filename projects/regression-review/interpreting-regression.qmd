@@ -1,0 +1,370 @@
+---
+title: "Interpreting regression"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For get_regression_table()
+
+cars <- read_csv("data/qatarcars.csv") |>
+  # Get rid of the 4 hypercars that cost more than 1.5 million QAR (like the
+  # Bugatti Centodieci, which costs 33 million QAR!), since they're so
+  # extreme that they mess up all the models
+  filter(price < 1500000) |>
+  mutate(
+    # Price in thousands of QAR, so a "one unit increase" is 1,000 QAR
+    # instead of 1 QAR
+    price_1000 = price / 1000,
+    # Mass in hundreds of kilograms, so a "one unit increase" is 100 kg
+    # instead of 1 kg
+    mass_100 = mass / 100
+  )
+```
+
+## Qatar cars
+
+This data comes from the [{qatarcars} package](https://profmusgrave.github.io/qatarcars/), which has details about 105 new cars that were for sale in Qatar in 2025. Each row is a car. (We dropped 4 hypercars in the setup chunk, so you'll have 101.)
+
+- `origin`: Country where the car's brand comes from
+- `make`: Car brand (Toyota, BMW, Tesla, etc.)
+- `model`: Car model
+- `length`, `width`, `height`: Size of the car, in **meters**
+- `seating`: Number of seats
+- `trunk`: Trunk space, in **liters**
+- `economy`: Fuel economy, in **liters of fuel per 100 km**. Higher numbers mean the car uses more fuel. Electric cars don't use fuel, so they're `NA`
+- `horsepower`: Engine power, in **horsepower**
+- `price`: Price, in **(QAR)**. The riyal is pegged to the US dollar at 3.64 QAR per dollar, so 1,000 QAR ≈ \$275
+- `price_1000`: Price, in **thousands of QAR**
+- `mass`: Weight, in **kilograms**
+- `mass_100`: Weight, in **hundreds of kilograms**
+- `performance`: How many **seconds** it takes to go from 0 to 100 km/h. Lower numbers mean the car is *faster*
+- `type`: Coupe, Hatchback, Sedan, or SUV
+- `enginetype`: Electric, Hybrid, or Petrol
+
+```{r}
+cars
+```
+
+
+## Part 1: Model anatomy
+
+*Do this on your own first (no R needed!). Then compare your answers with your group.*
+
+Before you can interpret a model, you need to know what each piece of it is. For each model below, fill in:
+
+- **Outcome (Y)**: which variable is being explained, and what are its units?
+- **Sliders**: which explanatory variables are continuous, and what does a "one unit increase" mean for each of them?
+- **Switches**: which explanatory variables are categorical, and what's the base case?
+
+::: {.callout-tip title="Hints"}
+- `lm(Y ~ X1 + X2 + X3)`: **Y** always goes on the left side of the `~`. Everything on the right side is an explanatory variable (an **X**).
+- R picks the base case for a categorical variable alphabetically (unless you use `factor()` to change the order).
+- Look at the data description above to find the units!
+:::
+
+**Model A**: `lm(price_1000 ~ horsepower, data = cars)`
+
+- Outcome (Y) and its units: ...
+- Sliders, and what one unit means: ...
+- Switches, and the base case: ...
+
+**Model B**: `lm(trunk ~ type, data = cars)`
+
+- Outcome (Y) and its units: ...
+- Sliders, and what one unit means: ...
+- Switches, and the base case: ...
+
+**Model C**: `lm(performance ~ horsepower + enginetype, data = cars)`
+
+- Outcome (Y) and its units: ...
+- Sliders, and what one unit means: ...
+- Switches, and the base case: ...
+
+**Model D**: `lm(trunk ~ length + seating + type, data = cars)`
+
+- Outcome (Y) and its units: ...
+- Sliders, and what one unit means: ...
+- Switches, and the base case: ...
+
+**Check with your group**: What units will the *coefficients* be in for Model D? Is that the same for every coefficient in the model, or does it change?
+
+> ...
+
+
+## Part 2: Spot the mistake
+
+*Do this with your group.*
+
+Here's Model D from Part 1:
+
+```{r}
+model_trunk <- lm(
+  trunk ~ length + seating + type,
+  data = cars
+)
+
+get_regression_table(model_trunk)
+```
+
+A classmate wrote these interpretations of the model. **Most** of them have a mistake (and some have more than one!), but at least one is totally correct. For each one, figure out what's wrong (if anything) and rewrite it so it's correct.
+
+1. "Controlling for seating and car type, a one liter increase in trunk space is associated with a 221 meter increase in length, on average."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+2. "Controlling for length and car type, adding one more seat is associated with 67.1 more liters of trunk space, on average."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+3. "Controlling for length and seating, a one unit increase in SUV is associated with a 456 liter increase in trunk space, on average."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+4. "Controlling for length and seating, SUVs have 456 more liters of trunk space than sedans, on average."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+5. "Taking length and seating into account, sedans have 295 more liters of trunk space than coupes, on average."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+6. "Controlling for seating and car type, a one centimeter increase in length is associated with a 221 liter increase in trunk space, on average."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+7. "Making a car one meter longer causes it to have 221 more liters of trunk space."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+8. "The average trunk size is −589 liters."
+
+   What's wrong: ...
+
+   Fixed: ...
+
+**Check with your group**: A one meter increase in length is *huge* for a car (most cars in the data are between 4 and 5 meters long). How much more trunk space is associated with a more reasonable 10 centimeter (0.1 meter) increase in length?
+
+> ...
+
+**Check with your group**: Based on the mistakes you found, make a checklist. What does every good interpretation of a slider need to include? What about a switch?
+
+> ...
+
+
+## Part 3: Work backwards
+
+*Do this with your group.*
+
+Each of these sentences is a correct interpretation of a coefficient from some model. Your job is to reverse engineer which model it came from. For each one:
+
+1. Figure out the outcome (Y) and the explanatory variables (Xs)
+2. Write the `lm()` code and look at the results with `get_regression_table()`
+3. Check that the number in the sentence shows up in your table. If it doesn't, you have the wrong model! Try again.
+4. Answer the follow-up question
+
+### Sentence A
+
+> "On average, SUVs have 348 more liters of trunk space than coupes."
+
+```{r}
+# model_a <- lm(...)
+```
+
+Follow-up: This is the same outcome and the same switch as the model in Part 2, but there the SUV coefficient was 456 liters. Why is it different here?
+
+> ...
+
+### Sentence B
+
+> "Controlling for engine type, a one horsepower increase is associated with a 0.013 second decrease in the time it takes to go from 0 to 100 km/h, on average."
+
+```{r}
+# model_b <- lm(...)
+```
+
+Follow-up: Is a *decrease* in `performance` a good thing or a bad thing for drivers who want a fast car? How much faster (or slower) is a car with 100 more horsepower, on average?
+
+> ...
+
+Follow-up: Interpret the coefficient for petrol cars (watch out for what higher numbers mean here!):
+
+> ...
+
+### Sentence C
+
+> "A one seat increase is associated with a 50.5 thousand QAR decrease in price, on average."
+
+```{r}
+# model_c <- lm(...)
+```
+
+Follow-up: Why doesn't this sentence say "controlling for…" or "taking … into account"?
+
+> ...
+
+### Sentence D
+
+> "Taking engine type into account, a 100 kg increase in weight is associated with a 0.455 liter increase in fuel used per 100 km, on average."
+
+```{r}
+# model_d <- lm(...)
+```
+
+Follow-up: What's the base case for engine type here? Why isn't it Electric, even though Electric comes first alphabetically? (Hint: look at what `economy` is for electric cars.)
+
+> ...
+
+
+## Part 4: Move some sliders and flip some switches
+
+*Do this with your group.*
+
+What explains the price of a car? Fit a model that explains `price_1000` with `horsepower`, `mass_100`, and `type`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# model_price <- lm(...)
+```
+
+What's the base case for `type`?
+
+> ...
+
+Write out the model as an equation (fill in the numbers):
+
+$$
+\widehat{\text{price}}_{1000} = b_0 + b_1 \times \text{horsepower} + b_2 \times \text{mass}_{100} + b_3 \times \text{Hatchback} + b_4 \times \text{Sedan} + b_5 \times \text{SUV}
+$$
+
+Interpret the intercept. Does it make sense?
+
+> ...
+
+Interpret the coefficient for horsepower:
+
+> ...
+
+The horsepower coefficient is in thousands of QAR. How much is that in plain QAR? About how much is it in US dollars (remember, 1,000 QAR ≈ \$275)?
+
+> ...
+
+Interpret the coefficient for mass:
+
+> ...
+
+Interpret the coefficient for SUV:
+
+> ...
+
+### Predictions and marginal effects
+
+Imagine a **sedan** with **300 horsepower** that weighs **1,800 kg** (so `mass_100` is 18). Use the equation to calculate its predicted price. You can use R as a calculator—just type the math in a chunk like `-176 + (1.22 * 300) + ...`
+
+```{r}
+# Predicted price for a 300 hp, 1,800 kg sedan
+
+```
+
+Now change **one thing at a time** and calculate the new predicted price. How much did the price change each time? Which number from the regression table is that change?
+
+1. Give the sedan 100 more horsepower (400 hp, still 1,800 kg):
+
+   ```{r}
+
+   ```
+
+   > ...
+
+2. Make the original sedan 100 kg heavier (300 hp, 1,900 kg):
+
+   ```{r}
+
+   ```
+
+   > ...
+
+3. Turn the original sedan into a coupe (300 hp, 1,800 kg, but a coupe):
+
+   ```{r}
+
+   ```
+
+   > ...
+
+4. **Challenge**: Turn the original sedan into an SUV (300 hp, 1,800 kg, but an SUV). Why isn't the change in price the same as the SUV coefficient?
+
+   ```{r}
+
+   ```
+
+   > ...
+
+### What does "controlling for" actually do?
+
+Use `group_by()` and `summarize()` to find the average `price_1000` and the average `horsepower` for each car `type`:
+
+```{r}
+# cars |>
+#   group_by(...) |>
+#   summarize(...)
+```
+
+On average, how much cheaper are SUVs than coupes in this table? Why is that gap so much bigger than the SUV coefficient in the model? (Hint: look at the average horsepower for coupes.)
+
+> ...
+
+
+## Part 5: Last one!
+
+*Do this on your own—no fill-in-the-blanks or help from the group! Use your checklist from Part 2 to check your work.*
+
+Fit a model that explains `price_1000` with `performance` and `origin`, and look at the coefficients with `get_regression_table()`:
+
+```{r}
+# Fit your model here
+```
+
+What's the base case for `origin`?
+
+> ...
+
+Interpret the coefficient for performance:
+
+> ...
+
+Interpret the coefficient for PR China:
+
+> ...
+
+
+## Playground
+
+*If you finish early, do this!*
+
+Build your own model! Pick an outcome and a few explanatory variables (try mixing sliders like `height`, `width`, `trunk`, or `economy` with switches like `origin` or `enginetype`). Fit the model, look at the coefficients, find the base case, and interpret each coefficient. Then trade with someone in your group and check each other's interpretations with your checklist.
+
+```{r}
+# model_playground <- lm(...)
+```
+
+Interpretations:
+
+> ...

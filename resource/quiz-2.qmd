@@ -2,4 +2,277 @@
 title: "Things you should know for Quiz 2"
 ---
 
-Coming soon!
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(moderndive)
+
+world_happiness <- read_csv(here::here(
+  "projects",
+  "multiple-regression-playground",
+  "data",
+  "world_happiness.csv"
+)) |>
+  filter(year == 2024) |>
+  mutate(gdp_per_cap_1000 = gdp_per_cap / 1000)
+
+model_life_exp <- lm(happiness ~ life_expectancy, data = world_happiness)
+
+model_continent <- lm(happiness ~ continent, data = world_happiness)
+
+model_happiness <- lm(
+  happiness ~ gdp_per_cap_1000 + internet_use_prop + continent,
+  data = world_happiness
+)
+```
+
+Quiz 2 covers the "How do we model things in the world?" section of the class, including stuff that you read and did here:
+
+- [Simple linear regression I](/class/11-class.qmd)
+- [Simple linear regression II](/class/12-class.qmd)
+- [Multiple regression I](/class/13-class.qmd)
+- [Multiple regression II](/class/14-class.qmd)
+- [Multiple regression III](/class/15-class.qmd)
+- [Problem set 4](/assignment/04-problem-set.qmd)
+- [Problem set 5](/assignment/05-problem-set.qmd)
+
+Like Quiz 1, you'll complete this quiz in-person in class in groups on paper. **You won't run any R code.** Instead, you'll read code and regression tables and figure out what they mean. You'll identify the parts of a model, sketch regression lines, calculate predictions and residuals by hand (with just basic addition and multiplication), fix wrong interpretations, and explain why coefficients change when you add more variables to a model. The topics will be mixed together---most models will have both continuous variables (sliders) and categorical variables (switches) in them.
+
+## How to study for the quiz
+
+Don't just read over your notes! Try some of these strategies to study more actively and productively:
+
+- **Try ignoring your notes**: Do one of the "Test yourself!" items below, answer it on paper or out loud *before* looking anything up, and then check your answer. Getting it wrong and then fixing it is good! That's how you learn!
+- **Say interpretations out loud**: Take any regression table from the slides, the class pages, or your problem sets, cover up the answers, and interpret every coefficient out loud using the templates. Then check yourself against the [interpretation checklist](#multiple-regression) below.
+- **Draw and sketch things**: On paper, sketch scatterplots with different correlations, draw regression lines from equations, mark residuals, and draw parallel lines for models with sliders and switches.
+- **Do the math by hand**: Practice plugging numbers into regression equations with just a pencil.
+- **Mix topics together**: Don't study all of the correlation stuff and then all of the multiple regression stuff. Jump between them! The ["Test yourself across all the topics!"](#test-yourself-across-all-the-topics) section at the end of this study guide will help you with this.
+- **Space things out**: Three 20-minute study sessions on different days will be a lot more useful than 1 hour on the morning of the quiz.
+- **Study with other people**: Don't do this on your own! Remember that we're trying to build a class community. Meet with others, take turns quizzing each other, and explain your answers to each other.
+
+## Correlation
+
+#### You should understand…
+
+- …the difference between the outcome variable (**Y**, also called the response or dependent variable; the thing you want to explain or predict) and the explanatory variable (**X**, also called the predictor or independent variable; the thing you use to explain or predict **Y**)
+- …what the correlation coefficient ($r$) measures: the *direction* (positive or negative) and *strength* of a *linear* relationship between two numeric variables
+- …that $r$ is always between −1 and 1 and has no units
+- …the rough guidelines for strength (±0.1–0.3: weak; ±0.3–0.7: moderate; ±0.7–1.0: strong)
+- …that correlation only measures straight lines, so two variables can have a strong curvy relationship and still have an $r$ close to 0
+- …that correlation isn't causation
+
+#### You should be able to…
+
+- …look at a scatterplot and guess its correlation
+- …sketch a scatterplot for a given correlation (like $r = 0.9$, $r = -0.4$, or $r = 0$)
+- …read a correlation matrix (made with `select()` and `cor()`) and say which variables are most strongly related to each other
+
+#### Test yourself!
+
+- Sketch scatterplots with correlations of about 0.9, 0.4, 0, −0.4, and −0.9.
+- Sketch a scatterplot where the two variables are obviously related, but the correlation is close to 0.
+- Play a few rounds of [Guess the Correlation](https://www.guessthecorrelation.com/).
+- In the world happiness data from [session 14](/class/14-class.qmd), GDP per capita and internet use have a correlation of 0.56. Interpret that number in regular words.
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 5.1 in *ModernDive*](https://moderndive.com/v2/05-regression.html)
+- {{< fa person-chalkboard >}} ["Simple linear regression" slides](/slides/11-simple-regression/index.html)
+
+## Regression with a numeric explanatory variable (sliders)
+
+#### You should understand…
+
+- …how model formulas work in `lm(Y ~ X, data = DATA)`: the outcome goes on the left side of the `~`, and explanatory variables go on the right
+- …how to translate a regression table from `get_regression_table()` into an equation, like $\widehat{y} = b_0 + b_1 \times x$
+- …that the "best" line (from ordinary least squares, or OLS) is the one with the smallest sum of squared residuals
+- …the difference between observed values ($y$, the actual data), fitted or predicted values ($\widehat{y}$, the value on the line), and residuals ($y - \widehat{y}$, the distance between the point and the line)
+- …what positive and negative residuals mean (positive = the point is above the line and the actual value is higher than the model predicts; negative = below the line and lower than predicted)
+- …the templates for interpreting the coefficients:
+  - **Slope**: A one unit increase in **X** is *associated* with a $b_1$ increase (or decrease) in **Y**, on average
+  - **Intercept**: $b_0$ is the average value of **Y** when **X** is 0
+- …that slope coefficients are always measured in the units of **Y**, and that "one unit" of **X** depends on how **X** is measured (1 year? 1 percentage point? \$1,000?)
+- …how rescaling a variable (like turning GDP per capita in dollars into GDP per capita in thousands of dollars, or putting a 0–1 index on a 0–10 scale) changes the size of the coefficient without changing the actual relationship
+- …why the intercept sometimes doesn't mean anything in real life (e.g., no country has a life expectancy of 0)
+- …the difference between correlation and slope: correlation tells you the direction and strength of a relationship (no units, always between −1 and 1), while the slope tells you the *size* of the relationship (in units of **Y** per one unit of **X**). They always have the same sign, but usually different values!
+- …why we say "associated with" instead of "causes," and why we say "on average"
+
+#### You should be able to…
+
+- …identify **Y** and **X** in a research question and write the `lm()` code for it
+- …write out a regression equation from a regression table
+- …interpret the slope and intercept using the templates, with the correct units
+- …calculate a predicted value by plugging a value of **X** into the equation, and then calculate the residual if you know the actual value
+- …figure out what happens to **Y** when **X** changes by more than one unit (if the slope for GDP per capita in thousands is 0.015, a \$10,000 increase is associated with a 10 × 0.015 = 0.15 increase in **Y**)
+- …draw a regression line on a set of axes from its equation
+
+#### Test yourself!
+
+- For each of these, which variable is **Y** and which is **X**? Write the `lm()` code you'd use.
+  - Does foreign aid help countries democratize?
+  - Do longer UN Security Council resolutions get vetoed more often?
+  - Is voter turnout higher in countries with mandatory voting?
+- In [session 13](/class/13-class.qmd), this model:
+
+  ```{.r}
+  model_life_exp <- lm(happiness ~ life_expectancy, data = world_happiness)
+  get_regression_table(model_life_exp)
+  ```
+
+  …had these coefficients:
+
+  ```{r}
+  #| echo: false
+  get_regression_table(model_life_exp)
+  ```
+
+  - Write out the equation.
+  - Interpret the slope and the intercept. Does the intercept make sense?
+  - What's the predicted happiness score for a country with a life expectancy of 80 years? If that country's actual happiness score is 7.5, what's its residual? Is the country above or below the line?
+  - How much higher would predicted happiness be in a country where people live 10 years longer?
+- On paper, draw the line $\widehat{y} = 2 + 0.5 \times x$ for values of $x$ between 0 and 10. Draw a point at (4, 6) and its residual. Is the residual positive or negative?
+- Someone says "The correlation between life expectancy and happiness is 0.75, so a one year increase in life expectancy increases happiness by 0.75 points." Find all the mistakes.
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 5 in *ModernDive*](https://moderndive.com/v2/05-regression.html)
+- {{< fa person-chalkboard >}} ["Simple linear regression" slides](/slides/11-simple-regression/index.html)
+- {{< fa brands youtube >}} OpenIntro, ["Fitting a Line with Least Squares Regression"](https://www.youtube.com/watch?v=z8DmwG2G4Qc)
+
+## Regression with a categorical explanatory variable (switches)
+
+#### You should understand…
+
+- …that when **X** is categorical, one category gets left out and becomes the **base case**, and that every other coefficient is measured relative to that base case
+- …that R picks the first category alphabetically as the base case, unless the categories have been put in a specific order with `factor()`
+- …how to find the base case in a regression table (it's the category that's missing!)
+- …the templates for interpreting the coefficients:
+  - **Intercept**: $b_0$ is the average value of **Y** for the base case
+  - **Other coefficients**: On average, **Y** is $b$ higher (or lower) in this category, compared to the base case
+- …how switches work in the equation: each category (except the base case) gets a switch that's either on (1) or off (0), and only one switch can be on at a time
+- …the connection between group averages and the coefficients: the intercept is the base case's average, and each coefficient is the difference between that category's average and the base case's average
+
+#### You should be able to…
+
+- …identify the base case in a model
+- …interpret the intercept and the category coefficients using the templates
+- …fill in a regression table from a table of group averages (like one made with `group_by()` and `summarise()`), and vice versa
+- …calculate the predicted value for any category by flipping the right switch on
+
+#### Test yourself!
+
+- In [session 13](/class/13-class.qmd), this model:
+
+  ```{.r}
+  model_continent <- lm(happiness ~ continent, data = world_happiness)
+  get_regression_table(model_continent)
+  ```
+
+  …had these coefficients:
+
+  ```{r}
+  #| echo: false
+  get_regression_table(model_continent)
+  ```
+
+  - What's the base case? How do you know?
+  - Interpret the intercept and the coefficient for Europe.
+  - What's the average happiness score in Europe?
+- Make up a small dataset with 6 rows: a categorical column with three categories (like regime type: closed autocracy, electoral autocracy, democracy) and a numeric column. Calculate the average for each group by hand, then write out the regression table that `lm()` would make.
+- Why can't you say "a one unit increase in Europe is associated with a 2.06 increase in happiness"?
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 5.2 in *ModernDive*](https://moderndive.com/v2/05-regression.html#sec-model2)
+- {{< fa person-chalkboard >}} ["Simple linear regression" slides](/slides/11-simple-regression/index.html) (the "Categories and regression" section)
+
+## Multiple regression
+
+#### You should understand…
+
+- …how to include more than one explanatory variable in a model with `+`, like `lm(Y ~ X1 + X2 + X3, data = DATA)`
+- …that each **X** in the model explains some portion of the variation in **Y**, so the coefficients usually change (and can even flip direction!) when you add more variables
+- …what "controlling for" means: comparing observations that have the same values for every other variable in the model, or filtering out the variation that comes from the other variables. Controlling for something does *not* remove any rows from the data!
+- …that there are lots of ways to say "controlling for": "taking … into account," "holding … constant," "accounting for," "adjusting for"
+- …that you can only move one slider or flip one switch at a time when interpreting a coefficient, and everything else stays the same
+- …the templates for interpreting the coefficients:
+  - **Intercept**: The average value of **Y** when all the sliders are 0 and all the switches are set to the base case
+  - **Sliders**: *Taking all other variables in the model into account*, a one unit increase in **X** is associated with a $b$ increase (or decrease) in **Y**, on average
+  - **Switches**: *Taking all other variables in the model into account*, **Y** is $b$ higher (or lower) in this category compared to the base case, on average
+- …why a model with one slider and one switch makes parallel lines (with `geom_parallel_slopes()`): the slider gives every group the same slope, and the switches shift the whole line up or down
+- …why coefficients change when you add a variable: if a new variable is correlated with both **Y** and the original **X**, part of what looked like the relationship between **X** and **Y** was actually coming from the new variable
+
+#### You should be able to…
+
+- …identify the outcome, the sliders (and what "one unit" means for each), and the switches (and their base cases) in any model
+- …write out the full equation for a model with several sliders and switches
+- …interpret every coefficient, including what's being held constant. Every good interpretation needs:
+  - **The right Y and X** (Y is on the left side of the `~`)
+  - **The units of X** for sliders ("a one *year* increase," "a *\$1,000* increase")
+  - **The units of Y** (the coefficient is always in Y's units)
+  - **The direction**: increase or decrease (sliders), higher or lower (switches)
+  - **The base case** for switches ("compared to *Africa*")
+  - **"Controlling for…"** if there's more than one X in the model
+  - **"Associated with" and "on average"**, not "causes"
+- …calculate predicted values by hand for a specific observation (plug in the values for every slider and turn on the right switch)
+- …compare two categories that are *both* not the base case (e.g., if Asia is 0.12 higher than Africa and Europe is 0.64 higher than Africa, Europe is 0.64 − 0.12 = 0.52 higher than Asia)
+- …sketch a model with one slider and one switch as a set of parallel lines
+- …use a correlation matrix or group averages to explain why a coefficient changed when you added another variable
+
+#### Test yourself!
+
+- In [session 14](/class/14-class.qmd), this model:
+
+  ```{.r}
+  model_happiness <- lm(
+    happiness ~ gdp_per_cap_1000 + internet_use_prop + continent,
+    data = world_happiness
+  )
+  get_regression_table(model_happiness)
+  ```
+
+  …had these coefficients:
+
+  ```{r}
+  #| echo: false
+  get_regression_table(model_happiness)
+  ```
+
+  - List the outcome, the sliders, the switches, and the base case.
+  - Write out the equation.
+  - Interpret every coefficient (yes, every one!).
+  - Calculate the predicted happiness score for a European country with a GDP per capita of \$40,000 and 90% internet use.
+  - What happens to that prediction if the country had 80% internet use instead? What if it was in Asia instead of Europe?
+  - Two countries have the same GDP per capita and internet use. One is in the Americas and one is in Oceania. Which one has a higher predicted happiness score, and by how much?
+
+- On paper, sketch a model with one slider and a switch with two categories, like $\widehat{y} = 10 + 2 \times x + (-4) \times \text{Group B}$. Where does each line cross the y-axis? Why are they parallel?
+
+- In [Problem set 5](/assignment/05-problem-set.qmd), the democracy coefficient for child mortality got a lot smaller when you added GDP per capita to the model. Explain why in your own words. What would the correlation matrix need to look like for that to happen?
+
+- In [session 15](/class/15-class.qmd), why was the SUV coefficient different in a model with only car type and in a model that also controlled for length and seating?
+
+- Explain to someone in your group what "controlling for GDP per capita" means without using the words "controlling," "holding," or "constant."
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 6 in *ModernDive*](https://moderndive.com/v2/06-multiple-regression.html)
+- {{< fa person-chalkboard >}} ["Multiple regression" slides](/slides/13-multiple-regression/index.html) (especially the "Interpretation practice!" section at the end)
+- {{< fa brands youtube >}} OpenIntro, ["Introduction to Multiple Regression"](https://www.youtube.com/watch?v=sQpAuyfEYZg)
+
+## Test yourself across all the topics!
+
+Correlation, simple regression, and multiple regression are all tied together, and you'll use them together all the time (in this class and in real life). They also build on the visualization and wrangling stuff from Quiz 1.
+
+So try practicing using them together with these questions! Try doing these without notes, then check your answers against the slides, readings, class pages, and problem sets.
+
+- Pick a research question about politics or international relations that you care about (e.g., "Do countries with more women in parliament spend more on education?"). What's **Y**? What's the main **X**? What else would you want to control for, and why? Write the `lm()` code, and then make up a regression table with numbers that seem plausible. Interpret every coefficient.
+
+- Write five wrong interpretations of coefficients from any model in the slides (flip X and Y, get the sign wrong, forget the base case, use the wrong units, say "causes," leave out "controlling for," etc.). Trade with a classmate and see if they can find and fix the mistakes.
+
+- Make a tiny dataset (5 or 6 rows) with a categorical variable and a numeric variable. Use {dplyr} to find the average of the numeric variable in each group (on paper!). Then write out the regression table that `lm()` would make if you used the categorical variable to explain the numeric one. Then sketch a plot that shows the data and the averages.
+
+- Look at any scatterplot with a regression line from the slides or readings. Guess the correlation. Pick a point that's far from the line and say whether its residual is positive or negative. Estimate the slope and intercept just from looking at the plot.
+
+- Take any multiple regression model from the slides and explain what would happen to the predicted value if you (1) moved one slider up by one unit, (2) moved a slider up by 10 units, (3) flipped a switch from the base case to another category, and (4) flipped a switch from one non-base category to another non-base category.

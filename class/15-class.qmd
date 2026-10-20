@@ -3,6 +3,19 @@ title: "Multiple regression III"
 date: "2026-10-18"
 ---
 
+```{r}
+#| include: false
+
+knitr::opts_chunk$set(
+  fig.width = 5,
+  fig.height = (5 * 0.618),
+  fig.align = "center",
+  fig.retina = 3,
+  out.width = "75%",
+  collapse = TRUE
+)
+```
+
 ## Readings
 
 ::: {.readings}
@@ -10,3 +23,347 @@ date: "2026-10-18"
 {{< include ../readings/_15-class.md >}}
 
 :::
+
+## Materials for class today
+
+- [Regression review `.zip` project](/projects/regression-review.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/13167609) (only if you're using an iPad!)
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(moderndive)
+
+cars <- read_csv(here::here(
+  "projects",
+  "regression-review",
+  "data",
+  "qatarcars.csv"
+)) |>
+  filter(price < 1500000) |>
+  mutate(
+    price_1000 = price / 1000,
+    mass_100 = mass / 100
+  )
+```
+
+## In-class examples
+
+Here's the code and answers for the activity from class today. The CSV file of the data is in the `.zip` file that you downloaded above, or you can grab it from here:
+
+- {{< fa file-csv >}} [`qatarcars.csv`](/projects/regression-review/data/qatarcars.csv)
+
+The data comes from the [{qatarcars} package](https://profmusgrave.github.io/qatarcars/).
+
+---
+
+```{.r}
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For get_regression_table()
+
+cars <- read_csv("data/qatarcars.csv") |>
+  # Get rid of the 4 hypercars that cost more than 1.5 million QAR (like the
+  # Bugatti Centodieci, which costs 33 million QAR!), since they're so
+  # extreme that they mess up all the models
+  filter(price < 1500000) |>
+  mutate(
+    # Price in thousands of QAR, so a "one unit increase" is 1,000 QAR
+    # instead of 1 QAR
+    price_1000 = price / 1000,
+    # Mass in hundreds of kilograms, so a "one unit increase" is 100 kg
+    # instead of 1 kg
+    mass_100 = mass / 100
+  )
+```
+
+
+### Part 1: Model anatomy
+
+**Model A**: `lm(price_1000 ~ horsepower, data = cars)`
+
+> - Outcome (Y): `price_1000`, in thousands of QAR
+> - Sliders: `horsepower`; one unit = 1 horsepower
+> - Switches: none
+
+**Model B**: `lm(trunk ~ type, data = cars)`
+
+> - Outcome (Y): `trunk`, in liters
+> - Sliders: none
+> - Switches: `type`; the base case is Coupe (it's first alphabetically)
+
+**Model C**: `lm(performance ~ horsepower + enginetype, data = cars)`
+
+> - Outcome (Y): `performance`, in seconds to get from 0 to 100 km/h
+> - Sliders: `horsepower`; one unit = 1 horsepower
+> - Switches: `enginetype`; the base case is Electric
+
+**Model D**: `lm(trunk ~ length + seating + type, data = cars)`
+
+> - Outcome (Y): `trunk`, in liters
+> - Sliders: `length`; one unit = 1 *meter* (a lot!), and `seating`; one unit = 1 seat
+> - Switches: `type`; the base case is Coupe
+
+What units will the coefficients be in for Model D?
+
+> Every coefficient is in liters, because they're all measured in the units of the outcome (Y). The units of the Xs only show up in the "a one ___ increase in X" part of the sentence for sliders. Switches don't have units at all—they're either on or off.
+
+
+### Part 2: Spot the mistake
+
+```{r}
+model_trunk <- lm(
+  trunk ~ length + seating + type,
+  data = cars
+)
+
+get_regression_table(model_trunk)
+```
+
+1. "Controlling for seating and car type, a one liter increase in trunk space is associated with a 221 meter increase in length, on average."
+
+   > **Wrong**: X and Y are flipped. Trunk space is the outcome, not length.
+   >
+   > **Fixed**: Controlling for seating and car type, a one meter increase in length is associated with a 221 liter increase in trunk space, on average.
+
+2. "Controlling for length and car type, adding one more seat is associated with 67.1 more liters of trunk space, on average."
+
+   > **Wrong**: The coefficient is negative, so it's *less* trunk space.
+   >
+   > **Fixed**: Controlling for length and car type, adding one more seat is associated with 67.1 fewer liters of trunk space, on average.
+
+3. "Controlling for length and seating, a one unit increase in SUV is associated with a 456 liter increase in trunk space, on average."
+
+   > **Wrong**: This uses the slider template for a switch. You can't increase "SUV" by one unit—a car either is an SUV or it isn't. It also needs to say what SUVs are being compared to (the base case).
+   >
+   > **Fixed**: Controlling for length and seating, SUVs have 456 more liters of trunk space than coupes, on average.
+
+4. "Controlling for length and seating, SUVs have 456 more liters of trunk space than sedans, on average."
+
+   > **Wrong**: The base case is Coupe, not Sedan.
+   >
+   > **Fixed**: Controlling for length and seating, SUVs have 456 more liters of trunk space than coupes, on average.
+
+5. "Taking length and seating into account, sedans have 295 more liters of trunk space than coupes, on average."
+
+   > **Correct!**
+
+6. "Controlling for seating and car type, a one centimeter increase in length is associated with a 221 liter increase in trunk space, on average."
+
+   > **Wrong**: Length is measured in meters, not centimeters.
+   >
+   > **Fixed**: Controlling for seating and car type, a one meter increase in length is associated with a 221 liter increase in trunk space, on average.
+
+7. "Making a car one meter longer causes it to have 221 more liters of trunk space."
+
+   > **Wrong**: Three things! (1) Regression shows associations, not causation; (2) it's missing "controlling for…" even though there are other variables in the model; and (3) it's missing "on average."
+   >
+   > **Fixed**: Controlling for seating and car type, a one meter increase in length is associated with a 221 liter increase in trunk space, on average.
+
+8. "The average trunk size is −589 liters."
+
+   > **Wrong**: The intercept is the average when all the sliders are 0 and all the switches are set to the base case, not the average for all cars.
+   >
+   > **Fixed**: For a coupe with a length of 0 meters and 0 seats, average trunk space would be −589 liters (that's not a real car, so the intercept doesn't mean anything here!).
+
+How much more trunk space is associated with a 10 centimeter increase in length?
+
+> 10 centimeters is 0.1 meters, so 221 × 0.1 = 22.1 more liters of trunk space, on average.
+
+Make a checklist. What does every good interpretation need?
+
+> - **The right Y and X**: Y is on the left side of the `~`
+> - **The units of X** (for sliders): "a one *meter* increase," "a *\$1,000* increase," "one more *seat*"
+> - **The units of Y**: the coefficient is always in Y's units ("221 *liters*")
+> - **The direction**: increase or decrease (sliders), higher or lower (switches), based on the sign of the coefficient
+> - **The base case** (switches): "compared to *coupes*"
+> - **"Controlling for…"** if there's more than one X in the model
+> - **"Associated with" and "on average"**, not "causes"
+
+
+### Part 3: Work backwards
+
+#### Sentence A
+
+> "On average, SUVs have 348 more liters of trunk space than coupes."
+
+```{r}
+model_a <- lm(trunk ~ type, data = cars)
+
+get_regression_table(model_a)
+```
+
+Why is the SUV coefficient different from the one in Part 2 (456 liters)?
+
+> This model doesn't control for anything—it just compares the average trunk space of SUVs and coupes. The model in Part 2 compares SUVs and coupes that have the *same length and number of seats*. SUVs tend to have more seats than coupes, and extra seats take up trunk space, so once we hold the number of seats constant, the SUV advantage gets even bigger.
+
+#### Sentence B
+
+> "Controlling for engine type, a one horsepower increase is associated with a 0.013 second decrease in the time it takes to go from 0 to 100 km/h, on average."
+
+```{r}
+model_b <- lm(performance ~ horsepower + enginetype, data = cars)
+
+get_regression_table(model_b)
+```
+
+Is a decrease in `performance` good or bad? How much faster is a car with 100 more horsepower?
+
+> A decrease is good if you want a fast car—it means the car gets to 100 km/h in less time. 100 more horsepower is associated with getting to 100 km/h 100 × 0.013 = 1.3 seconds faster, on average.
+
+Interpret the coefficient for petrol cars:
+
+> Controlling for horsepower, petrol cars take 0.77 more seconds to get from 0 to 100 km/h than electric cars, on average (so they're a little slower).
+
+#### Sentence C
+
+> "A one seat increase is associated with a 50.5 thousand QAR decrease in price, on average."
+
+```{r}
+model_c <- lm(price_1000 ~ seating, data = cars)
+
+get_regression_table(model_c)
+```
+
+Why doesn't this sentence say "controlling for…"?
+
+> There's only one explanatory variable in the model, so there's nothing else to control for.
+
+#### Sentence D
+
+> "Taking engine type into account, a 100 kg increase in weight is associated with a 0.455 liter increase in fuel used per 100 km, on average."
+
+```{r}
+model_d <- lm(economy ~ mass_100 + enginetype, data = cars)
+
+get_regression_table(model_d)
+```
+
+What's the base case for engine type, and why isn't it Electric?
+
+> The base case is Hybrid. Electric cars don't use fuel, so their `economy` is `NA`, and `lm()` drops any rows with missing values. Without any electric cars left in the data, Hybrid is the first engine type alphabetically. (That means the Petrol coefficient compares petrol cars to hybrids: taking weight into account, petrol cars use 1.88 more liters of fuel per 100 km than hybrids, on average.)
+
+
+### Part 4: Move some sliders and flip some switches
+
+```{r}
+model_price <- lm(
+  price_1000 ~ horsepower + mass_100 + type,
+  data = cars
+)
+
+get_regression_table(model_price)
+```
+
+What's the base case for `type`?
+
+> Coupe, since it's first alphabetically.
+
+Write out the model as an equation:
+
+$$
+\begin{aligned}
+\widehat{\text{price}}_{1000} = &\ -176 + 1.22 \times \text{horsepower} + 9.96 \times \text{mass}_{100} \\
+&+ (-44.4) \times \text{Hatchback} + (-47.1) \times \text{Sedan} + (-135) \times \text{SUV}
+\end{aligned}
+$$
+
+Interpret the intercept:
+
+> For a coupe with 0 horsepower that weighs 0 kg, the average price would be −176 thousand QAR. That's an impossible car (with an impossible price!), so the intercept doesn't mean anything here.
+
+Interpret the coefficient for horsepower:
+
+> Controlling for weight and car type, a one horsepower increase is associated with a 1.22 thousand QAR increase in price, on average.
+
+How much is that in plain QAR and dollars?
+
+> 1.22 thousand QAR is 1,220 QAR, which is about \$335 (1,220 ÷ 3.64).
+
+Interpret the coefficient for mass:
+
+> Taking horsepower and car type into account, a 100 kg increase in weight is associated with a 9.96 thousand QAR (9,960 QAR) increase in price, on average.
+
+Interpret the coefficient for SUV:
+
+> Controlling for horsepower and weight, SUVs are 135 thousand QAR cheaper than coupes, on average.
+
+#### Predictions and marginal effects
+
+Predicted price for a 300 hp, 1,800 kg sedan (the Sedan switch is on, so it gets −47.1; the Hatchback and SUV switches are off):
+
+```{r}
+-176 + (1.22 * 300) + (9.96 * 18) + (-47.1)
+```
+
+1. 400 horsepower:
+
+   ```{r}
+   -176 + (1.22 * 400) + (9.96 * 18) + (-47.1)
+   ```
+
+   > The price goes up by 122 thousand QAR. That's 100 × the horsepower coefficient (1.22), since we moved the horsepower slider by 100.
+
+2. 1,900 kg:
+
+   ```{r}
+   -176 + (1.22 * 300) + (9.96 * 19) + (-47.1)
+   ```
+
+   > The price goes up by 9.96 thousand QAR, which is exactly the mass coefficient, since we moved the mass slider by one unit (100 kg).
+
+3. Coupe:
+
+   ```{r}
+   -176 + (1.22 * 300) + (9.96 * 18)
+   ```
+
+   > The price goes up by 47.1 thousand QAR. Turning off the Sedan switch makes the car the base case, so we lose the −47.1.
+
+4. SUV:
+
+   ```{r}
+   -176 + (1.22 * 300) + (9.96 * 18) + (-135)
+   ```
+
+   > The price goes down by 88 thousand QAR, not 135. The SUV coefficient compares SUVs to *coupes*, not to sedans. Going from a sedan to an SUV means turning off the Sedan switch (+47.1) *and* turning on the SUV switch (−135), so the total change is −135 + 47.1 = −88.
+
+#### What does "controlling for" actually do?
+
+```{r}
+cars |>
+  group_by(type) |>
+  summarize(
+    avg_price = mean(price_1000),
+    avg_horsepower = mean(horsepower)
+  )
+```
+
+Why is the gap between SUVs and coupes so much bigger here than the SUV coefficient in the model?
+
+> On average, SUVs are 547 − 228 = 319 thousand QAR cheaper than coupes. But coupes have way more horsepower (453 on average, compared to 278 for SUVs), and more horsepower is associated with higher prices. Part of the reason coupes are so expensive is that they're so powerful. When we compare SUVs and coupes with the *same* horsepower and weight, the gap shrinks to 135 thousand QAR.
+
+
+### Part 5: Last one!
+
+```{r}
+model_origin <- lm(
+  price_1000 ~ performance + origin,
+  data = cars
+)
+
+get_regression_table(model_origin)
+```
+
+What's the base case for `origin`?
+
+> Germany, since it's first alphabetically.
+
+Interpret the coefficient for performance:
+
+> Controlling for origin, a one second increase in the time it takes to go from 0 to 100 km/h (i.e. a slower car) is associated with a 40.1 thousand QAR decrease in price, on average.
+
+Interpret the coefficient for PR China:
+
+> Taking performance into account, Chinese cars are 166 thousand QAR cheaper than German cars, on average.
