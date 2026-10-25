@@ -10,3 +10,18 @@ date: "2026-10-25"
 {{< include ../readings/_17-class.md >}}
 
 :::
+
+## Slides
+
+<p style="line-height: 2.5"><a class="btn btn-success me-2" target="_blank" href="../slides/17-sampling/index.html">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a><a class="btn btn-success" target="_blank" href="../slides/17-sampling/17-sampling.pdf">{{< fa file-pdf >}} &ensp;Download PDF of slides</a></p>
+
+```{=html}
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="../slides/17-sampling/index.html" style="border: 1px solid #343a40;"></iframe>
+</div>
+```
+
+## Materials for class today
+
+- [M&M sampling `.zip` project](/projects/mm-sampling.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/13223340) (only if you're using an iPad!)

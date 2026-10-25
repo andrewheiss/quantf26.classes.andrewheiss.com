@@ -1,0 +1,290 @@
+---
+title: "M&M sampling"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)     # For ggplot, dplyr, and friends
+library(moderndive)    # For rep_slice_sample()
+library(googlesheets4) # For reading the class Google Sheet
+
+# Switch this to TRUE to use the class's data from the Google Sheet
+use_class_data <- FALSE
+
+sheet_url <- "https://docs.google.com/spreadsheets/d/1s3E3GkKKRYntnAX5BbuFqhNUUYapItpcG9pYoUbB7-8/edit?usp=sharing"
+
+# Change this to the name you typed in the form
+my_name <- "Student 1"
+
+# Google Forms makes column names from the question text, like "How many blue
+# M&Ms do you have?". This finds the name column and the color word in each
+# color column, and turns whatever students typed into numbers
+clean_bags <- function(raw) {
+  raw |>
+    select(
+      name = matches("name", ignore.case = TRUE),
+      matches(
+        "(^|[^a-z])(blue|brown|green|orange|red|yellow)([^a-z]|$)",
+        ignore.case = TRUE
+      )
+    ) |>
+    rename_with(
+      \(x) str_extract(str_to_lower(x), "blue|brown|green|orange|red|yellow"),
+      .cols = -name
+    ) |>
+    mutate(across(-name, \(x) parse_number(as.character(x)))) |>
+    mutate(bag = row_number(), .before = 1)
+}
+
+# Simulated bags, drawn from a known color mix
+sim_bags <- read_csv("data/mm_bags_simulated.csv")
+
+if (use_class_data) {
+  gs4_deauth()  # The sheet is public, so we don't need to log in
+  bags <- read_sheet(sheet_url, col_types = "c") |> clean_bags()
+} else {
+  bags <- sim_bags
+}
+
+# The true color mix for the simulated bags (we never know this in real life!)
+true_mix <- read_csv("data/mm_true_mix.csv")
+true_p_green <- true_mix |> filter(color == "green") |> pull(p)
+
+# Green M&Ms at the two US factories and on the old M&Ms website
+reference_green <- tribble(
+  ~source,                ~p_green,
+  "Cleveland, TN",        0.198,
+  "Hackettstown, NJ",     0.125,
+  "2007 website numbers", 0.16
+)
+
+# A giant vat of 10,000 simulated M&Ms, one row per M&M
+vat <- read_csv("data/mm_vat.csv")
+```
+
+## The data
+
+Each row is one bag of M&Ms. The columns count how many of each color were in the bag.
+
+```{r}
+bags
+```
+
+We'll add the total number of M&Ms in each bag and each bag's proportion of green M&Ms ($\widehat{p}_\text{green}$):
+
+```{r}
+bags <- bags |>
+  mutate(
+    total = blue + brown + green + orange + red + yellow,
+    p_hat_green = green / total
+  )
+
+bags |> select(bag, name, green, total, p_hat_green)
+```
+
+## Everyone's $\widehat{p}$ is different
+
+Every bag is a sample, and every sample gives a slightly different estimate. This histogram is our class's sampling distribution:
+
+```{r}
+ggplot(bags, aes(x = p_hat_green)) +
+  geom_histogram(binwidth = 0.04, boundary = 0, color = "white", fill = "#31A84A") +
+  scale_x_continuous(labels = scales::label_percent()) +
+  labs(x = "Proportion of green M&Ms in each bag", y = "Number of bags")
+```
+
+## Pooling the whole class
+
+Combining all the bags gives one giant sample:
+
+```{r}
+pooled_green <- bags |>
+  summarize(
+    bags = n(),
+    green = sum(green),
+    total = sum(total)
+  ) |>
+  mutate(p_hat = green / total)
+
+pooled_green
+```
+
+How does our pooled estimate compare to the US factories and the old M&Ms website?
+
+```{r}
+reference_green |>
+  add_row(source = "Our class", p_green = pooled_green$p_hat) |>
+  mutate(source = fct_reorder(source, p_green)) |>
+  ggplot(aes(x = p_green, y = source, fill = source == "Our class")) +
+  geom_col() +
+  geom_text(aes(label = scales::label_percent(accuracy = 0.1)(p_green)), hjust = -0.1) +
+  scale_x_continuous(labels = scales::label_percent(), expand = expansion(mult = c(0, 0.15))) +
+  scale_fill_manual(values = c("grey70", "#31A84A"), guide = "none") +
+  labs(x = "Proportion of green M&Ms", y = NULL)
+```
+
+Whose bag was closest to the pooled estimate? Farthest?
+
+```{r}
+bags |>
+  mutate(distance_from_pooled = abs(p_hat_green - pooled_green$p_hat)) |>
+  arrange(distance_from_pooled) |>
+  select(name, green, total, p_hat_green, distance_from_pooled)
+```
+
+We can find the pooled estimate for every color at once too:
+
+```{r}
+pooled_colors <- bags |>
+  pivot_longer(
+    cols = c(blue, brown, green, orange, red, yellow),
+    names_to = "color",
+    values_to = "count"
+  ) |>
+  group_by(color) |>
+  summarize(count = sum(count), total = sum(total)) |>
+  mutate(p_hat = count / total)
+
+pooled_colors
+
+mm_colors <- c(
+  blue = "#2f9fd7", brown = "#603a34", green = "#31ac55",
+  orange = "#f26f22", red = "#b11224", yellow = "#fff200"
+)
+
+ggplot(pooled_colors, aes(x = p_hat, y = fct_reorder(color, p_hat), fill = color)) +
+  geom_col() +
+  scale_fill_manual(values = mm_colors, guide = "none") +
+  scale_x_continuous(labels = scales::label_percent()) +
+  labs(x = "Estimated proportion", y = NULL)
+```
+
+## Standard deviation vs. standard error
+
+**Standard deviation**: how much do *individual M&Ms* vary? Each M&M is either green (1) or not green (0). For yes/no data like this, the standard deviation is $\sqrt{p (1 - p)}$. We don't know $p$, so we use our pooled estimate:
+
+```{r}
+sd_individual <- sqrt(pooled_green$p_hat * (1 - pooled_green$p_hat))
+sd_individual
+```
+
+**Standard error**: how much do *sample proportions* vary from bag to bag? It's the standard deviation of the sampling distribution. We can measure it two ways:
+
+1. Directly, by finding the standard deviation of everyone's $\widehat{p}$
+2. With the formula, $\text{SE} = \frac{\text{SD}}{\sqrt{n}} = \sqrt{\frac{p (1 - p)}{n}}$, where $n$ is the size of one bag
+
+```{r}
+# 1. Standard deviation of all the bags' p-hats
+se_from_bags <- sd(bags$p_hat_green)
+se_from_bags
+
+# 2. Formula, using the average bag size
+avg_bag_size <- mean(bags$total)
+se_formula <- sd_individual / sqrt(avg_bag_size)
+se_formula
+```
+
+They should be pretty close!
+
+## Margins of error
+
+### Your bag
+
+If you only had your own bag, you could still estimate the standard error with the formula and find the margin of error: $\text{MOE} = 1.96 \times \text{SE}$. Then $\widehat{p} \pm \text{MOE}$ gives a range of plausible values for the true $p$ (a 95% confidence interval).
+
+```{r}
+my_bag <- bags |>
+  filter(name == my_name) |>
+  mutate(
+    se = sqrt(p_hat_green * (1 - p_hat_green) / total),
+    moe = 1.96 * se,
+    lower = p_hat_green - moe,
+    upper = p_hat_green + moe
+  )
+
+my_bag |> select(name, green, total, p_hat_green, se, moe, lower, upper)
+```
+
+That's pretty wide, since one bag only has about 50 M&Ms.
+
+### The whole class
+
+The pooled sample is much bigger, so the standard error and margin of error are much smaller:
+
+```{r}
+pooled_green <- pooled_green |>
+  mutate(
+    se = sqrt(p_hat * (1 - p_hat) / total),
+    moe = 1.96 * se,
+    lower = p_hat - moe,
+    upper = p_hat + moe
+  )
+
+pooled_green
+```
+
+Which one is more useful? Why?
+
+## Do 95% of the intervals catch the truth?
+
+In real life we never know the true $p$, so we can't check. But we *do* know it for the simulated bags, which were drawn from the Cleveland mix (`r scales::label_percent(accuracy = 0.1)(true_p_green)` green). Here's every simulated bag's 95% confidence interval. About 95% of them should include the true proportion (the dashed line):
+
+```{r}
+sim_cis <- sim_bags |>
+  mutate(
+    total = blue + brown + green + orange + red + yellow,
+    p_hat_green = green / total,
+    se = sqrt(p_hat_green * (1 - p_hat_green) / total),
+    lower = p_hat_green - 1.96 * se,
+    upper = p_hat_green + 1.96 * se,
+    catches_truth = lower <= true_p_green & true_p_green <= upper
+  )
+
+ggplot(sim_cis, aes(x = p_hat_green, y = factor(bag), color = catches_truth)) +
+  geom_vline(xintercept = true_p_green, linetype = "dashed") +
+  geom_pointrange(aes(xmin = lower, xmax = upper)) +
+  scale_x_continuous(labels = scales::label_percent()) +
+  labs(
+    x = "Proportion of green M&Ms (with 95% confidence interval)",
+    y = "Simulated bag",
+    color = "Interval includes\nthe true p?"
+  )
+
+mean(sim_cis$catches_truth)
+```
+
+## What if we had way more bags?
+
+The vat is a simulated population of 10,000 M&Ms, so we know its true proportion of green:
+
+```{r}
+vat_p_green <- mean(vat$color == "green")
+vat_p_green
+```
+
+We can use `rep_slice_sample()` to pretend 1,000 students each got a bag of 50:
+
+```{r}
+set.seed(1234)
+virtual_bags <- vat |>
+  rep_slice_sample(n = 50, reps = 1000) |>
+  summarize(p_hat_green = mean(color == "green"))
+
+ggplot(virtual_bags, aes(x = p_hat_green)) +
+  geom_histogram(binwidth = 0.02, boundary = 0.01, color = "white", fill = "#31A84A") +
+  geom_vline(xintercept = vat_p_green, linewidth = 1.5) +
+  scale_x_continuous(labels = scales::label_percent()) +
+  labs(x = "Proportion of green M&Ms in each virtual bag", y = "Number of bags")
+
+# The standard error from 1,000 virtual bags
+sd(virtual_bags$p_hat_green)
+
+# The standard error from the formula
+sqrt(vat_p_green * (1 - vat_p_green) / 50)
+```
+
+That's a bell curve centered at the true proportion. That's the central limit theorem!
