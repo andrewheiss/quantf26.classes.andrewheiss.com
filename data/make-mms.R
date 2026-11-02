@@ -1,16 +1,17 @@
 library(tidyverse)
 
 # Simulated M&Ms for practicing sampling, standard errors, and confidence
-# intervals. Colors are drawn from the plain M&M mix at Mars's Cleveland, TN
-# factory, so we know the true population parameters.
+# intervals. Colors are drawn from the plain M&M mix at Mars's Janaszówek,
+# Poland factory, as estimated by pooling our class's 21 bags (1,080 M&Ms) on
+# 2026-10-25. We treat that estimate as the true population parameters.
 true_mix <- tribble(
   ~color,   ~p,
-  "blue",   0.207,
-  "brown",  0.124,
-  "green",  0.198,
-  "orange", 0.205,
-  "red",    0.131,
-  "yellow", 0.135
+  "blue",   0.159,
+  "brown",  0.180,
+  "green",  0.170,
+  "orange", 0.173,
+  "red",    0.142,
+  "yellow", 0.176
 )
 
 set.seed(1234)

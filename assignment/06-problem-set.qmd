@@ -1,5 +1,51 @@
 ---
 title: "Problem set 6"
-# subtitle: "Introduction to R and the tidyverse"
-date: "2026-11-08"
+subtitle: "Sampling and confidence intervals"
+date: "2026-11-12"
 ---
+
+## Purpose
+
+[Chapter 7](https://moderndive.com/v2/07-sampling.html) in *ModernDive* explains how a random sample can tell you about a whole population, and why every sample gives a slightly different answer. [Chapter 8](https://moderndive.com/v2/08-confidence-intervals.html) uses those ideas to measure how uncertain an estimate is, with confidence intervals built from bootstrapping and from formulas.
+
+In this problem set, you'll use real survey data from the [Arab Barometer](https://www.arabbarometer.org/) (the same survey we've been using in class) to look at trust in government, views about women in political leadership, and how democratic people think their countries are. You'll use each country's sample to build confidence intervals for a mean and for a difference in proportions. You'll also keep using the {dplyr}, {ggplot2}, and regression skills you've built so far. By the end, you should be able to:
+
+- Use `mutate()` and `recode_values()` to collapse survey answers into categories, and `group_by()` and `summarize()` to calculate proportions and averages for groups
+- Define the population, population parameter ($p$, $\mu$, $p_1 - p_2$), and estimand/sample statistic ($\widehat{p}$, $\bar{x}$, $\widehat{p}_1 - \widehat{p}_2$) for a research question
+- Use the {infer} workflow (`specify()`, `generate()`, `calculate()`) to make a bootstrap distribution, and `get_confidence_interval()`, `visualize()`, and `shade_confidence_interval()` to find and plot a confidence interval with the percentile method
+- Calculate a 95% confidence interval with the formula $\bar{x} \pm 1.96 \times \text{SE}$, and plot confidence intervals for several groups with `geom_pointrange()`
+- Interpret a confidence interval correctly, including what "95% confident" does and doesn't mean, and whether an interval for a difference includes 0
+- Connect a difference in proportions to a regression coefficient, and recognize the confidence interval columns in `get_regression_table()`
+
+## Criteria for success
+
+This problem is graded using a ✔+/✔/✔− system. I'm looking for correct code and genuine attempts at the interpretation questions, not polished prose.
+
+- **✔+**: All chunks run without errors and use the correct functions, variables, and datasets. The datasets, bootstrap distributions, confidence intervals, and plots you create match the expected output shown in the instructions (small differences from randomness are fine). The population, population parameter, and sample statistic are defined correctly for each task (bonus points for using the right symbols!). The written answers interpret estimates and confidence intervals in plain language with the correct units and the correct population (e.g., "we're 95% confident that the average democracy rating among all Iraqi adults is between 4.34 and 4.57 on a 0--10 scale," not just "the CI is 4.34 to 4.57"), and explain what the 95% refers to and why some intervals are wider than others. The extension does something new and exciting rather than only slightly modifying a previous chunk.
+- **✔**: This is the expected level of performance. All chunks run and produce mostly correct results; minor mismatches (e.g., column names or rounding) are fine. Written interpretations are attempted and reasonable, though they may be missing units, mix up the sample and the population, or mix up small details.
+- **✔−**: Chunks are missing, don't run, or use the wrong variables or datasets (e.g., filtering to the wrong country or forgetting `type = "bootstrap"`). Written answers are left blank or only restate numbers from the output without interpreting them.
+
+You may work together in groups of up to four, but you must turn in your own answers and note who you worked with.
+
+And remember: **everything human-facing must be human-generated**. Don't submit AI-generated text. I want to hear *your* voice.
+
+Also, if you do use LLMs to help with the code (I recommend not!), make sure you [follow the guidelines from the syllabus](/syllabus.qmd#rule-2-you-are-responsible-for-understanding-verifying-and-citing-everything-an-llm-generates) about how to cite what you use.
+
+## How to submit
+
+Submit a single rendered PDF on Canvas.
+
+## Instructions
+
+1. Download this `.zip` file. Make sure you [unzip or extract it after you download it](/resource/unzipping.qmd)! Open the unzipped folder in Positron.
+
+   - [{{< fa file-archive >}} `06-problem-set.zip`](/projects/06-problem-set.zip)
+   - [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/13279718): Use this link if you're using Posit.cloud on your iPad.
+
+2. Rename the Quarto file named `your-name_problem-set-6.qmd` to something that matches your name.
+
+3. Complete the tasks given in the Quarto file. You can definitely copy, paste, and adapt from other code in the document---don't try to write everything from scratch!
+
+   This problem set uses the {moderndive} and {infer} packages. If you get an error saying `there is no package called 'moderndive'` or `there is no package called 'infer'`, install them first by going to the Packages panel and searching for them, or by running `install.packages(c("moderndive", "infer"))` in the console.
+
+4. When you're all done, render the document to Typst (pdf), PDF, or Word. Upload that file to Canvas. **Do not upload a rendered HTML file** (they don't work on Canvas).

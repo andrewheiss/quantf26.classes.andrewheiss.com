@@ -1,9 +1,157 @@
 ---
 title: "Final project"
-# subtitle: "Introduction to R and the tidyverse"
-date: "2026-12-12"
+date: "2026-12-13"
 ---
 
 ::: {.callout-note}
-The date here is approximate; it will be the same date/time as the scheduled final exam—GU-Q just hasn't posted the exam schedule yet.
+Your final project is due at the start of our scheduled final exam: **Sunday, December 13 at 12:30 PM**. Defenses happen during the exam time, from 12:30 to 2:30.
 :::
+
+## Overview
+
+For your final project, you'll work in a small group to answer a political science question with real data at two levels:
+
+- **Across countries**, using expert-coded data from [V-Dem](https://www.v-dem.net/)
+- **Within a country**, using survey data from ordinary people in the [Arab Barometer](https://www.arabbarometer.org/)
+
+You'll come up with a hypothesis based on previous research, test it at both levels, and then explore both levels simultaneously to see whether they tell the same story. You'll write everything in a Quarto document and then defend your work in person.
+
+This project uses pretty much everything we've done this semester: loading and wrangling data, visualizing it, building regression models, making inferences about populations, and communicating your results to regular people. If you've been doing the problem sets, you can do this!
+
+
+## Groups
+
+You'll work in groups of **2 to 4** (no more! no fewer!). You can choose your own group. Tell me who's in your group when you e-mail me your proposal by **Thursday, November 12**. If you have a good reason to work alone, talk to me first.
+
+Everyone in your group will share most of the grade, but part of it is individual (see [the rubric](#rubric) below). Split up the work however you want, but **every group member needs to understand the whole project**. In the defense, I'll ask each of you about parts of the project that you might not have worked on directly.
+
+
+## Data and themes
+
+Choose one of these themes. Multiple groups can choose the same theme.
+
+::: {.list-table tbl-colwidths="[20,40,40]"}
+- - Theme
+  - V-Dem (across countries)
+  - Arab Barometer (within a country)
+
+- - Democracy
+  - Electoral and liberal democracy indexes
+  - How democratic people think their country is; whether democracy is the best system
+
+- - Corruption
+  - Political, executive, and public sector corruption
+  - Perceived corruption in national and local government; whether the government fights corruption
+
+- - Expression and civil liberties
+  - Freedom of expression, civil liberties, physical integrity
+  - Whether freedom of expression, the press, and protest are guaranteed
+
+- - Gender equality
+  - Women's political empowerment; women in the legislature
+  - Whether men are better leaders; equal work opportunities; quotas for women in parliament
+
+- - Elections and participation
+  - Clean elections; voter turnout
+  - Voting; evaluations of elections; protesting
+
+- - Military and the state
+  - The military's role in choosing leaders
+  - Trust in the army and the government; satisfaction with the government
+:::
+
+**[See the full list of variables and important details about the data here.](/assignment/final-project-codebook.qmd)**
+
+For the within-country part, you'll focus on one country from the Arab Barometer (or two, if you want to compare them).
+
+
+## Hypotheses
+
+Your hypotheses should come from theories and arguments in previous research. For instance, you might have read about why democracies have less corruption, or about what shapes support for women's representation. This doesn't need to be extensive---you just need to make a credible connection to some academic argument and cite a source or two. You've likely already talked about lots of these themes in prior classes!
+
+
+## Timeline
+
+| When | What |
+|---|---|
+| **Thursday, November 12** | Groups and proposal due by e-mail (see below) |
+| **Tuesday, December 1** | In-class check-in: bring your work in progress and questions |
+| **Sunday, December 13, 12:30 PM** | Final report, project files, and contribution reflection due on Canvas |
+| **Sunday, December 13, 12:30–2:30 PM** | Defenses (in person, in our final exam room) |
+
+### Proposal
+
+E-mail me a short proposal (2--3 paragraphs) by **Thursday, November 12**. Send one e-mail per group, and CC everyone in your group. Include:
+
+- The names of everyone in your group
+- Your theme and research question
+- A sentence or two about the argument or previous research your hypotheses are based on
+- Your hypotheses at both levels
+- Your main V-Dem and Arab Barometer variables (outcome, explanatory variable, and a few controls)
+- Which Arab Barometer country (or countries) you'll use and why
+
+I'll give you feedback within a few days so you can adjust before you get too far.
+
+
+## What to submit
+
+Submit these on Canvas by **12:30 PM on Sunday, December 13** (the start of our final exam). Only one person in each group needs to submit the report and files.
+
+1. **Your rendered report** as a PDF or Word file
+2. **A `.zip` file of your project folder**, with your `.qmd` file and the `data/` folder. I should be able to unzip it and render your report without changing anything.
+3. **A *super short* contribution reflection** (everyone submits their own, privately): a short description of what you contributed to the project and what each of your group members contributed.
+
+Start with this template project. It has the data and a Quarto template with the outline below, along with some starter code.
+
+- [{{< fa file-archive >}} `final-project.zip`](/projects/final-project.zip)
+- [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/13280863): Use this link if you're using Posit.cloud on your iPad.
+
+
+## Outline
+
+The template has this outline built in, with suggested word counts for each section. The word counts are guidelines, not requirements.
+
+1. **Summary** (≈150 words): Your question, what you found, and why it matters, written for someone who has never taken a statistics class. No coefficients, no p-values, no jargon.
+2. **Question and hypotheses** (≈200 words): Your theme and question, the argument from previous research, and two hypotheses: one about countries (H~1~) and one about people within a country (H~2~).
+3. **Data** (≈250 words): Your variables at both levels and why you chose them, which Arab Barometer country you're using and why, and how you handled missing data, questions that weren't asked everywhere, and other cleaning.
+4. **Cross-national analysis** (≈450 words): At least two plots, a multiple regression model with controls, and an interpretation of your results, including confidence intervals and hypothesis tests.
+5. **Within-country analysis** (≈450 words): At least two plots, a multiple regression model with controls, and an interpretation of your results, including what population you can make claims about.
+6. **Synthesis** (≈300 words): Calculate the relationship from your second hypothesis in each of the Arab Barometer countries and plot them. Is your country typical or an outlier? Do your cross-national and within-country results tell the same story?
+7. **Limitations and conclusion** (≈150 words)
+8. **References and AI use**
+
+[This example project](/files/quantf26_final-project-example.pdf) shows what all of this can look like, using civil society (which isn't one of the themes you can choose).
+
+
+## Rubric
+
+I'll grade your project with this rubric. I *highly* recommend that you refer to it as you work!
+
+- {{< fa list-check >}}&ensp;[`quantf26_final-project-rubric.xlsx`](/files/quantf26_final-project-rubric.xlsx)
+
+
+## Defense
+
+Your group will defend your project **in person during our scheduled final exam** (Sunday, December 13, 12:30--2:30). Each group will sign up for a 10-minute slot, so you don't need to be there for the whole exam period. (If you can't be there in person for a documented reason, talk to me ahead of time and we'll do it on Zoom.)
+
+Bring a laptop with your rendered report and your project open in Positron.
+
+The defense will go like this:
+
+1. **Overview** (2 minutes): Briefly tell me your question and what you found. No slides!
+2. **Questions** (about 6 minutes): I'll ask three kinds of questions. I'll direct questions to specific people, so everyone should be ready to answer anything.
+   - **Interpret a number**: I'll point at a number in your report (like a coefficient or a confidence interval) and ask you to interpret it.
+   - **Explain a chunk**: I'll pick a chunk of your code and ask you to explain what each line does and why it's there.
+   - **Concepts**: I'll ask a bigger-picture question about your analysis, like what population your results apply to or whether your results mean anything for individual people.
+
+Your group's defense score (20 points) is based on the overview and each of the three kinds of questions (5 points each). Your individual score (15 points) is based on how well you answer the questions I ask you directly.
+
+This isn't meant to be scary! If you did the work and understand your project, you'll do great. The point is to give you a chance to show what you know---and it's a great way to practice explaining statistical results out loud, which you'll need to do in pretty much any job that uses data.
+
+
+## AI and LLMs
+
+The [course rules about AI](/syllabus.qmd#generative-ai-and-llms) apply here too:
+
+1. **Everything human-facing must be human-generated.** All the writing in your report must be your own.
+2. **You are responsible for understanding, verifying, and citing everything an LLM generates.** If you use an LLM for help with code, cite it in your code comments and in the "AI use" section of your report.

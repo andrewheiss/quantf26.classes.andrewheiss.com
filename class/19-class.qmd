@@ -10,3 +10,18 @@ date: "2026-11-01"
 {{< include ../readings/_19-class.md >}}
 
 :::
+
+## Slides
+
+<p style="line-height: 2.5"><a class="btn btn-success me-2" target="_blank" href="../slides/19-bootstrapping/index.html">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a><a class="btn btn-success" target="_blank" href="../slides/19-bootstrapping/19-bootstrapping.pdf">{{< fa file-pdf >}} &ensp;Download PDF of slides</a></p>
+
+```{=html}
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="../slides/19-bootstrapping/index.html" style="border: 1px solid #343a40;"></iframe>
+</div>
+```
+
+## Materials for class today
+
+- [Bootstrapping `.zip` project](/projects/bootstrapping.zip)
+- [Posit.cloud project](https://posit.cloud/spaces/809160/content/13275181) (only if you're using an iPad!)

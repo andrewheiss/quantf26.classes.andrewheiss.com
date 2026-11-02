@@ -1,0 +1,262 @@
+---
+title: "YOUR TITLE HERE"
+subtitle: "Final project --- IPOL 3270, Fall 2026"
+author:
+  - "GROUP MEMBER 1"
+  - "GROUP MEMBER 2"
+  - "GROUP MEMBER 3"
+  - "GROUP MEMBER 4"
+date: "DATE GOES HERE"
+date-format: "long"
+
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+  typst:
+    toc: true
+    papersize: a4
+    fontsize: "10.5pt"
+    margin:
+      x: 2.5cm
+      y: 2.5cm
+  docx:
+    toc: true
+
+execute:
+  fig-width: 6
+  fig-height: 3.5
+  message: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(moderndive)
+
+# Cross-national data from V-Dem, with one row for each country in 2023
+vdem <- readRDS("data/vdem.rds")
+
+# Within-country data from the Arab Barometer, with one row for each person 
+# interviewed in 2023-2024
+barometer <- readRDS("data/barometer.rds")
+```
+
+::: {.callout-important}
+#### Important! Delete all the template text
+
+This template is full of instructions and hints in boxes like this one. **Delete all of them before you turn in your project**, including this one. The only things from this template that should be left in your final report are the section headings (and the starter code, if you used it). Everything else should be your own writing, code, figures, and tables.
+
+**BE CAREFUL** about how you delete these things. Each callout box starts with `:::` and ends with `:::`. Make sure you delete both!
+:::
+
+# Summary
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Explain your question, what you found, and why it matters, in plain language. Write this for someone who has never taken a statistics class---no jargon, no coefficients, no p-values, nothing mathy. (**≈150 words**)
+:::
+
+
+# Question and hypotheses
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Introduce your theme and your research question. Connect it to theories and arguments from previous research. Briefly explain the argument you're drawing on, and cite it. (**≈200 words**)
+
+Then state two hypotheses, one at each level:
+
+- **H~1~ (cross-national)**: A prediction about how countries differ from each other
+- **H~2~ (within-country)**: A prediction about how people within your country or countries differ from each other
+
+These should be about the same general idea, but they don't have to be exact mirror images of each other.
+:::
+
+- **H~1~ (cross-national)**: YOUR CROSS-NATIONAL HYPOTHESIS HERE
+- **H~2~ (within-country)**: YOUR WITHIN-COUNTRY HYPOTHESIS HERE
+
+
+# Data
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Describe the data you're using. (**≈250 words**)
+
+- Which V-Dem variables are your outcome, your main explanatory variable, and your controls? Why those?
+- Which Arab Barometer questions are your outcome, your main explanatory variable, and your controls? Why those?
+- Which country (or countries) are you using from the Arab Barometer, and why?
+- How did you handle things like missing data, questions that only appeared for some countries, and other data cleaning tasks?
+:::
+
+```{r}
+#| label: clean-data
+
+# Do any cleaning, recoding, and filtering here
+```
+
+
+# Cross-national analysis
+
+::: {.callout-tip}
+#### Hint: figures and tables (delete this box)
+
+Try to give every plot and table a label (starting with `fig-` for plots and `tbl-` for tables) and a caption. Put options like these at the top of the chunk---see [the Quarto documentation](https://quarto.org/docs/authoring/cross-references.html#computations) on cross references for more details.
+
+```r
+#| label: fig-civil-society
+#| fig-cap: "Civil society and corruption, 2023"
+```
+
+Then refer to it in your text with `@fig-civil-society`.
+:::
+
+## Exploring the data
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Make at least two plots that explore the relationships you're interested in across countries. Give them good titles and axis labels, and explain what each one shows. (**≈150 words**)
+:::
+
+```{r}
+#| label: fig-cross-national-1
+
+```
+
+```{r}
+#| label: fig-cross-national-2
+
+```
+
+## Model
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Use a multiple regression model to test H~1~. Interpret the coefficient for your main explanatory variable (and any other important coefficients) both statistically and substantively. What does the confidence interval tell you? Do you have enough evidence to reject the null hypothesis? (**≈300 words**)
+:::
+
+```{r}
+#| label: model-cross-national
+
+```
+
+
+# Within-country analysis
+
+## Exploring the data
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Make at least two plots that explore the relationships you're interested in among the people in your country or countries. Explain what each one shows. (**≈150 words**)
+:::
+
+```{r}
+#| label: fig-within-country-1
+
+```
+
+```{r}
+#| label: fig-within-country-2
+
+```
+
+## Model
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Use a multiple regression model to test H~2~. Interpret the coefficient for your main explanatory variable (and any other important coefficients) both statistically and substantively. What population can you make claims about? What does the confidence interval tell you? Do you have enough evidence to reject the null hypothesis? (**≈300 words**)
+
+*Optional bonus!*: If your outcome is binary (like yes/no), try using a logistic regression model and interpreting its marginal effects.
+:::
+
+```{r}
+#| label: model-within-country
+
+```
+
+
+# Synthesis
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+Synthesize the results from your two questions. Make sure you do these things (**≈300 words**):
+
+1. Calculate the relationship from your second hypothesis (slope, average, percentage, or whatever you've been working with) in each of the Arab Barometer countries. Make a plot to show them.
+2. How does your country compare with these other Arab Barometer countries? Is it typical, or is it an outlier? Why do you think so?
+3. Do your cross-national (V-Dem) and within-country (Arab Barometer) results tell the same story? If a relationship holds across countries, does that mean it holds for individual people (or vice versa)? Why or why not?
+:::
+
+::: {.callout-tip}
+#### Hint: one model per country (delete this box)
+
+One way to do step 1 is to run your H~2~ model separately for each country, using `filter()` inside `lm()`, and then combine all the `get_regression_table()` results into one data frame with `bind_rows()`. If you give each table a name inside `bind_rows()` and add `.id = "country"`, those names become a new column, so you can tell the results apart. Then you can `filter()` to keep just the coefficient you care about and plot the estimates and confidence intervals with `geom_pointrange()`.
+
+```r
+# barometer_clean is whatever you named your cleaned Arab Barometer data
+model_iraq <- lm(
+  outcome ~ explanatory + control1 + control2,
+  data = filter(barometer_clean, country == "Iraq")
+)
+
+model_jordan <- lm(
+  outcome ~ explanatory + control1 + control2,
+  data = filter(barometer_clean, country == "Jordan")
+)
+
+# And so on for the other countries...
+
+all_models <- bind_rows(
+  "Iraq" = get_regression_table(model_iraq),
+  "Jordan" = get_regression_table(model_jordan),
+  # And so on...
+  .id = "country"
+) |>
+  filter(term == "explanatory")
+```
+
+The name in the `term` column might not be exactly the same as your variable name. For example, a TRUE/FALSE variable named `volunteers` shows up as `volunteersTRUE`, and a category in a factor like `gender` shows up as something like `gender-Female`. Look at one of the regression tables first to find the right name.
+
+Skip any countries that didn't ask your questions.
+:::
+
+```{r}
+#| label: synthesis-models
+
+```
+
+
+# Limitations and conclusion
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+What are the biggest limitations of your analysis? What would you need to know (or what data would you need) to be more confident in your conclusions? What should someone take away from your project? (**≈150 words**)
+:::
+
+
+# References
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+List any sources you cite here. You don't need many, and any citation style is fine.
+:::
+
+
+# AI use
+
+::: {.callout-note}
+#### Instructions (delete this box)
+
+If you used any LLMs (ChatGPT, Claude, Gemini, Google's AI search summaries, etc.) for help with your code, say which one(s) and what you asked here, and make sure you've also [followed the guidelines from the syllabus](https://quantf26.classes.andrewheiss.com/syllabus.html#rule-2-you-are-responsible-for-understanding-verifying-and-citing-everything-an-llm-generates) by adding comments in your code. Remember that **everything human-facing must be human-generated**. If you didn't use any, say so.
+:::

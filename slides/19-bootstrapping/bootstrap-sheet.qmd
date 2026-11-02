@@ -1,0 +1,56 @@
+---
+format:
+  typst:
+    citeproc: true
+    papersize: a4
+    page-numbering: false
+    margin:
+      x: 1.2cm
+      y: 1.2cm
+execute:
+  echo: false
+---
+
+```{=typst}
+#set page(flipped: true)
+#set text(size: 13pt)
+
+// Bootstrap samples have to be the same size as the original sample, so change
+// this if the sample isn't 21
+#let n = 21
+#let cols = 7
+
+#let sheet-heading(body) = text(size: 17pt, weight: "bold", body)
+
+#let boxes() = table(
+  columns: (1fr,) * cols,
+  rows: 50mm / calc.ceil(n / cols),
+  stroke: 1pt,
+  align: top + left,
+  ..range(1, n + 1).map(i => text(weight: "light", str(i)))
+)
+
+#sheet-heading[Your bootstrap sample]
+#v(-0.3em)
+#boxes()
+
+#v(1fr)
+
+#sheet-heading[Your bootstrap sample, arranged in order]
+#v(-0.3em)
+#boxes()
+
+#v(1fr)
+
+#sheet-heading[Bootstrap median]
+#v(-0.5em)
+#text(weight: "light")[
+  #if calc.even(n) [
+    The number in between boxes #(calc.quo(n, 2)) and #(calc.quo(n, 2) + 1) in the ordered section above
+  ] else [
+    The number in box #(calc.quo(n, 2) + 1) in the ordered section above
+  ]
+]
+#v(-0.3em)
+#rect(width: 20%, height: 25mm, stroke: 1pt)
+```

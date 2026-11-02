@@ -1,0 +1,116 @@
+---
+title: "Bootstrapping"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(moderndive)  # For rep_slice_sample() and un_member_states_2024
+library(infer)       # For specify(), generate(), calculate(), and visualize()
+
+# Load the Arab Barometer data
+barometer <- read_csv("data/arab_barometer.csv")
+```
+
+## How many countries has a typical GU-Q student been to?
+
+Replace these placeholder numbers with the numbers from the board:
+
+```{r}
+countries <- tibble(n_countries = c(1, 2, 3))
+```
+
+### Our estimate
+
+```{r}
+countries |>
+  summarize(stat = median(n_countries))
+
+ggplot(countries, aes(x = n_countries)) +
+  geom_histogram(binwidth = 1, color = "white")
+```
+
+### Lots of bootstraps
+
+```{r}
+set.seed(1234)
+boot_countries <- countries |>
+  rep_slice_sample(n = nrow(countries), replace = TRUE, reps = 1000) |>
+  summarize(stat = median(n_countries))
+
+ggplot(boot_countries, aes(x = stat)) +
+  geom_histogram(binwidth = 1, color = "white")
+```
+
+## The {infer} way
+
+What's the median GDP per capita across countries? First, find the statistic from our actual data:
+
+```{r}
+#| warning: false
+
+obs_median <- un_member_states_2024 |>
+  specify(response = gdp_per_capita) |>
+  calculate(stat = "median")
+
+obs_median
+```
+
+Then make the bootstrap distribution and show where our statistic lands in it:
+
+```{r}
+#| warning: false
+
+set.seed(1234)
+boot_median <- un_member_states_2024 |>
+  specify(response = gdp_per_capita) |>
+  generate(reps = 1000, type = "bootstrap") |>
+  calculate(stat = "median")
+
+visualize(boot_median) +
+  geom_vline(xintercept = obs_median$stat, linewidth = 1, color = "orange")
+```
+
+## Your turn: the Arab Barometer
+
+Pick a country:
+
+```{r}
+my_country <- barometer |>
+  filter(country == "Tunisia")
+```
+
+### Mean age
+
+Bootstrap the mean age and use `visualize()` to show the bootstrap distribution with your statistic on it.
+
+```{r}
+# Your code here
+```
+
+### A proportion
+
+Pick a yes/no variable and bootstrap its proportion. Remember to use `drop_na()` on that variable first, or `calculate()` will give you an error.
+
+| Variable             | `success`               |
+|:---------------------|:------------------------|
+| `thought_emigrating` | `"Yes"`                 |
+| `trust_people`       | `"Most can be trusted"` |
+| `uses_internet`      | `"Yes"`                 |
+| `democracy_best`     | `"Agree"`               |
+
+```{r}
+# Your code here
+```
+
+### Bonus
+
+Bootstrap the median GDP per capita for just one continent in `un_member_states_2024`.
+
+```{r}
+# Your code here
+```

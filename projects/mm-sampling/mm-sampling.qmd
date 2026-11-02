@@ -231,7 +231,7 @@ Which one is more useful? Why?
 
 ## Do 95% of the intervals catch the truth?
 
-In real life we never know the true $p$, so we can't check. But we *do* know it for the simulated bags, which were drawn from the Cleveland mix (`r scales::label_percent(accuracy = 0.1)(true_p_green)` green). Here's every simulated bag's 95% confidence interval. About 95% of them should include the true proportion (the dashed line):
+In real life we never know the true $p$, so we can't check. But we *do* know it for the simulated bags, which were drawn from our class's pooled estimate of the Poland factory's mix (`r scales::label_percent(accuracy = 0.1)(true_p_green)` green). Here's every simulated bag's 95% confidence interval. About 95% of them should include the true proportion (the dashed line):
 
 ```{r}
 sim_cis <- sim_bags |>

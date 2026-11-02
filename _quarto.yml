@@ -88,6 +88,7 @@ website:
         - section: "Final project"
           contents:
             - assignment/final-project.qmd
+            - assignment/final-project-codebook.qmd
 
     - title: "Classes and readings"
       collapse-level: 1

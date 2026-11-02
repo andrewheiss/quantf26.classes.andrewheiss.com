@@ -1,0 +1,344 @@
+---
+title: "Final project data"
+---
+
+Your final project uses two datasets. Both are in the `data/` folder of the [final project `.zip` file](/projects/final-project.zip), and the template loads them with some starter code:
+
+- **`vdem`**: One row for each of the 179 countries in [V-Dem](https://www.v-dem.net/) in 2023. Most V-Dem measures are based on surveys of country experts, so this is what *experts* say about each country.
+- **`barometer`**: One row for each of the 15,627 people interviewed in Wave VIII (2023--2024) of the [Arab Barometer](https://www.arabbarometer.org/) in Iraq, Jordan, Kuwait, Lebanon, Mauritania, Morocco, Palestine, and Tunisia. This is what *residents* say about their own countries.
+
+The Arab Barometer interviewed people from September 2023 to July 2024, so the V-Dem data comes from 2023.
+
+## Themes
+
+Pick one theme. Each theme has variables at both levels. You don't have to use every variable in your theme, and you can use variables from other themes as controls.
+
+:::: {.panel-tabset .nav-pills}
+
+### Democracy
+
+::: {.list-table tbl-colwidths="[15,25,60]"}
+- - Data
+  - Variable
+  - Description
+
+- - V-Dem
+  - `polyarchy`, `polyarchy_10`
+  - Electoral democracy index: how much a country has free and fair elections, freedom of expression and association, and elected officials (0--1 or 0--10; higher = more democratic)
+
+- - V-Dem
+  - `polyarchy_low`, `polyarchy_high`
+  - Range of uncertainty around V-Dem's estimate of `polyarchy` (0--1)
+
+- - V-Dem
+  - `libdem`, `libdem_10`
+  - Liberal democracy index: electoral democracy plus limits on the executive, rule of law, and civil liberties (0--1 or 0--10; higher = more democratic)
+
+- - V-Dem
+  - `libdem_low`, `libdem_high`
+  - Range of uncertainty around V-Dem's estimate of `libdem` (0--1)
+
+- - V-Dem
+  - `regime`
+  - Regimes of the World category: "Closed autocracy", "Electoral autocracy", "Electoral democracy", or "Liberal democracy"
+
+- - Arab Barometer
+  - `democracy_rating`
+  - "To what extent is [your country] democratic?" (0--10; 0 = not at all, 10 = completely democratic)
+
+- - Arab Barometer
+  - `democracy_appropriate`
+  - "What is an appropriate level of democracy for your country?" (0--10) {{< fa triangle-exclamation >}} *Not asked in Kuwait*
+
+- - Arab Barometer
+  - `democracy_best`
+  - "Democratic systems may have problems, yet they are better than other systems" (Strongly agree → Strongly disagree) {{< fa triangle-exclamation >}} *Split sample*
+
+- - Arab Barometer
+  - `democracy_weak_economy`
+  - "Under a democratic system, the country's economic performance is weak" (Strongly agree → Strongly disagree) {{< fa triangle-exclamation >}} *Split sample*
+:::
+
+### Corruption
+
+::: {.list-table tbl-colwidths="[15,25,60]"}
+- - Data
+  - Variable
+  - Description
+
+- - V-Dem
+  - `corruption`, `corruption_10`
+  - Political corruption index: how much the executive, legislature, judiciary, and public sector are corrupt (0--1 or 0--10; higher = *more* corrupt)
+
+- - V-Dem
+  - `exec_corruption`, `exec_corruption_10`
+  - Executive corruption index (higher = *more* corrupt)
+
+- - V-Dem
+  - `public_corruption`, `public_corruption_10`
+  - Public sector corruption index (higher = *more* corrupt)
+
+- - Arab Barometer
+  - `corruption_national`
+  - "To what extent is there corruption within the national state agencies and institutions in your country?" (To a large extent → Not at all)
+
+- - Arab Barometer
+  - `corruption_local`
+  - "How widespread do you think corruption is in local government?" (Hardly anyone → Almost everyone) {{< fa triangle-exclamation >}} *Split sample; not asked in Kuwait*
+
+- - Arab Barometer
+  - `gov_fights_corruption`
+  - "To what extent is the national government working to crack down on corruption?" (To a large extent → Not at all)
+:::
+
+### Expression and civil liberties
+
+::: {.list-table tbl-colwidths="[15,25,60]"}
+- - Data
+  - Variable
+  - Description
+
+- - V-Dem
+  - `free_expression`, `free_expression_10`
+  - Freedom of expression and alternative sources of information index (higher = more free)
+
+- - V-Dem
+  - `civil_liberties`, `civil_liberties_10`
+  - Civil liberties index (higher = more free)
+
+- - V-Dem
+  - `physical_integrity`, `physical_integrity_10`
+  - Physical violence index: freedom from torture and political killings (higher = more free)
+
+- - V-Dem
+  - `rule_of_law`, `rule_of_law_10`
+  - Equality before the law and individual liberty index (higher = more equal)
+
+- - Arab Barometer
+  - `free_expression`
+  - "To what extent is the freedom to express opinions guaranteed?" (To a great extent → Not guaranteed at all)
+
+- - Arab Barometer
+  - `free_media_criticism`
+  - "...freedom of the media to criticize the things government does" (same answers) {{< fa triangle-exclamation >}} *Split sample*
+
+- - Arab Barometer
+  - `free_press`
+  - "...freedom of the press" (same answers) {{< fa triangle-exclamation >}} *Split sample; asked to the other half from `free_media_criticism`*
+
+- - Arab Barometer
+  - `free_protest`
+  - "...freedom to participate in peaceful protests and demonstrations" (same answers) {{< fa triangle-exclamation >}} *Not asked in Kuwait*
+:::
+
+### Gender equality
+
+::: {.list-table tbl-colwidths="[15,25,60]"}
+- - Data
+  - Variable
+  - Description
+
+- - V-Dem
+  - `women_empowerment`, `women_empowerment_10`
+  - Women political empowerment index (higher = more empowered)
+
+- - V-Dem
+  - `women_legislators`
+  - Percent of the lower chamber of the legislature who are women
+
+- - Arab Barometer
+  - `men_better_leaders`
+  - "In general, men are better at political leadership than women" (Strongly agree → Strongly disagree)
+
+- - Arab Barometer
+  - `equal_work`
+  - "Men and women should have equal work opportunities" (Strongly agree → Strongly disagree)
+
+- - Arab Barometer
+  - `women_seat_quota`
+  - "There should be a minimum number of seats in parliament reserved for women" (Strongly agree → Strongly disagree) {{< fa triangle-exclamation >}} *Split sample*
+:::
+
+### Elections and participation
+
+::: {.list-table tbl-colwidths="[15,25,60]"}
+- - Data
+  - Variable
+  - Description
+
+- - V-Dem
+  - `free_fair_elections`, `free_fair_elections_10`
+  - Clean elections index (higher = more free and fair)
+
+- - V-Dem
+  - `turnout`
+  - Percent of registered voters who voted in the most recent national election between 2018 and 2023 (missing if there wasn't one)
+
+- - V-Dem
+  - `turnout_year`
+  - Year of the election in `turnout`
+
+- - Arab Barometer
+  - `voted`
+  - "Did you vote in the last parliamentary elections?" (Yes or No) {{< fa triangle-exclamation >}} *Not asked in Palestine*
+
+- - Arab Barometer
+  - `election_quality`
+  - "How would you evaluate the last parliamentary elections?" (Free and fair; Free, fair, minor problems; Not free or fair) {{< fa triangle-exclamation >}} *Not asked in Kuwait or Palestine*
+
+- - Arab Barometer
+  - `genuine_choice`
+  - "How often are voters offered a genuine choice in elections?" (Frequently → Never) {{< fa triangle-exclamation >}} *Not asked in Kuwait or Palestine*
+
+- - Arab Barometer
+  - `protested`
+  - "Have you participated in an in-person protest, demonstration, strike, or boycott?" (Yes or No) {{< fa triangle-exclamation >}} *Split sample*
+:::
+
+### Military and the state
+
+::: {.list-table tbl-colwidths="[15,25,60]"}
+- - Data
+  - Variable
+  - Description
+
+- - V-Dem
+  - `military_dimension`, `military_dimension_10`
+  - Military dimension index: how much the military decides who becomes and stays head of government (higher = *more* military power)
+
+- - Arab Barometer
+  - `trust_army`
+  - "How much trust do you have in the army?" (A great deal of trust → No trust at all) {{< fa triangle-exclamation >}} *Not asked in Kuwait*
+
+- - Arab Barometer
+  - `trust_government`
+  - "How much trust do you have in the government (Council of Ministers)?" (same answers) {{< fa triangle-exclamation >}} *Not asked in Kuwait*
+
+- - Arab Barometer
+  - `gov_performance`
+  - "How satisfied are you with the government's performance overall?" (Completely satisfied → Completely dissatisfied)
+:::
+
+::::
+
+The data also has a few civil society variables (`civil_society`, `cso_repression`, `cso_entry_exit`, `trust_cso`, `volunteer`, `donate`, and `signed_petition`). Those are for [the example project](/files/quantf26_final-project-example.pdf), so you can't use civil society as your theme, but you can use them as controls.
+
+
+## Variables you can use with any theme
+
+:::: {.panel-tabset .nav-pills}
+
+### V-Dem
+
+::: {.list-table tbl-colwidths="[25,75]"}
+- - Variable
+  - Description
+
+- - `country_name`
+  - Country name (Palestine is split into `"Palestine/West Bank"` and `"Palestine/Gaza"`)
+
+- - `country_id`
+  - V-Dem's ID number for the country
+
+- - `continent`, `region`
+  - Continent and World Bank region
+
+- - `in_barometer`
+  - `TRUE` if the country is in the Arab Barometer (including both the West Bank and Gaza)
+
+- - `regime_num`, `regime`
+  - Regime type, as a number (0--3) and as a category
+
+- - `gdpPercap`
+  - GDP per capita (PPP, constant 2021 international dollars), from the World Bank. The West Bank's number is for all of Palestine, and Gaza is missing.
+
+- - `population`
+  - Population, from the World Bank
+
+- - `life_exp`
+  - Life expectancy at birth
+
+- - `fertility_rate`
+  - Births per woman
+:::
+
+### Arab Barometer
+
+::: {.list-table tbl-colwidths="[25,75]"}
+- - Variable
+  - Description
+
+- - `id`
+  - Respondent ID number
+
+- - `country`
+  - Country where the person was interviewed
+
+- - `weight`
+  - Survey weight (see below)
+
+- - `urban_rural`
+  - Urban, Rural, or Camp {{< fa triangle-exclamation >}} *Not asked in Kuwait*
+
+- - `age`
+  - Age, in years
+
+- - `gender`
+  - Male or Female
+
+- - `education`
+  - Highest level of education (No formal education → MA and above)
+
+- - `income_covers_expenses`
+  - Whether household income covers expenses (Yes- able to save → No- face significant difficulties)
+
+- - `employment`
+  - Employment status
+
+- - `religious`
+  - Religious, Somewhat religious, or Not religious {{< fa triangle-exclamation >}} *Not asked in Kuwait*
+
+- - `economy`
+  - "How would you evaluate the current economic situation in [your country]?" (Very good → Very bad)
+:::
+
+::::
+
+
+## Things to watch out for
+
+::: {.callout-warning}
+#### The answers go from "most" to "least"
+
+Most Arab Barometer questions are factors whose first category is the *strongest* answer ("Strongly agree", "A great deal of trust", "To a large extent"). If you turn them into numbers with `as.numeric()`, 1 will mean the *most* agreement or trust and 4 will mean the *least*, which is backwards from what you'd probably expect. It's often easier to collapse answers into two groups (e.g., agree vs. disagree) and work with the percent of people who agree.
+:::
+
+::: {.callout-warning}
+#### Some questions were only asked to half the people
+
+To keep the survey from getting too long, the Arab Barometer asked some questions to a random half of the people in each country. These are marked "split sample" above. About 50% of these answers are missing *on purpose*, so you'll have about half the usual sample size.
+:::
+
+::: {.callout-warning}
+#### Some questions weren't asked everywhere
+
+Kuwait didn't ask several questions, and Palestine didn't ask about voting (there hasn't been a national election there since 2006). These are marked above. If your theme's main question wasn't asked in a country, pick a different country for your within-country analysis.
+:::
+
+::: {.callout-note}
+#### "Don't know" and "Refused to answer" are missing
+
+People who said "Don't know" or refused to answer are coded as missing (`NA`). Mention how many people this affects in your Data section.
+:::
+
+::: {.callout-note}
+#### Survey weights
+
+The Arab Barometer uses random sampling, but some kinds of people still end up a little over- or under-represented. The `weight` column fixes this by counting some people a little more and some a little less. Real analyses of this survey should use the weights, but you don't need to use them in this project. (That means your numbers won't exactly match the official Arab Barometer reports.)
+:::
+
+::: {.callout-note}
+#### Palestine
+
+The Arab Barometer interviewed about 790 people in the West Bank and about 400 in Gaza, from September 28 to October 8, 2023. In the `barometer` data, they're all in `country == "Palestine"`. V-Dem treats the West Bank and Gaza as two separate countries (`"Palestine/West Bank"` and `"Palestine/Gaza"`).
+:::

@@ -1,5 +1,5 @@
 ---
-title: "Sampling I"
+title: "Sampling I & II"
 subtitle: "Quantitative Methods for<br>International Politics"
 course-info: "IPOL 3270 • Fall 2026"
 date: "2026-10-25"
@@ -150,6 +150,77 @@ moe_example <- function(yes, n) {
 moe_100 <- moe_example(40, 100)
 moe_1000 <- moe_example(400, 1000)
 
+# One sample of 100 Tunisians, for comparing the three distributions
+set.seed(1234)
+one_sample <- tunisia |> slice_sample(n = 100)
+
+# More samples vs. bigger samples
+set.seed(1234)
+reps_vs_size <- expand_grid(size = c(25, 400), reps = c(50, 1000)) |>
+  mutate(
+    sims = map2(size, reps, \(n, r) {
+      tunisia |>
+        rep_slice_sample(n = n, reps = r) |>
+        summarize(p_hat = mean(yes))
+    })
+  ) |>
+  unnest(sims) |>
+  mutate(
+    size_label = fct_inorder(paste0("Each sample has ", size, " people")),
+    reps_label = fct_inorder(paste0(comma(reps), " samples"))
+  )
+
+# Tunisian ages, for showing that the CLT works with means too
+tun_ages <- tunisia |> drop_na(age)
+tun_age_mu <- mean(tun_ages$age)
+
+set.seed(1234)
+age_samples <- tibble(size = c(5, 25, 100)) |>
+  mutate(
+    sims = map(size, \(n) {
+      tun_ages |>
+        rep_slice_sample(n = n, reps = 1000) |>
+        summarize(x_bar = mean(age))
+    })
+  ) |>
+  unnest(sims) |>
+  mutate(size_label = fct_inorder(paste0("n = ", size)))
+
+# Random samples vs. online-only samples
+set.seed(1234)
+online_vs_random <- bind_rows(
+  "Random sample of 400 Tunisians" = tunisia |>
+    rep_slice_sample(n = 400, reps = 1000) |>
+    summarize(p_hat = mean(yes)),
+  "Online-only sample of 400" = tun_online |>
+    rep_slice_sample(n = 400, reps = 1000) |>
+    summarize(p_hat = mean(yes)),
+  "Online-only sample of 1,000" = tun_online |>
+    rep_slice_sample(n = 1000, reps = 1000) |>
+    summarize(p_hat = mean(yes)),
+  .id = "method"
+) |>
+  mutate(method = fct_inorder(method))
+
+# 100 samples of 100, each with a 95% confidence interval
+set.seed(1234)
+ci_samples <- tunisia |>
+  rep_slice_sample(n = 100, reps = 100) |>
+  summarize(p_hat = mean(yes)) |>
+  mutate(
+    se = sqrt(p_hat * (1 - p_hat) / 100),
+    lower = p_hat - 1.96 * se,
+    upper = p_hat + 1.96 * se,
+    catches = lower <= tun_p & tun_p <= upper
+  )
+
+# Sample size needed for a given margin of error
+n_needed <- function(moe, p = 0.5, z = 1.96) {
+  ceiling(z^2 * p * (1 - p) / moe^2)
+}
+
+n_3pts <- n_needed(0.03)
+
 # Virtual vat of 10,000 simulated M&Ms (see data/make-mms.R)
 mm_vat <- read_csv(here::here("data", "mm_vat.csv"), show_col_types = FALSE)
 vat_p_green <- mean(mm_vat$color == "green")
@@ -191,7 +262,9 @@ mms_population_long <- mms_population |>
 
 [Sampling variation]{.box-clr-2 .medium .fragment}
 
-[Margins of error]{.box-clr-9 .medium .fragment}
+[Uncertainty]{.box-clr-9 .medium .fragment}
+
+[Choosing a sample size]{.box-clr-4 .medium .fragment}
 
 # Populations<br>and samples {background-color="{{< brand color clr-7 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
@@ -770,13 +843,34 @@ Let's look at the data!
 - Do you trust the pooled estimate more than your own bag? Why?
 :::
 
+## Plan for today {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+[Sampling variation]{.box-clr-2 .medium .fragment}
+
+[Uncertainty]{.box-clr-9 .medium .fragment}
+
+[Choosing a sample size]{.box-clr-4 .medium .fragment}
+
 # Sampling variation {background-color="{{< brand color clr-2 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## What our bags taught us {.clr-2}
+
+::: {.incremental}
+- Every bag gave a different $\widehat{p}_\text{green}$
+- One small bag can be way off
+- Pooling all our bags into one big sample gave a much better estimate
+- A few big samples beat lots of little ones
+:::
+
+::: {.fragment .sp-before}
+[Today: *why* that works and *how much* better bigger samples are]{.box-clr-2-light .medium}
+:::
 
 ## We can't buy 1,000 bags {.clr-2}
 
 ::: {.incremental}
 - Our class's bags give us a rough picture of sampling variation
-- To really see it, we'd need *thousands* of bags (and stomachs)
+- To really see it, we'd need *thousands* of bags
 - And we still wouldn't know the true $p_\text{green}$!
 :::
 
@@ -802,7 +896,7 @@ Let's look at the data!
 
 :::: {.column width="45%"}
 ::: {.incremental}
-- `r comma(nrow(mm_vat))` simulated M&Ms (from Cleveland)
+- `r comma(nrow(mm_vat))` simulated M&Ms (using our class's pooled colors)
 - True $p_\text{green}$ = `r round(vat_p_green, 3)`
 - Each virtual bag = 50 random M&Ms from the vat
 :::
@@ -915,7 +1009,127 @@ many_samples |>
 ```
 
 ::: {.fragment}
-[The sampling distribution]{.box-clr-2-light .small}
+[This is a **sampling distribution**]{.box-clr-2-light .small}
+:::
+
+## Sampling distribution {.clr-2}
+
+[The distribution of a statistic (like $\widehat{p}$) across lots of random samples of the same size]{.box-clr-2 .medium}
+
+::: {.incremental}
+- Shows how much estimates bounce around from sample to sample
+- We can only see it with simulation (or math)
+- In real life, you only get **one** draw from it!
+:::
+
+## Three different distributions {.clr-2}
+
+:::::: {.columns}
+
+::::: {.column width="33%"}
+:::: {.fragment}
+[Population]{.box-clr-2-light .small}
+
+```{r}
+#| label: plot-three-population
+#| fig-width: 3.5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+tunisia |>
+  count(yes) |>
+  mutate(answer = if_else(yes, "Yes (1)", "No (0)")) |>
+  ggplot(aes(x = answer, y = n)) +
+  geom_col(fill = clrs$orange, width = 0.6) +
+  scale_y_continuous(labels = comma) +
+  labs(x = NULL, y = "People")
+```
+
+::: {.small}
+All `r comma(tun_n)` Tunisians' answers
+:::
+::::
+:::::
+
+::::: {.column width="33%"}
+:::: {.fragment}
+[One sample]{.box-clr-2-light .small}
+
+```{r}
+#| label: plot-three-sample
+#| fig-width: 3.5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+one_sample |>
+  count(yes) |>
+  mutate(answer = if_else(yes, "Yes (1)", "No (0)")) |>
+  ggplot(aes(x = answer, y = n)) +
+  geom_col(fill = clrs$gold, width = 0.6) +
+  labs(x = NULL, y = "People")
+```
+
+::: {.small}
+100 people's answers<br>($\widehat{p}$ = `r mean(one_sample$yes)`)
+:::
+::::
+:::::
+
+::::: {.column width="33%"}
+:::: {.fragment}
+[Sampling distribution]{.box-clr-2-light .small}
+
+```{r}
+#| label: plot-three-sampling
+#| fig-width: 3.5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+many_samples |>
+  filter(size == 100) |>
+  ggplot(aes(x = p_hat)) +
+  geom_histogram(binwidth = 0.02, boundary = 0, color = "white", fill = clrs$maroon) +
+  scale_x_continuous(labels = pct) +
+  labs(x = "p̂", y = "Samples")
+```
+
+::: {.small}
+1,000 samples' $\widehat{p}$s
+:::
+::::
+:::::
+
+::::::
+
+::: {.fragment}
+[Statistics have distributions too!]{.box-clr-2 .small}
+:::
+
+## More samples or bigger samples? {.clr-2}
+
+```{r}
+#| label: plot-reps-vs-size
+#| fig-width: 9
+#| fig-height: 4.25
+#| out-width: "100%"
+
+ggplot(reps_vs_size, aes(x = p_hat)) +
+  geom_histogram(
+    data = \(d) filter(d, size == 25),
+    binwidth = 0.04, center = 0, color = "white", fill = clrs$maroon
+  ) +
+  geom_histogram(
+    data = \(d) filter(d, size == 400),
+    binwidth = 0.01, center = 0, color = "white", fill = clrs$maroon
+  ) +
+  geom_vline(xintercept = tun_p, linewidth = 1, color = clrs$purple) +
+  scale_x_continuous(labels = pct) +
+  facet_grid(rows = vars(reps_label), cols = vars(size_label), scales = "free_y") +
+  labs(x = "p̂ from each sample", y = "Count")
+```
+
+::: {.fragment .small}
+More samples → smoother picture of the **same** distribution; bigger samples → **narrower** distribution
 :::
 
 ## Central limit theorem {.clr-2}
@@ -924,13 +1138,57 @@ many_samples |>
 
 ::: {.incremental}
 - …centered at the population parameter ($p$)
-- …no matter what the population looks like
+- …no matter what the population looks like (ours was just 0s and 1s!)
 - …as long as the samples are big enough
 :::
 
 ::: {.fragment .small .sp-before}
-$$\widehat{p} \sim \cal{N}(p, \text{SE})$$
+$$\widehat{p} \sim \mathcal{N}(p, \text{SE})$$
 :::
+
+## It works for averages too {.clr-2}
+
+::::: {.columns}
+
+:::: {.column width="45%"}
+::: {.fragment}
+```{r}
+#| label: plot-age-population
+#| fig-width: 4.5
+#| fig-height: 4.5
+#| out-width: "100%"
+
+ggplot(tun_ages, aes(x = age)) +
+  geom_histogram(binwidth = 5, boundary = 0, color = "white", fill = clrs$orange) +
+  geom_vline(xintercept = tun_age_mu, linewidth = 1.5, color = clrs$purple) +
+  annotate(
+    "label", x = tun_age_mu, y = Inf, vjust = 1.5,
+    label = paste0("μ = ", round(tun_age_mu, 1)), color = clrs$purple
+  ) +
+  labs(x = "Age", y = "People", title = "Population: every Tunisian's age")
+```
+:::
+::::
+
+:::: {.column width="55%"}
+::: {.fragment}
+```{r}
+#| label: plot-age-sampling
+#| fig-width: 5.5
+#| fig-height: 4.5
+#| out-width: "100%"
+
+ggplot(age_samples, aes(x = x_bar)) +
+  geom_histogram(binwidth = 1, boundary = 0, color = "white", fill = clrs$maroon) +
+  geom_vline(xintercept = tun_age_mu, linewidth = 1, color = clrs$purple) +
+  coord_cartesian(xlim = c(25, 65)) +
+  facet_wrap(vars(size_label), ncol = 1, scales = "free_y") +
+  labs(x = "x̄ (average age) from each sample", y = NULL, title = "1,000 samples at each size")
+```
+:::
+::::
+
+:::::
 
 ## Sample size is important! {.clr-2}
 
@@ -973,7 +1231,7 @@ How much do *individual values* vary?
 ::: {.small}
 How different is one Tunisian from another?
 
-For yes/no data: 
+For yes/no data:
 
 $\sqrt{p(1 - p)}$ = `r round(tun_sd, 3)`
 :::
@@ -1024,10 +1282,36 @@ sampling_se |>
 ::: {.incremental .small}
 - The formula matches the simulations!
 - Bigger $n$ → smaller SE
+- $\sqrt{n}$ means 4× the people → ½ the SE
 :::
 ::::
 
 :::::
+
+## Bigger samples don't fix bias {.clr-2}
+
+```{r}
+#| label: plot-online-vs-random
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: "100%"
+
+ggplot(online_vs_random, aes(x = p_hat, fill = method)) +
+  geom_histogram(binwidth = 0.01, boundary = 0, color = "white") +
+  geom_vline(xintercept = tun_p, linewidth = 1, color = clrs$purple) +
+  annotate(
+    "label", x = tun_p, y = Inf, vjust = 1.3, size = 3.5,
+    label = paste0("True p = ", round(tun_p, 3)), color = clrs$purple
+  ) +
+  scale_x_continuous(labels = pct) +
+  scale_fill_manual(values = c(clrs$maroon, clrs$gold, clrs$gold), guide = "none") +
+  facet_wrap(vars(method), ncol = 1) +
+  labs(x = "p̂ from each sample", y = "Count")
+```
+
+::: {.fragment .small}
+**Random sampling** puts the center in the right place; **sample size** controls the width
+:::
 
 # Uncertainty {background-color="{{< brand color clr-9 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
@@ -1096,17 +1380,44 @@ ggplot(normal_band, aes(x = x, y = density)) +
 Our 1,000 samples of 100: `r pct(within_se$within_1)` within 1 SE of $p$; `r scales::label_percent(accuracy = 0.1)(within_se$within_2)` within 1.96 SEs
 :::
 
-## Margin of error{.clr-9}
+## Flip it around {.clr-9}
 
 ::: {.incremental}
-- 95% of estimated $\widehat{p}$s are within 1.96 SEs of $p$
-- For 95% of samples, the real $p$ is within 1.96 SEs of $\widehat{p}$
-- That distance is the margin of error or confidence interval
+- 95% of $\widehat{p}$s are within 1.96 SEs of $p$
+- So if we reach 1.96 SEs out from *our* $\widehat{p}$ in both directions, we'll catch the true $p$ in 95% of samples
 :::
 
-::: {.fragment .sp-before}
-[1.96 × SE ≈ 2 × SE]{.box-clr-9 .medium}
+:::::: {.columns .sp-before}
+
+::::: {.column width="50%"}
+:::: {.fragment}
+[Margin of error]{.box-clr-9}
+
+::: {.small}
+How far to reach
+
+$\text{MOE} = 1.96 \times \text{SE}$
+
+(≈ 2 × SE)
 :::
+::::
+:::::
+
+::::: {.column width="50%"}
+:::: {.fragment}
+[Confidence interval]{.box-clr-9}
+
+::: {.small}
+The range you get
+
+$\widehat{p} \pm \text{MOE}$
+
+(a 95% confidence interval)
+:::
+::::
+:::::
+
+::::::
 
 ## {.clr-9}
 
@@ -1146,46 +1457,74 @@ $$
 [The true $p$ (`r scales::label_percent(accuracy = 0.1)(tun_p)`) is still in there!<br>(but now the estimate is narrower and more precise)]{.box-clr-9-light .small}
 :::
 
-## Quick rule of thumb {.clr-9}
-
-The SE is biggest when $\widehat{p}$ = 0.5, so:
-
-$$
-\text{MOE} = 1.96 \times \sqrt{\frac{0.5 \times 0.5}{n}} \approx \frac{1}{\sqrt{n}}
-$$
-
-::: {.fragment}
-$n$ = 1,000 → $\frac{1}{\sqrt{1000}}$ = ± 3.2 points
-:::
-
-## Diminishing returns {.clr-9}
+## 100 samples, 100 intervals {.clr-9}
 
 ```{r}
-#| label: plot-moe-n
-#| fig-width: 8
-#| fig-height: 4.25
+#| label: plot-ci-catch
+#| fig-width: 9
+#| fig-height: 4
 #| out-width: "100%"
 
-moe_labels <- tibble(n = c(100, 400, 1000, 2400, 5000)) |>
-  mutate(moe = 1 / sqrt(n))
-
-tibble(n = seq(50, 5000, by = 10)) |>
-  mutate(moe = 1 / sqrt(n)) |>
-  ggplot(aes(x = n, y = moe)) +
-  geom_line(linewidth = 1.25, color = clrs$purple) +
-  geom_point(data = moe_labels, size = 3, color = clrs$purple) +
-  geom_label(
-    data = moe_labels,
-    aes(label = paste0("± ", round(moe * 100, 1))),
-    nudge_y = 0.012, size = 4
+ggplot(ci_samples, aes(x = replicate, y = p_hat, color = catches)) +
+  geom_hline(yintercept = tun_p, linewidth = 1, color = clrs$purple) +
+  geom_pointrange(aes(ymin = lower, ymax = upper), size = 0.2, linewidth = 0.6) +
+  annotate(
+    "label", x = Inf, y = tun_p, hjust = 1.1, size = 3.5,
+    label = paste0("True p = ", round(tun_p, 3)), color = clrs$purple
   ) +
-  scale_x_continuous(labels = comma) +
-  scale_y_continuous(labels = \(x) paste0("± ", x * 100)) +
-  labs(x = "Sample size", y = "Margin of error\n(percentage points)")
+  scale_y_continuous(labels = pct) +
+  scale_color_manual(
+    values = c(`TRUE` = clrs$gray, `FALSE` = clrs$orange),
+    labels = c(`TRUE` = "Catches the true p", `FALSE` = "Misses"),
+    name = NULL
+  ) +
+  labs(x = "Sample", y = "p̂ ± margin of error") +
+  theme(legend.position = "top")
 ```
 
 ::: {.fragment}
-[Most national surveys stop at ≈1,000–2,500 people]{.box-clr-9-light .small}
+[`r sum(ci_samples$catches)` of these 100 intervals include the true $p$]{.box-clr-9-light .small}
+:::
+
+## What does "95% confidence" mean? {.clr-9}
+
+::: {.incremental}
+- If we took sample after sample and made an interval each time, about 95% of those intervals would include the true $p$
+- The 95% describes the *method*, not any single interval
+- Our one interval either caught $p$ or it didn't—we just can't know which
+- Bigger samples → narrower intervals, but still 95% of them catch the truth
+:::
+
+::: {.fragment .small .sp-before}
+Much more about confidence intervals in ModernDive chapter 8!
+:::
+
+## Back to the poll {.clr-9}
+
+::: {.box-center}
+[Trump's approval rating is 34.9% (+/-2.1% pts.)]{.box-clr-9-light}
+:::
+
+::: {.incremental}
+- Point estimate: $\widehat{p}$ = 34.9%
+- Margin of error: ± 2.1 points
+- 95% confidence interval: 32.8% to 37.0%
+:::
+
+::: {.fragment .sp-before}
+[Approval is plausibly anywhere from about 33% to 37%]{.box-clr-9 .medium}
+:::
+
+## MOE isn't perfect {.clr-9}
+
+[The margin of error only measures sampling variation, not these:]{.box-clr-9-light .medium}
+
+::: {.incremental}
+- Biased samples (online-only surveys!)
+- Non-response
+- People who refuse to answer
+- Confusing or leading questions
+- People who lie or give the "polite" answer
 :::
 
 ## Emigration, with margins of error {.clr-9}
@@ -1219,14 +1558,214 @@ Back to Positron!
 2. Calculate the SE and margin of error for the class's pooled $\widehat{p}_\text{green}$
 3. Which one is more useful? Why?
 
-## Main ideas {.clr-9}
+# Choosing a<br>sample size {background-color="{{< brand color clr-4 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
-::: {.incremental .small}
-- We use a **sample** to estimate things about a **population**
-- A sample **statistic** ($\widehat{p}$) estimates a population **parameter** ($p$) or **estimand**
-- **Random** sampling keeps estimates unbiased; a bigger biased sample is still biased
-- Every sample is a little different: **sampling variation**
-- **Central limit theorem**: the sampling distribution is a bell curve centered at the parameter
-- **Standard deviation** = spread of individuals; **standard error** = spread of sample statistics
-- Bigger samples → smaller standard errors; **margin of error** ≈ 2 × SE
+## How many people do we need? {.clr-4}
+
+[It depends on three things]{.box-clr-4 .medium}
+
+::: {.incremental}
+1. **Precision**: How big of a margin of error can you live with?
+2. **Confidence**: How sure do you want to be? (95% → 1.96)
+3. **Variability**: How spread out are the answers? ($p(1 - p)$)
+:::
+
+::: {.fragment .sp-before}
+[Notice what's *not* on the list: how big the population is!]{.box-clr-4-light .small}
+:::
+
+## Flip the formula {.clr-4}
+
+::: {.smaller}
+
+$$
+\text{MOE} = 1.96 \times \sqrt{\frac{p (1 - p)}{n}}
+\quad \rightarrow \quad
+n = \frac{1.96^2 \times p (1 - p)}{\text{MOE}^2}
+$$
+
+:::
+
+::: {.incremental}
+- But we don't know $p$ before we survey anyone!
+- Play it safe: $p(1 - p)$ is biggest when $p$ = 0.5
+- That gives you the biggest (worst-case) sample size
+:::
+
+## Example: ± 3 points {.clr-4}
+
+::: {.incremental}
+- We want a margin of error of 3 percentage points (0.03)
+- Assume the worst: $p$ = 0.5
+- $n = \frac{1.96^2 \times 0.5 \times 0.5}{0.03^2} = \frac{0.9604}{0.0009}$ = `r scales::label_number(accuracy = 0.1, big.mark = ",")(1.96^2 * 0.25 / 0.03^2)`
+- Always round up: **`r comma(n_3pts)` people**
+:::
+
+::: {.fragment .sp-before}
+[That's why so many polls survey ≈1,000 people]{.box-clr-4-light .small}
+:::
+
+## Quick rule of thumb {.clr-4}
+
+$1.96^2 \times 0.5 \times 0.5 \approx 1$, so:
+
+:::::: {.columns}
+
+::::: {.column width="50%"}
+:::: {.fragment}
+[Margin of error from $n$]{.box-clr-4}
+
+$$
+\text{MOE} \approx \frac{1}{\sqrt{n}}
+$$
+
+::: {.small}
+$n$ = 1,000 → $\frac{1}{\sqrt{1000}}$ = ± 3.2 points
+:::
+::::
+:::::
+
+::::: {.column width="50%"}
+:::: {.fragment}
+[$n$ from margin of error]{.box-clr-4}
+
+$$
+n \approx \frac{1}{\text{MOE}^2}
+$$
+
+::: {.small}
+± 3 points → $\frac{1}{0.03^2}$ ≈ 1,111 people
+:::
+::::
+:::::
+
+::::::
+
+## Precision is expensive {.clr-4}
+
+```{r}
+tibble(moe = c(0.10, 0.05, 0.03, 0.02, 0.01)) |>
+  mutate(
+    n = n_needed(moe),
+    cost = n * 50
+  ) |>
+  mutate(
+    moe = paste0("± ", moe * 100, " points"),
+    n = comma(n),
+    cost = paste0("QAR ", comma(cost))
+  ) |>
+  select(
+    `Margin of error` = moe,
+    `People needed` = n,
+    `Cost at QAR 50 per interview` = cost
+  ) |>
+  tt() |>
+  style_tt(j = 2:3, align = "r") |>
+  theme_html(class = "tinytable shadow")
+```
+
+::: {.fragment}
+[Cut the margin of error in half → 4× the people]{.box-clr-4 .medium}
+:::
+
+## Diminishing returns {.clr-4}
+
+```{r}
+#| label: plot-moe-n
+#| fig-width: 8
+#| fig-height: 4.25
+#| out-width: "100%"
+
+moe_labels <- tibble(n = c(100, 400, 1000, 2400, 5000)) |>
+  mutate(moe = 1 / sqrt(n))
+
+tibble(n = seq(50, 5000, by = 10)) |>
+  mutate(moe = 1 / sqrt(n)) |>
+  ggplot(aes(x = n, y = moe)) +
+  geom_line(linewidth = 1.25, color = clrs$purple) +
+  geom_point(data = moe_labels, size = 3, color = clrs$purple) +
+  geom_label(
+    data = moe_labels,
+    aes(label = paste0("± ", round(moe * 100, 1))),
+    nudge_y = 0.012, size = 4
+  ) +
+  scale_x_continuous(labels = comma) +
+  scale_y_continuous(labels = \(x) paste0("± ", x * 100)) +
+  labs(x = "Sample size", y = "Margin of error\n(percentage points)")
+```
+
+::: {.fragment}
+[Most national surveys stop at ≈1,000–2,500 people]{.box-clr-4-light .small}
+:::
+
+## Population size doesn't matter {.clr-4}
+
+::: {.incremental}
+- ± 3 points needs ≈`r comma(n_3pts)` people in Qatar (≈3 million), Tunisia (≈12 million), *or* the United States (≈340 million)
+- Soup!
+:::
+
+## Subgroup sizes {.clr-4}
+
+::: {.incremental}
+- All Tunisians (n = `r comma(tun_n)`): `r pct(tun_p)` have thought about emigrating, ± `r round(tun_moe * 100, 1)` points
+- Young Tunisians, 18–29 (n = `r comma(nrow(tun_young))`): `r pct(tun_young_p)`, ± `r round(tun_young_moe * 100, 1)` points
+- Want ± 3 points for young people? You need ≈`r comma(n_3pts)` *young* people
+:::
+
+::: {.fragment .sp-before}
+[Plan your sample size around the smallest group you care about]{.box-clr-4 .medium}
+:::
+
+::: {.fragment .small}
+Surveys often **oversample** small groups (and use weights to fix the overall results)
+:::
+
+## Using what you already know {.clr-4}
+
+::: {.incremental}
+- $p$ = 0.5 is the worst case
+- If past surveys (or M&M bags!) tell you $p$ is around 0.17, use that instead
+- $0.5 \times 0.5$ = 0.25, but $0.17 \times 0.83$ ≈ 0.14
+- ± 3 points with $p$ = 0.17: `r comma(n_needed(0.03, p = 0.17))` people instead of `r comma(n_3pts)`
+:::
+
+## Your turn: how many M&Ms? {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+Assume $p_\text{green}$ ≈ 0.17 (our class's estimate) and each bag has ≈50 M&Ms
+
+$$
+n = \frac{1.96^2 \times p (1 - p)}{\text{MOE}^2}
+$$
+
+1. How many M&Ms do you need to estimate $p_\text{green}$ within ± 5 points? How many bags is that?
+2. How many M&Ms for ± 2 points? How many bags?
+3. How many bags did our class have? Was that enough?
+
+```{r}
+#| label: clock-sample-size
+#| echo: false
+
+countdown(minutes = 4, seconds = 0, play_sound = TRUE, warn_when = 1 * 60)
+```
+
+## How many M&Ms? {.clr-4}
+
+::: {.incremental}
+- ± 5 points: $\frac{1.96^2 \times 0.17 \times 0.83}{0.05^2}$ = `r comma(n_needed(0.05, p = 0.17))` M&Ms ≈ **`r ceiling(n_needed(0.05, p = 0.17) / 50)` bags**
+- ± 2 points: $\frac{1.96^2 \times 0.17 \times 0.83}{0.02^2}$ = `r comma(n_needed(0.02, p = 0.17))` M&Ms ≈ **`r ceiling(n_needed(0.02, p = 0.17) / 50)` bags**
+:::
+
+::: {.fragment .sp-before}
+[One bag can't tell the factories apart—but a whole class can!]{.box-clr-4-light .small}
+:::
+
+## Beyond proportions {.clr-4}
+
+::: {.incremental}
+- **Means**: $n = \left(\frac{1.96 \times \sigma}{\text{MOE}}\right)^2$
+  - Need a guess for the standard deviation $\sigma$ (from past studies or a small pilot survey)
+- **Differences and regression slopes**: "power analysis"
+  - How many people do I need to detect an effect of a certain size?
+  - Often easiest to figure out with simulation—the same trick we used today!
 :::
