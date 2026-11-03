@@ -10,3 +10,13 @@ date: "2026-11-03"
 {{< include ../readings/_20-class.md >}}
 
 :::
+
+## Slides
+
+<p style="line-height: 2.5"><a class="btn btn-success me-2" target="_blank" href="../slides/19-bootstrapping/index.html#/plan-for-today-1">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a><a class="btn btn-success" target="_blank" href="../slides/19-bootstrapping/19-bootstrapping.pdf">{{< fa file-pdf >}} &ensp;Download PDF of slides</a></p>
+
+```{=html}
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="../slides/19-bootstrapping/index.html#/plan-for-today-1" style="border: 1px solid #343a40;"></iframe>
+</div>
+```

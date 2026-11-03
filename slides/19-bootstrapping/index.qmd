@@ -77,19 +77,11 @@ emigrate <- barometer |>
 # Tunisia as our pretend population, like last time
 tunisia <- emigrate |> filter(country == "Tunisia")
 tun_p <- mean(tunisia$yes)
-tun_n <- nrow(tunisia)
-tun_online <- tunisia |> filter(uses_internet == "Yes")
 
 # The same sample of 100 Tunisians as last time (p-hat = 0.40)
 set.seed(1234)
 one_sample <- tunisia |> slice_sample(n = 100)
 p_hat_100 <- mean(one_sample$yes)
-
-# The real sampling distribution, which needs the whole population
-set.seed(1234)
-sampling_100 <- tunisia |>
-  rep_slice_sample(n = 100, reps = 1000) |>
-  summarize(p_hat = mean(yes))
 
 # The bootstrap distribution, which only needs one sample
 set.seed(1234)
@@ -97,7 +89,6 @@ boot_100 <- one_sample |>
   rep_slice_sample(n = 100, replace = TRUE, reps = 1000) |>
   summarize(p_hat = mean(yes))
 
-se_sampling <- sd(sampling_100$p_hat)
 se_boot <- sd(boot_100$p_hat)
 se_formula <- sqrt(p_hat_100 * (1 - p_hat_100) / 100)
 
@@ -105,41 +96,8 @@ ci_percentile <- quantile(boot_100$p_hat, c(0.025, 0.975), names = FALSE)
 ci_se <- p_hat_100 + c(-1.96, 1.96) * se_boot
 ci_formula <- p_hat_100 + c(-1.96, 1.96) * se_formula
 
-# Different samples, each with its own bootstrap distribution
-set.seed(1234)
-five_boots <- tibble(sample_id = 1:5) |>
-  mutate(
-    sims = map(sample_id, \(i) {
-      this_sample <- tunisia |> slice_sample(n = 100)
-      this_sample |>
-        rep_slice_sample(n = 100, replace = TRUE, reps = 1000) |>
-        summarize(p_hat_boot = mean(yes)) |>
-        mutate(p_hat_original = mean(this_sample$yes))
-    })
-  ) |>
-  unnest(sims) |>
-  mutate(sample_label = paste0("Sample ", sample_id, ": p̂ = ", round(p_hat_original, 2)))
-
-# Bootstrapping a good sample and a biased sample
-set.seed(1234)
-random_400 <- tunisia |> slice_sample(n = 400)
-online_400 <- tun_online |> slice_sample(n = 400)
-
-boot_bias <- bind_rows(
-  "Random sample of 400 Tunisians" = random_400 |>
-    rep_slice_sample(n = 400, replace = TRUE, reps = 1000) |>
-    summarize(p_hat = mean(yes)),
-  "Online-only sample of 400" = online_400 |>
-    rep_slice_sample(n = 400, replace = TRUE, reps = 1000) |>
-    summarize(p_hat = mean(yes)),
-  .id = "method"
-) |>
-  mutate(method = fct_inorder(method))
-
 # Medians don't have a friendly formula, but bootstrapping doesn't care
 age_sample <- one_sample |> drop_na(age)
-age_median <- median(age_sample$age)
-tun_age_median <- tunisia |> drop_na(age) |> pull(age) |> median()
 
 set.seed(1234)
 boot_age <- age_sample |>
@@ -243,24 +201,22 @@ sizes_ci <- tibble(size = c(100, 400, 1000)) |>
   )
 
 # Differences between groups in Tunisia
-tun_answers <- tunisia |> mutate(answer = thought_emigrating)
-
-gender_props <- tun_answers |> group_by(gender) |> summarize(p = mean(yes))
-internet_props <- tun_answers |>
+gender_props <- tunisia |> group_by(gender) |> summarize(p = mean(yes))
+internet_props <- tunisia |>
   drop_na(uses_internet) |>
   group_by(uses_internet) |>
   summarize(p = mean(yes))
 
 set.seed(1234)
-boot_gender <- tun_answers |>
-  specify(answer ~ gender, success = "Yes") |>
+boot_gender <- tunisia |>
+  specify(thought_emigrating ~ gender, success = "Yes") |>
   generate(reps = 1000, type = "bootstrap") |>
   calculate(stat = "diff in props", order = c("Female", "Male"))
 
 set.seed(1234)
-boot_internet <- tun_answers |>
+boot_internet <- tunisia |>
   drop_na(uses_internet) |>
-  specify(answer ~ uses_internet, success = "Yes") |>
+  specify(thought_emigrating ~ uses_internet, success = "Yes") |>
   generate(reps = 1000, type = "bootstrap") |>
   calculate(stat = "diff in props", order = c("Yes", "No"))
 
@@ -292,7 +248,6 @@ diff_young <- diff(young_props$p)  # Young − older
 
 # Virtual vat of 10,000 simulated M&Ms (see data/make-mms.R)
 mm_vat <- read_csv(here::here("data", "mm_vat.csv"), show_col_types = FALSE)
-vat_p_green <- mean(mm_vat$color == "green")
 
 mm_colors <- c(
   blue = "#2f9fd7", brown = "#603a34", green = "#31ac55",
@@ -320,8 +275,6 @@ boot_green <- class_mms |>
   generate(reps = 1000, type = "bootstrap") |>
   calculate(stat = "prop")
 
-ci_green <- get_ci(boot_green, level = 0.95, type = "percentile")
-
 # A tiny bag and three bootstrap samples of it, for showing what resampling does
 set.seed(1234)
 tiny_bag <- mm_vat |> slice_sample(n = 20)
@@ -338,6 +291,81 @@ resamples <- bind_rows(
   group_by(draw) |>
   mutate(position = row_number(), p_hat = mean(color == "green")) |>
   ungroup()
+
+# Countries visited by the 21 students in class on 2026-11-01
+countries <- tibble(
+  n_countries = c(8, 11, 21, 4, 23, 19, 16, 11, 5, 3, 4, 8, 8, 16, 30, 8, 9, 10, 11, 12, 13)
+)
+countries_median <- median(countries$n_countries)
+
+set.seed(1234)
+boot_countries <- countries |>
+  rep_slice_sample(n = nrow(countries), replace = TRUE, reps = 1000) |>
+  summarize(stat = median(n_countries))
+
+ci_countries <- quantile(boot_countries$stat, c(0.025, 0.975), names = FALSE)
+
+# Same population, different sample sizes: one sample of each size, bootstrapped
+tun_age_mean <- tunisia |> drop_na(age) |> pull(age) |> mean()
+
+set.seed(1234)
+boot_by_n <- tibble(n = c(10, 50, 250, 1000)) |>
+  mutate(
+    sims = map(n, \(size) {
+      this_sample <- tunisia |> drop_na(age) |> slice_sample(n = size)
+      this_sample |>
+        rep_slice_sample(n = size, replace = TRUE, reps = 1000) |>
+        summarize(stat = mean(age))
+    })
+  ) |>
+  unnest(sims) |>
+  mutate(label = fct_inorder(paste0("n = ", comma(n))))
+
+boot_by_n_se <- boot_by_n |>
+  summarize(se = sd(stat), .by = label)
+
+# Same n and same mean, different amounts of variation (two pretend classes + ours)
+spread_classes <- tibble(
+  class = c("Narrow range", "Our class", "Wide range"),
+  n_countries = list(
+    c(10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14),
+    countries$n_countries,
+    c(0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 30, 35, 38)
+  )
+) |>
+  mutate(class = fct_inorder(class))
+
+set.seed(1234)
+boot_spread <- spread_classes |>
+  mutate(
+    sims = map(n_countries, \(x) {
+      tibble(n_countries = x) |>
+        rep_slice_sample(n = length(x), replace = TRUE, reps = 1000) |>
+        summarize(stat = mean(n_countries))
+    })
+  ) |>
+  select(class, sims) |>
+  unnest(sims)
+
+spread_raw <- spread_classes |> unnest(n_countries)
+
+# Every country's 95% interval for thinking about emigrating
+set.seed(1234)
+country_cis <- emigrate |>
+  nest(.by = country) |>
+  mutate(
+    n = map_int(data, nrow),
+    p_hat = map_dbl(data, \(d) mean(d$yes)),
+    ci = map(data, \(d) {
+      d |>
+        specify(response = thought_emigrating, success = "Yes") |>
+        generate(reps = 1000, type = "bootstrap") |>
+        calculate(stat = "prop") |>
+        get_ci(level = 0.95, type = "percentile")
+    })
+  ) |>
+  unnest(ci) |>
+  mutate(country = fct_reorder(country, p_hat))
 ```
 
 ## Plan for today {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
@@ -726,19 +754,52 @@ Write how many countries you've been to on the board
 
 ## Our estimate {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
 
-```{.r}
+::::: {.columns}
+
+:::: {.column width="55%"}
+::: {.smaller}
+```{r}
+#| echo: true
+#| eval: false
+
 library(tidyverse)
 library(moderndive)
 
 # Numbers from the board
-countries <- tibble(n_countries = c(...))
+countries <- tibble(
+  n_countries = c(8, 11, 21, 4, 23, 19, 16,
+                  11, 5, 3, 4, 8, 8, 16, 30,
+                  8, 9, 10, 11, 12, 13)
+)
 
-countries |> 
-  summarise(stat = median(n_countries))
+countries |>
+  summarize(stat = median(n_countries))
 
 ggplot(countries, aes(x = n_countries)) +
   geom_histogram(binwidth = 1, color = "white")
 ```
+:::
+::::
+
+:::: {.column width="45%"}
+::: {.fragment}
+```{r}
+#| label: plot-countries
+#| fig-width: 4.5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+ggplot(countries, aes(x = n_countries)) +
+  geom_histogram(binwidth = 1, color = "white", fill = clrs$blue) +
+  geom_vline(xintercept = countries_median, linewidth = 1.25, color = clrs$orange) +
+  labs(x = "Countries visited", y = "Count")
+```
+
+[Median = `r countries_median`]{.box-clr-8 .small}
+:::
+::::
+
+:::::
 
 ::: {.small}
 Does this reflect all of GU-Q? How confident are we that this number is right? We don't know what the sampling distribution looks like!
@@ -763,36 +824,202 @@ Does this reflect all of GU-Q? How confident are we that this number is right? W
 countdown(minutes = 6, seconds = 0, play_sound = TRUE, warn_when = 1 * 60)
 ```
 
-## What did we find? {.clr-2}
+## Plan for today {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
-::: {.incremental}
+[Bootstrapping, continued]{.box-clr-2 .medium .fragment}
+
+[Confidence intervals]{.box-clr-9 .medium .fragment}
+
+[Comparing with intervals]{.box-clr-4 .medium .fragment}
+
+## {.clr-2}
+
+:::::: {.columns}
+
+::::: {.column width="33%"}
+:::: {.fragment}
+[Estimand]{.box-clr-2 .medium}
+
+The thing you want to know
+
+::: {.small}
+The population parameter
+:::
+
+![](img/estimand.jpg)
+::::
+:::::
+
+::::: {.column width="33%"}
+:::: {.fragment}
+[Estimator]{.box-clr-2 .medium}
+
+The method for guessing it
+
+::: {.small}
+A formula or procedure you apply to a sample
+:::
+
+![](img/estimator.jpg)
+::::
+:::::
+
+::::: {.column width="33%"}
+:::: {.fragment}
+[Estimate]{.box-clr-2 .medium}
+
+The number you get
+
+::: {.small}
+The result from one specific sample
+:::
+
+![](img/estimate.jpg)
+::::
+:::::
+
+::::::
+
+## {.clr-2}
+
+::: {.list-table widths="1,1.5,1.5" .small}
+
+- -
+  - M&Ms
+  - Tunisia
+
+- - **Estimand**
+  - $p_\text{green}$: proportion of green M&Ms made in Janaszówek
+  - $p$: proportion of all Tunisian adults who have thought about emigrating
+
+- - **Estimator**
+  - Green M&Ms ÷ all M&Ms in a sample from Carrefour
+  - "Yes" answers ÷ all answers in a random sample
+
+- - **Estimate**
+  - $\widehat{p}_\text{green}$ = `r round(class_p_green, 3)`
+  - $\widehat{p}$ = `r round(tun_p, 3)`
+
+:::
+
+## Goal of inference {.clr-2}
+
+[Make a good enough guess about the true population parameter]{.box-clr-2 .medium}
+
+[How do we know if the guess is good?]{.box-clr-2-light .fragment}
+
+[How confident are we that we captured the actual population parameter?]{.box-clr-2-light .fragment}
+
+## Variability {.clr-2}
+
+[Every sample statistic (mean, median, correlation, slope, etc.) has some variability]{.box-clr-2 .medium}
+
+[If we take a bunch of samples, that statistic will bounce around]{.box-clr-2-light .fragment}
+
+[We can measure that variability with math or simulation]{.box-clr-2-light .fragment}
+
+## Our sample {.clr-2}
+
+```{r}
+#| label: plot-countries-recap
+#| fig-width: 8
+#| fig-height: 3.5
+#| out-width: "100%"
+
+ggplot(countries, aes(x = n_countries)) +
+  geom_histogram(binwidth = 1, boundary = 0.5, color = "white", fill = clrs$blue) +
+  geom_vline(xintercept = countries_median, linewidth = 1.25, color = clrs$orange) +
+  annotate(
+    "label", x = countries_median, y = Inf, vjust = 1.3, size = 4.5,
+    label = paste0("Median = ", countries_median), color = clrs$orange
+  ) +
+  scale_x_continuous(breaks = seq(0, 30, 5)) +
+  scale_y_continuous(breaks = scales::breaks_width(1)) +
+  labs(x = "Countries visited", y = "Students")
+```
+
+[`r nrow(countries)` students; typical student has been to `r countries_median` countries]{.box-clr-2-light .small}
+
+## Our bootstrapped medians {.clr-2}
+
+```{r}
+#| label: plot-class-medians
+#| fig-width: 8
+#| fig-height: 2.75
+#| out-width: "100%"
+
+# Stand-ins for the medians from the board: the first 21 computer bootstraps
+class_medians <- boot_countries |> slice_head(n = 21)
+
+ggplot(class_medians, aes(x = stat)) +
+  geom_histogram(binwidth = 1, boundary = 0.5, color = "white", fill = clrs$blue) +
+  geom_vline(xintercept = countries_median, linewidth = 1.25, color = clrs$orange) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +
+  scale_y_continuous(breaks = scales::breaks_width(2)) +
+  labs(x = "Median from each bootstrap sample", y = "Count")
+```
+
+::: {.incremental .small}
 - What shape do our medians make? Where's the center?
-- How does the center compare to the median of our actual list?
 - Does this range tell us about *all* GU-Q students?
 :::
 
 ::: {.fragment}
-[Bootstrapping tells us about sampling variation—<br>it doesn't turn these 21 students into a random sample!]{.box-clr-2-light}
+[Bootstrapping tells us about sampling variation—<br>it doesn't create a random sample!]{.box-clr-2-light}
 :::
 
 ## Lots of bootstraps {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
 
-::: {.small}
-```{.r}
-library(tidyverse)
-library(moderndive)
+::::: {.columns}
 
-countries <- tibble(n_countries = c(...))
+:::: {.column width="55%"}
+::: {.smaller}
+```{r}
+#| echo: true
+#| eval: false
+#| flourish:
+#|   - target: "replace = TRUE"
+#|     style: "background-color: var(--hl-1);"
+#|   - target: "median"
+#|     style: "background-color: var(--hl-2);"
 
 set.seed(1234)
 boot_countries <- countries |>
-  rep_slice_sample(n = nrow(countries), replace = TRUE, reps = 1000) |>
+  rep_slice_sample(
+    n = nrow(countries),
+    replace = TRUE,
+    reps = 1000
+  ) |>
   summarize(stat = median(n_countries))
 
 ggplot(boot_countries, aes(x = stat)) +
   geom_histogram(binwidth = 1, color = "white")
 ```
 :::
+::::
+
+:::: {.column width="45%"}
+::: {.fragment}
+```{r}
+#| label: plot-boot-countries
+#| fig-width: 4.5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+ggplot(boot_countries, aes(x = stat)) +
+  geom_histogram(binwidth = 1, color = "white", fill = clrs$blue) +
+  geom_vline(xintercept = countries_median, linewidth = 1.25, color = clrs$orange) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +
+  labs(x = "Bootstrapped medians", y = "Count")
+```
+
+::: {.small}
+1,000 medians instead of our handful on the board. Lumpy, because a median of whole numbers can only land on a few values!
+:::
+:::
+::::
+
+:::::
 
 ## The {infer} way {.clr-2}
 
@@ -813,8 +1040,8 @@ ggplot(boot_countries, aes(x = stat)) +
 
 library(infer)
 
-boot_median <- un_member_states_2024 |>
-  specify(response = gdp_per_capita) |>
+boot_countries <- countries |>
+  specify(response = n_countries) |>
   generate(
     reps = 1000,
     type = "bootstrap"
@@ -833,6 +1060,63 @@ boot_median <- un_member_states_2024 |>
 ::::
 
 :::::
+
+## The {infer} way {.clr-2}
+
+```{r}
+#| include: false
+
+set.seed(1234)
+boot_countries_infer <- countries |>
+  specify(response = n_countries) |>
+  generate(reps = 1000, type = "bootstrap") |>
+  calculate(stat = "median")
+```
+
+::::: {.columns}
+
+:::: {.column width="45%"}
+::: {.small}
+```{r}
+#| echo: true
+#| eval: false
+
+boot_countries
+```
+
+```{r}
+boot_countries_infer
+```
+:::
+::::
+
+:::: {.column width="55%"}
+::: {.small}
+```{r}
+#| echo: true
+#| eval: false
+
+visualize(boot_countries)
+```
+:::
+
+```{r}
+#| label: plot-boot-countries-infer
+#| fig-width: 5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+visualize(boot_countries_infer) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +
+  labs(title = NULL, x = "Bootstrapped medians", y = "Count")
+```
+::::
+
+:::::
+
+::: {.notes}
+Same idea as the rep_slice_sample() version: one row per bootstrap sample, with its median in stat. visualize() is just a shortcut for a ggplot histogram.
+:::
 
 
 ## Seeds {.clr-2}
@@ -966,7 +1250,7 @@ GDP per capita is really skewed, so the median describes a typical country bette
 This is every UN member, not a random sample, so it's worth asking what the population even is here. One answer: think of this year's countries as one draw from all the ways the world could have turned out. Ages from the Arab Barometer are a real sample, but their medians get stuck on one or two whole numbers.
 :::
 
-## Same pipeline, different variables {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+## Works for any estimand! {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
 
 ::::: {.columns}
 
@@ -1046,39 +1330,124 @@ boot_plot(boot_gdp_median, obs_gdp_median, "Median GDP per capita", scales::labe
   boot_plot(boot_tun_emigrate, obs_tun_emigrate, "Emigration, Tunisia", pct1)
 ```
 
-## Our turn {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+## {.clr-2}
 
-::: {.small}
-1. Pick a country and bootstrap the mean age. Use `visualize()` to show your statistic on the distribution
-2. Pick a yes/no variable and bootstrap its proportion (don't forget `drop_na()`!):
+[A bootstrap distribution only knows what's in your sample]{.box-clr-2-light .medium}
+
+::: {.incremental}
+- More observations → less bouncing around
+- More spread in the sample → more bouncing around
 :::
 
-::: {.smaller}
-| Variable             | `success`               |
-|:---------------------|:------------------------|
-| `thought_emigrating` | `"Yes"`                 |
-| `trust_people`       | `"Most can be trusted"` |
-| `uses_internet`      | `"Yes"`                 |
-| `democracy_best`     | `"Agree"`               |
-:::
+
+## More observations {.clr-2}
 
 ```{r}
-#| label: clock-ab-boot
+#| label: plot-boot-by-n
+#| fig-width: 9
+#| fig-height: 4.25
+#| out-width: "100%"
 
-countdown(minutes = 8, seconds = 0, play_sound = TRUE, warn_when = 1 * 60)
+ggplot(boot_by_n, aes(x = stat)) +
+  geom_histogram(binwidth = 0.5, boundary = 0, color = "white", fill = clrs$blue) +
+  geom_vline(xintercept = tun_age_mean, linewidth = 1, color = clrs$purple) +
+  geom_label(
+    data = boot_by_n_se,
+    aes(x = Inf, y = Inf, label = paste0("SE = ", round(se, 2))),
+    hjust = 1.1, vjust = 1.3, size = 4
+  ) +
+  facet_wrap(vars(label), ncol = 1, strip.position = "left", scales = "free_y") +
+  labs(x = "Bootstrapped mean age", y = NULL) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    strip.text.y.left = element_text(angle = 0, size = 12),
+    panel.grid.minor = element_blank()
+  )
 ```
 
 ::: {.notes}
-Bonus if anyone finishes early: median GDP per capita for just one continent in un_member_states_2024.
+n = 10 is wide and a little lopsided; n = 1,000 is a narrow bell. 4× the people → ½ the SE again (250 → 1,000).
+
+The n = 10 sample happened to get young people, so its distribution is centered way below the truth. Bootstrapping can't fix an unlucky sample—it centers on whatever your sample says.
 :::
 
-::::::: {.content-hidden}
+## More spread {.clr-2}
 
-## Plan for today {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+```{r}
+#| label: plot-boot-spread
+#| fig-width: 9
+#| fig-height: 4
+#| out-width: "100%"
 
-[Confidence intervals]{.box-clr-9 .medium .fragment}
+p_raw <- ggplot(spread_raw, aes(x = n_countries)) +
+  geom_dotplot(binwidth = 1, method = "histodot", fill = clrs$orange, color = "white", stackratio = 1.1) +
+  facet_wrap(vars(class), ncol = 1) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(x = "Countries visited", title = "21 students in each class") +
+  theme(panel.grid.minor = element_blank())
 
-[Intervals for everything]{.box-clr-4 .medium .fragment}
+p_boot <- ggplot(boot_spread, aes(x = stat)) +
+  geom_histogram(binwidth = 0.5, boundary = 0, color = "white", fill = clrs$blue) +
+  geom_vline(xintercept = mean(countries$n_countries), linewidth = 1, color = clrs$purple) +
+  facet_wrap(vars(class), ncol = 1, scales = "free_y") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(x = "Bootstrapped mean", title = "1,000 bootstrapped means") +
+  theme(panel.grid.minor = element_blank())
+
+p_raw | p_boot
+```
+
+## Math or bootstrap? {.clr-2}
+
+:::::: {.columns}
+
+::::: {.column width="50%"}
+:::: {.fragment}
+[Math]{.box-clr-2}
+
+::: {.small}
+- Fast, built in to everything
+- Needs a formula
+- Needs assumptions (like normality) to be okay
+- It's what you'll see in most published research
+:::
+::::
+:::::
+
+::::: {.column width="50%"}
+:::: {.fragment}
+[Bootstrap]{.box-clr-2}
+
+::: {.small}
+- Works for almost any statistic
+- Needs a computer
+- Still needs a good sample
+- Struggles with tiny samples and statistics at the extremes
+:::
+::::
+:::::
+
+::::::
+
+::: {.fragment .sp-before}
+[When both work, they should give you about the same answer]{.box-clr-2-light .small}
+:::
+
+::: {.notes}
+Quick demo if there's time: bootstrap the largest value with summarize(stat = max(age)). A resample can never beat the sample's maximum, so most of the bootstrap distribution piles up on one number.
+:::
+
+## So why even do this? {.clr-2}
+
+[Most published research reports math-based standard errors]{.box-clr-2-light}
+
+[Intuition!]{.box-clr-2 .medium}
+
+::: {.incremental}
+- Every math-based SE in a regression table is a shortcut for one of these histograms
+- Formulas are the mathy way of guessing what the bootstrap distribution would look like
+:::
 
 # Confidence intervals {background-color="{{< brand color clr-9 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
@@ -1118,6 +1487,112 @@ Much better chance of catching the fish
 
 ::: {.fragment .sp-before}
 [How wide should the net be? It depends on the sampling variation]{.box-clr-9-light .medium}
+:::
+
+## The Range Game {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+::: {style="aspect-ratio: 16 / 9;"}
+{{< video https://www.youtube.com/embed/dJ2XyxxuO9c width="100%" height="100%" >}}
+:::
+
+## Round 1 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+[Write a range that's **exactly** as wide as your window. No phones!]{.box-clr-8 .small}
+
+::: {.small}
+Example: a window 10 years wide → (1630 to 1640)
+:::
+
+::: {.incremental .small}
+1. How many time zones does Russia have? **Window: 2**
+2. How many members does the Arab League have? **Window: 4**
+3. How tall is the Burj Khalifa, in meters? **Window: 50 meters**
+4. In what year did the Suez Canal open? **Window: 10 years**
+5. How many goals were scored in the 2022 World Cup in Qatar? **Window: 20 goals**
+:::
+
+::: {.notes}
+~20 seconds per question. Make sure people are actually using the exact width: (1630 to 1640), not (1600 to 1700).
+:::
+
+## Round 1 answers {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+[1 point for each window that caught the answer]{.box-clr-8 .small}
+
+::: {.incremental}
+1. Russian time zones: **11**
+2. Arab League: **22**
+3. Burj Khalifa: **828 m**
+4. Suez Canal: **1869**
+5. 2022 World Cup goals: **172**
+:::
+
+## Round 2 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+::: {.incremental .small}
+6. In what year was Georgetown University founded? **Window: 100 years**
+7. How many members does the African Union have? **Window: 30**
+8. How long is the Nile, in kilometers? **Window: 3,000 km**
+9. How many members does the Organisation of Islamic Cooperation have? **Window: 30**
+10. How tall is Mount Everest, in meters? **Window: 3,000 meters**
+:::
+
+## Round 2 answers {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+::: {.incremental}
+6. Georgetown: **1789**
+7. African Union: **55**
+8. Nile: **~6,650 km**
+9. Organisation of Islamic Cooperation: **57**
+10. Mount Everest: **8,849 m**
+:::
+
+
+## Round 3 {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+[Choose your own range!]{.box-clr-8 .small}
+
+::: {.smaller}
+| Question                                                                     | 3 points if width ≤ | 2 points if width ≤ | 1 point if wider |
+|:-----------------------------------------------------------------------------|:-------------------:|:-------------------:|:----------------:|
+| 11\. In what year was the Universal Declaration of Human Rights adopted?     | 2 years            | 10 years            | ✓                |
+| 12\. In what year was the Kingdom of Saudi Arabia founded?                | 2 years            | 10 years            | ✓                |
+| 13\. How big is Qatar, in square kilometers?                                 | 1,000 km²           | 3,000 km²           | ✓                |
+| 14\. How long is the Suez Canal, in kilometers?                              | 10 km               | 50 km              | ✓                |
+| 15\. How many countries are parties to the Convention on the Rights of the Child? | 10 countries   | 50 countries        | ✓                |
+:::
+
+## Round 3 answers {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+::: {.incremental}
+11. Universal Declaration of Human Rights: **1948**
+12. Kingdom of Saudi Arabia: **1932**
+13. Qatar: **11,581 km²**
+14. Suez Canal: **193 km**
+15. Convention on the Rights of the Child: **196**
+:::
+
+
+## How did the windows do? {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+::: {.incremental .small}
+- Why did the wide windows catch more than the narrow windows?
+- If you were a contestant on the show, what size window would you want? What about the show's producer?
+- In Round 3, how did you decide your widths?
+- Why not make every net as wide as possible?
+:::
+
+::: {.fragment .sp-before}
+[Wider nets catch more<br>but tell you less!]{.box-clr-8 .medium}
+:::
+
+::: {.notes}
+Possible answers (adapted from Grosofsky):
+
+- Contestant: as wide as possible, so you always win. A window covering every possible price is 100% confident.
+- Producer: narrow, so nobody wins and prizes are cheap; or medium, so enough people win to keep the show fun. Someone probably calculated the win rate for different widths.
+- Round 3: people go narrow on questions they know well (UDHR? Saudi Arabia?) and wide on ones they don't (Suez length? Qatar's area?). Knowing less is like having a smaller or noisier sample—you need a wider net to catch the truth just as often.
+- Widest possible: "the UDHR was adopted between 1000 and 2100" is never wrong and totally useless, like the Garfield forecast coming up.
 :::
 
 ## From distribution to interval {.clr-9}
@@ -1200,9 +1675,6 @@ tribble(
 [When the distribution is bell-shaped, they're basically identical!]{.box-clr-9-light .medium}
 :::
 
-::: {.fragment .small .sp-before}
-For means, formulas use the *t* distribution instead of the normal because we don't know the population's standard deviation: `r round(qt(0.975, df = 99), 2)` instead of 1.96 when $n$ = 100, and it gets closer to 1.96 as $n$ grows
-:::
 
 ## Which one should I use? {.clr-9}
 
@@ -1232,13 +1704,15 @@ Works for almost any statistic
 Good for lumpy or skewed distributions, like our medians
 
 Median age: `r ci_age[1]` to `r ci_age[2]`
+
+Our median countries: `r ci_countries[1]` to `r ci_countries[2]`
 :::
 ::::
 :::::
 
 ::::::
 
-## With `infer` {.clr-9}
+## With {infer} {.clr-9}
 
 ::: {.small}
 ```{r}
@@ -1275,7 +1749,17 @@ bind_rows(
 :::
 :::
 
-## 100 samples, 100 bootstrap intervals {.clr-9}
+## What does "95%" mean? {.clr-9}
+
+::: {.incremental}
+- The true $p$ is fixed; the *intervals* move around
+- About 95% of intervals made this way catch the true $p$
+- The 95% describes how we make the interval, not one specific interval
+- A specific interval either caught $p$ or it didn't—we just can't tell which
+:::
+
+
+## {.clr-9}
 
 ```{r}
 #| label: plot-boot-catch
@@ -1300,26 +1784,13 @@ ggplot(boot_cis, aes(x = sample_id, y = p_hat, color = catches)) +
   theme(legend.position = "top")
 ```
 
-::: {.fragment}
-[`r sum(boot_cis$catches)` of these 100 nets caught the fish—and the fish never moved]{.box-clr-9-light .small}
-:::
-
-## What does "95%" mean, again? {.clr-9}
-
-::: {.incremental}
-- The true $p$ is fixed; the *intervals* move around
-- About 95% of intervals made this way catch the true $p$
-- The 95% describes the **method**, not one specific interval
-- A specific interval either caught $p$ or it didn't—we just can't tell which
-:::
-
 ## Don't be tempted! {.clr-9}
 
 :::::: {.columns}
 
 ::::: {.column width="50%"}
 :::: {.fragment}
-[Tempting]{.box-clr-4}
+[Tempting, but wrong]{.box-clr-2}
 
 ::: {.small}
 "There's a 95% chance that the true $p$ is between `r pct(ci_percentile[1])` and `r pct(ci_percentile[2])`"
@@ -1331,85 +1802,22 @@ People do this all the time! People with PhDs! You will too!
 
 ::::: {.column width="50%"}
 :::: {.fragment}
-[Legal]{.box-clr-9}
+[Legal and correct]{.box-clr-9}
 
 ::: {.small}
-"We're 95% confident that the true $p$ is between `r pct(ci_percentile[1])` and `r pct(ci_percentile[2])`"
+"There's a 95% chance that the interval (`r pct(ci_percentile[1])`, `r pct(ci_percentile[2])`) captures the true $p$"
 
-"95% confident" is shorthand: the method we used to make this interval catches the truth 95% of the time
+"We're 95% confident the interval (`r pct(ci_percentile[1])`, `r pct(ci_percentile[2])`) captures the true $p$"
 :::
 ::::
 :::::
 
 ::::::
 
-::: {.notes}
-ModernDive accepts "95% confident" as shorthand as long as you know what it stands for. Bayesian credible intervals actually let you say the tempting thing, if you want to mention them.
-:::
 
-## Your turn: everyone's own net {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+## {.clr-9}
 
-::::: {.columns}
-
-:::: {.column width="60%"}
-::: {.smaller}
-```{r}
-#| echo: true
-#| eval: false
-
-# Use your own favorite number!
-set.seed(YOUR_NUMBER_HERE)
-
-# Your own random bag from the vat
-my_bag <- vat |>
-  slice_sample(n = 50) |>
-  mutate(
-    is_green = if_else(
-      color == "green", "yes", "no"
-    )
-  )
-
-boot_my_bag <- my_bag |>
-  specify(response = is_green, success = "yes") |>
-  generate(reps = 1000, type = "bootstrap") |>
-  calculate(stat = "prop")
-
-boot_my_bag |>
-  get_ci(level = 0.95, type = "percentile")
-```
-:::
-::::
-
-:::: {.column width="40%"}
-::: {.small}
-The vat's true $p_\text{green}$ is `r round(vat_p_green, 3)`
-
-1. Does your interval catch it?
-2. Raise your hand if you missed. How many of us?
-3. Change `level` to `0.50` and try again. *Now* how many?
-4. Why?
-:::
-::::
-
-:::::
-
-```{r}
-#| label: clock-own-net
-
-countdown(minutes = 5, seconds = 0, play_sound = TRUE, warn_when = 1 * 60)
-```
-
-::: {.notes}
-With fewer than 20 people, 95% intervals give about 1 miss at most, which isn't much to look at. That's why there's a second round: at 50%, a bit under half of the class should miss. Tally both on the board.
-
-Checked with 300 random seeds: 95.7% of the 95% intervals and 56.3% of the 50% intervals caught 0.173.
-:::
-
-## Is this legal? {.clr-9}
-
-::: {.small}
-One random sample of `r nrow(age_sample)` Tunisians gives a 95% confidence interval for the median age of `r ci_age[1]` to `r ci_age[2]`. Stand up if you think it's a correct interpretation:
-:::
+**One random sample of `r nrow(age_sample)` Tunisians gives a 95% confidence interval for the median age of `r ci_age[1]` to `r ci_age[2]`.**
 
 ::: {.incremental .small}
 A. 95% of Tunisians in this sample have a median age between `r ci_age[1]` and `r ci_age[2]`
@@ -1425,11 +1833,9 @@ D. We're 95% confident that the median age in this sample is between `r ci_age[1
 [C! The interval is about the population's median, not individual people and not our sample]{.box-clr-9-light .small}
 :::
 
-## Is this legal? {.clr-9}
+## {.clr-9}
 
-::: {.small}
-A pollster surveys a random sample of 800 Jordanians and finds a 90% confidence interval for the proportion who trust their government.
-:::
+**A pollster surveys a random sample of 800 Jordanians and finds a 90% confidence interval for the proportion who trust their government.**
 
 ::: {.incremental .small}
 A. If they ran many identical polls, about 90% of the intervals would capture the true proportion
@@ -1442,23 +1848,21 @@ D. There's a 90% chance that the true proportion is in this specific interval
 :::
 
 ::: {.fragment}
-[A and C! D is the tempting one]{.box-clr-9-light .small}
+[A and C! D is tempting, but wrong]{.box-clr-9-light .small}
 :::
 
-## Is this legal? {.clr-9}
+## {.clr-9}
 
-::: {.small}
-Imagine a planner takes a random sample of 200 apartment listings in Doha and bootstraps a 95% confidence interval for average rent: QAR 5,000 to QAR 7,000.
-:::
+**Imagine a planner takes a random sample of 200 apartment listings in Doha and calculates a 95% confidence interval for average rent: QAR 15,000 to QAR 27,000.**
 
 ::: {.incremental .small}
-A. If they took another sample of 200, there's a 95% chance its mean would be between QAR 5,000 and QAR 7,000
+A. If they took another sample of 200, there's a 95% chance its mean would be between QAR 15,000 and QAR 27,000
 
-B. About 95% of the apartments in the sample rent for QAR 5,000 to QAR 7,000
+B. About 95% of the apartments in the sample rent for QAR 15,000 to QAR 27,000
 
 C. We're 95% confident that the interval captured the true average rent
 
-D. There's a 95% chance that the true average rent is between QAR 5,000 and QAR 7,000
+D. There's a 95% chance that the true average rent is between QAR 15,000 and QAR 27,000
 :::
 
 ::: {.fragment}
@@ -1483,17 +1887,13 @@ ggplot(levels_ci, aes(x = p_hat_100, y = label)) +
 
 ::: {.incremental}
 - 90%, 95%, and 99% are the most common
-- Want to be more sure you caught the fish? Use a bigger net
-- Same data, wider interval
+- Want to be more confident you got the $p$? Use a bigger net or wider window!
 :::
 
-## Precision vs. confidence {.clr-9}
+## {.clr-9 .center}
 
 ![](img/garfield-weather.png){.shadow fig-align="center" width="85%"}
 
-::: {.fragment .sp-before}
-[A 100% confidence interval is never wrong and totally useless]{.box-clr-9 .medium}
-:::
 
 ## Getting a narrower net {.clr-9}
 
@@ -1514,68 +1914,57 @@ ggplot(sizes_ci, aes(x = p_hat, y = label)) +
 ::: {.incremental}
 - Lower confidence → narrower, but more misses
 - Bigger sample → narrower, with the same confidence
-- 4× the people → ½ the width (remember $\sqrt{n}$)
 :::
 
-# Intervals for everything {background-color="{{< brand color clr-4 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+# Comparing with intervals {background-color="{{< brand color clr-4 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
-## Are our M&Ms different? {.clr-4}
+## {.clr-4}
 
 ```{r}
-#| label: plot-mm-compare
+#| label: plot-country-cis
 #| fig-width: 8
-#| fig-height: 2.75
+#| fig-height: 3.5
 #| out-width: "100%"
 
-reference_green <- tribble(
-  ~source,                ~p_green,
-  "Cleveland, TN",        0.198,
-  "Hackettstown, NJ",     0.125,
-  "2007 website",         0.16
-)
-
-tibble(y = 1, p = class_p_green, lower = ci_green$lower_ci, upper = ci_green$upper_ci) |>
-  ggplot(aes(x = p, y = y)) +
-  geom_vline(data = reference_green, aes(xintercept = p_green), color = clrs$gray, linetype = "21") +
-  geom_label(
-    data = reference_green,
-    aes(x = p_green, y = 1.4, label = paste0(source, "\n", pct1(p_green))),
-    inherit.aes = FALSE, size = 3.5
+ggplot(country_cis, aes(x = p_hat, y = country)) +
+  geom_pointrange(aes(xmin = lower_ci, xmax = upper_ci), color = clrs$purple, size = 0.6, linewidth = 1.25) +
+  geom_text(
+    aes(x = upper_ci, label = paste0(pct1(lower_ci), " to ", pct1(upper_ci), " (n = ", comma(n), ")")),
+    hjust = -0.1, size = 3.75
   ) +
-  geom_pointrange(aes(xmin = lower, xmax = upper), color = mm_colors[["green"]], size = 1, linewidth = 2) +
-  scale_x_continuous(labels = pct, limits = c(0.1, 0.22)) +
-  scale_y_continuous(breaks = 1, labels = "Our class", limits = c(0.7, 1.6)) +
-  labs(x = "Proportion of green M&Ms", y = NULL)
+  scale_x_continuous(labels = pct, expand = expansion(mult = c(0.05, 0.55))) +
+  labs(x = "Thought about emigrating (95% confidence interval)", y = NULL)
 ```
 
 ::: {.incremental .small}
-- We're 95% confident that $p_\text{green}$ in Poland is between `r pct1(ci_green$lower_ci)` and `r pct1(ci_green$upper_ci)`
-- Neither US factory's number is in that interval
-- But remember: all our bags came from the same two boxes at Carrefour!
+- Which countries are clearly higher or lower than Tunisia? Which ones can't we tell apart?
+- Why are Mauritania's and Palestine's nets wider than Iraq's?
+- Kuwait has a small sample too, but its net isn't wide. Why not?
 :::
 
 ::: {.notes}
-The US numbers are themselves estimates from one big sample each, so this is a rough comparison. The interval only handles sampling variation. Two boxes from one store isn't a random sample of the factory.
+Mauritania and Palestine have half as many people as Iraq → wider. Kuwait has ~1,200 people too, but with p̂ near 0.14 there's less variation to bounce around (p(1 − p) is small near 0 or 1), so its width roughly matches Tunisia's.
+
+Careful with overlap: nets that don't overlap are clearly different, but slightly overlapping nets can still be significantly different. The real way to check is an interval for the difference, coming up next.
 :::
 
 ## Differences between groups {.clr-4}
 
-::: {.box-center}
 [Are Tunisian women more likely to have thought about emigrating than men?]{.box-clr-4-light}
-:::
 
 ::: {.small}
 ```{r}
 #| echo: true
 #| eval: false
 #| flourish:
-#|   - target: "answer ~ gender"
+#|   - target: "thought_emigrating ~ gender"
 #|     style: "background-color: var(--hl-1);"
 #|   - target: "diff in props"
 #|     style: "background-color: var(--hl-2);"
 
 boot_gender <- tunisia |>
-  specify(answer ~ gender, success = "Yes") |>
+  drop_na(thought_emigrating) |>
+  specify(thought_emigrating ~ gender, success = "Yes") |>
   generate(reps = 1000, type = "bootstrap") |>
   calculate(stat = "diff in props", order = c("Female", "Male"))
 ```
@@ -1583,11 +1972,10 @@ boot_gender <- tunisia |>
 
 ::: {.incremental .small}
 - Estimand: $p_\text{women} - p_\text{men}$
-- Each bootstrap sample resamples **whole rows**, so each person keeps their own gender and answer
 - Works the same with `"diff in means"`
 :::
 
-## Zero is the interesting number {.clr-4}
+## {.clr-4}
 
 ```{r}
 #| label: plot-diffs
@@ -1645,7 +2033,7 @@ Way above 0: no difference is not plausible
 Careful wording: an interval that includes 0 means 0 is plausible, NOT that the groups are equal. This is the setup for hypothesis testing next week.
 :::
 
-## Those columns you've ignored {.clr-4}
+## We can stop ignoring these! {.clr-4}
 
 ::: {.small}
 ```{r}
@@ -1661,7 +2049,7 @@ get_regression_table(model)
 get_regression_table(age_model, digits = 4) |>
   tt() |>
   style_tt(fontsize = 0.7) |>
-  style_tt(j = 6:7, background = "#f7e896", bold = TRUE) |>
+  style_tt(j = c(3, 6:7), background = "#f7e896", bold = TRUE) |>
   theme_html(class = "tinytable shadow")
 ```
 
@@ -1671,54 +2059,12 @@ get_regression_table(age_model, digits = 4) |>
 - Bootstrapping with `calculate(stat = "slope")`: `r round(ci_slope$lower_ci, 4)` to `r round(ci_slope$upper_ci, 4)`
 :::
 
-## Math or bootstrap? {.clr-4}
-
-:::::: {.columns}
-
-::::: {.column width="50%"}
-:::: {.fragment}
-[Math]{.box-clr-4}
-
-::: {.small}
-- Fast, built in to everything
-- Needs a formula
-- Needs assumptions (like normality) to be okay
-- It's what you'll see in most published research
-:::
-::::
-:::::
-
-::::: {.column width="50%"}
-:::: {.fragment}
-[Bootstrap]{.box-clr-4}
-
-::: {.small}
-- Works for almost any statistic
-- Needs a computer
-- Still needs a good sample
-- Struggles with tiny samples and statistics at the extremes
-:::
-::::
-:::::
-
-::::::
-
-::: {.fragment .sp-before}
-[When both work, they should give you about the same answer]{.box-clr-4-light .small}
-:::
-
-::: {.notes}
-Quick demo if there's time: bootstrap the largest value with summarize(stat = max(age)). A resample can never beat the sample's maximum, so most of the bootstrap distribution piles up on one number.
-:::
-
 ## Moral of the story {.clr-4}
 
 ::: {.incremental}
-- Start with the estimand: what do you want to know, and about whom?
+- Always define an estimand: what do you want to know, and about whom?
 - Sample statistic ≠ population parameter, but a good sample gets close
 - We can't keep sampling from the population, so we bootstrap
 - Bootstrapping measures uncertainty; it doesn't improve your estimate or fix a biased sample
 - Report estimates with confidence intervals
 :::
-
-:::::::
