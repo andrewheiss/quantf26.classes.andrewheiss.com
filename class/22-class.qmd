@@ -10,3 +10,17 @@ date: "2026-11-10"
 {{< include ../readings/_22-class.md >}}
 
 :::
+
+## Slides
+
+<p style="line-height: 2.5"><a class="btn btn-success me-2" target="_blank" href="../slides/21-hypothesis-testing/index.html#/hypothesis-testing-ii">{{< fa arrow-up-right-from-square >}} &ensp;Open slides in new window</a><a class="btn btn-success" target="_blank" href="../slides/21-hypothesis-testing/21-hypothesis-testing.pdf">{{< fa file-pdf >}} &ensp;Download PDF of slides</a></p>
+
+```{=html}
+<div class="ratio ratio-16x9">
+<iframe class="slide-deck" src="../slides/21-hypothesis-testing/index.html#/hypothesis-testing-ii" style="border: 1px solid #343a40;"></iframe>
+</div>
+```
+
+## Materials for class today
+
+- [Hypothesis testing `.zip` project](/projects/hypothesis-testing.zip)

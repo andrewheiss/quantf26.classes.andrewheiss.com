@@ -26,6 +26,7 @@ $code-block-font-size:        0.75em;
   --hl-1: #f7e896;
   --hl-2: #FFD0CF;
   --hl-3: #EFB3FF;
+  --hl-4: #bbffb3;
 }
 
 // Decktape struggles with shadows, so turn them off
@@ -155,6 +156,10 @@ $code-block-font-size:        0.75em;
 
 .bg-hl-3 {
   background-color: var(--hl-3);
+}
+
+.bg-hl-4 {
+  background-color: var(--hl-4);
 }
 
 // Table stuff

@@ -1,0 +1,433 @@
+---
+title: "Hypothesis testing"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)   # For ggplot, dplyr, and friends
+library(infer)       # For specify(), hypothesize(), generate(), calculate(), and friends
+library(moderndive)  # For get_regression_table()
+
+# Load the Arab Barometer data
+barometer <- read_csv("data/arab_barometer.csv")
+```
+
+Every test here follows the same five steps:
+
+1. Find δ
+2. Invent a world where δ is null
+3. Look at δ in the null world
+4. Find the probability that δ could exist in the null world (the p-value)
+5. Decide!
+
+The code is almost identical for every kind of δ. Only a few arguments change:
+
+::: {.list-table}
+
+- -
+  - Difference in proportions
+  - Difference in means
+  - One proportion
+  - One mean
+  - Regression slope
+
+- - `specify()`
+  - `y ~ group, success = "Yes"`
+  - `y ~ group`
+  - `response = y, success = "Yes"`
+  - `response = y`
+  - `y ~ x`
+
+- - `hypothesize()`
+  - `null = "independence"`
+  - `null = "independence"`
+  - `null = "point", p = 0.67`
+  - `null = "point", mu = 40`
+  - `null = "independence"`
+
+- - `generate()`
+  - `type = "permute"`
+  - `type = "permute"`
+  - `type = "draw"`
+  - `type = "bootstrap"`
+  - `type = "permute"`
+
+- - `calculate()`
+  - `stat = "diff in props"`
+  - `stat = "diff in means"`
+  - `stat = "prop"`
+  - `stat = "mean"`
+  - `stat = "slope"`
+
+:::
+
+# 1: Difference in proportions
+
+## Example: Do Lebanese women and men think about emigrating at different rates?
+
+```{r}
+lebanon <- barometer |>
+  filter(country == "Lebanon") |>
+  drop_na(thought_emigrating)
+```
+
+Before looking at any data, write down the hypotheses and your evidentiary standard:
+
+- $H_0$: $p_\text{women} - p_\text{men} = 0$
+- $H_A$: $p_\text{women} - p_\text{men} \neq 0$
+- $\alpha = 0.05$
+
+### Step 1: Find δ
+
+```{r}
+lebanon |>
+  group_by(gender) |>
+  summarize(prop_yes = mean(thought_emigrating == "Yes"), n = n())
+
+obs_diff <- lebanon |>
+  specify(thought_emigrating ~ gender, success = "Yes") |>
+  calculate(stat = "diff in props", order = c("Female", "Male"))
+
+obs_diff
+```
+
+### Step 2: Invent a world where δ is null
+
+Shuffle the gender labels 1,000 times and calculate δ in each shuffled dataset:
+
+```{r}
+set.seed(1234)
+null_world <- lebanon |>
+  specify(thought_emigrating ~ gender, success = "Yes") |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in props", order = c("Female", "Male"))
+```
+
+### Step 3: Look at δ in the null world
+
+```{r}
+visualize(null_world) +
+  shade_p_value(obs_stat = obs_diff, direction = "two-sided")
+```
+
+### Step 4: Find the probability that δ could exist in the null world
+
+```{r}
+null_world |>
+  get_p_value(obs_stat = obs_diff, direction = "two-sided")
+```
+
+### Step 5: Decide!
+
+Is the p-value lower than 0.05? What about 0.10? Write a sentence that explains what the p-value means, using the null world template ("In a world where…").
+
+WRITE YOUR SENTENCE HERE
+
+### Bonus: compare with a confidence interval
+
+Same pipeline, but with no `hypothesize()` and with `"bootstrap"` instead of `"permute"`. Does the 95% interval include 0? Does that match your decision in step 5?
+
+```{r}
+set.seed(1234)
+boot_diff <- lebanon |>
+  specify(thought_emigrating ~ gender, success = "Yes") |>
+  generate(reps = 1000, type = "bootstrap") |>
+  calculate(stat = "diff in props", order = c("Female", "Male"))
+
+boot_diff |>
+  get_ci(level = 0.95, type = "percentile")
+```
+
+### Bonus: the math way
+
+`prop_test()` uses a theoretical null world (a χ² distribution) instead of shuffling. How close is its p-value to yours?
+
+```{r}
+lebanon |>
+  prop_test(thought_emigrating ~ gender, success = "Yes", order = c("Female", "Male"))
+```
+
+## Your turn
+
+Pick a country (Iraq, Jordan, Kuwait, Lebanon, Mauritania, Morocco, Palestine, or Tunisia), a yes/no outcome, and a comparison group.
+
+| Outcome variable     | `success`               |
+|:---------------------|:------------------------|
+| `thought_emigrating` | `"Yes"`                 |
+| `trust_people`       | `"Most can be trusted"` |
+| `uses_internet`      | `"Yes"`                 |
+| `democracy_best`     | `"Agree"`               |
+
+| Comparison variable | `order`                |
+|:--------------------|:-----------------------|
+| `gender`            | `c("Female", "Male")`  |
+| `urban_rural`       | `c("Urban", "Rural")`  |
+| `uses_internet`     | `c("Yes", "No")`       |
+
+Things to watch out for:
+
+- Use `drop_na()` on *both* variables first, or `calculate()` will give you an error
+- Palestine has a third `urban_rural` category (`"Camp"`), so if you use Palestine and `urban_rural`, add `filter(urban_rural != "Camp")`
+- Kuwait has no rural respondents at all, so `urban_rural` won't work there
+
+Write down your hypotheses and α **before** you run anything:
+
+- Research question:
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+my_data <- barometer |>
+  filter(country == "Jordan") |>
+  drop_na(trust_people, gender)
+```
+
+### Step 1: Find δ
+
+```{r}
+# Your code here
+```
+
+### Steps 2 and 3: Make the null world and look at δ in it
+
+```{r}
+# Your code here
+```
+
+### Step 4: Find the p-value
+
+```{r}
+# Your code here
+```
+
+### Step 5: Decide!
+
+WRITE YOUR CONCLUSION HERE. Is δ real (statistically significant)? Does it matter (is it big enough to care about)?
+
+# 2: Difference in means
+
+## Example: Do people in cities and rural areas have different average ages?
+
+This uses all 8 countries together. Palestine's refugee camps are a third category, so we'll leave them out.
+
+- $H_0$: $\mu_\text{urban} - \mu_\text{rural} = 0$
+- $H_A$: $\mu_\text{urban} - \mu_\text{rural} \neq 0$
+- $\alpha = 0.05$
+
+```{r}
+urban_rural <- barometer |>
+  filter(urban_rural %in% c("Urban", "Rural")) |>
+  drop_na(age)
+
+urban_rural |>
+  group_by(urban_rural) |>
+  summarize(avg_age = mean(age), n = n())
+
+# Step 1: Find δ
+obs_diff_age <- urban_rural |>
+  specify(age ~ urban_rural) |>
+  calculate(stat = "diff in means", order = c("Urban", "Rural"))
+
+obs_diff_age
+
+# Step 2: Invent a world where δ is null
+set.seed(1234)
+null_world_age <- urban_rural |>
+  specify(age ~ urban_rural) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in means", order = c("Urban", "Rural"))
+
+# Step 3: Look at δ in the null world
+visualize(null_world_age) +
+  shade_p_value(obs_stat = obs_diff_age, direction = "two-sided")
+
+# Step 4: Find the p-value
+null_world_age |>
+  get_p_value(obs_stat = obs_diff_age, direction = "two-sided")
+```
+
+`get_p_value()` gives a warning when the p-value is 0. A simulated p-value of 0 just means none of the 1,000 shuffles were as extreme as ours, so report it as p < 0.001.
+
+The p-value is tiny, so the difference is statistically significant. Is a gap this size substantively important, though?
+
+WRITE YOUR ANSWER HERE
+
+### Bonus: the math way
+
+A *t*-test is the math-based version of this test:
+
+```{r}
+urban_rural |>
+  t_test(age ~ urban_rural, order = c("Urban", "Rural"), alternative = "two-sided")
+```
+
+## Your turn
+
+Are people who have thought about emigrating younger than people who haven't? Pick a country and test it.
+
+- Use `drop_na(age, thought_emigrating)` first
+- δ is `stat = "diff in means"` with `order = c("Yes", "No")`
+- Since `age` is a number, `specify()` doesn't need `success`
+
+Hypotheses and α:
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+# Your code here
+```
+
+### Bonus: the math way
+
+Check your answer with a *t*-test:
+
+```{r}
+# Your code here
+# Hint: t_test(age ~ thought_emigrating, order = c("Yes", "No"))
+```
+
+# 3: One proportion or one mean
+
+With only one variable, there's nothing to shuffle. Instead, `hypothesize(null = "point", ...)` builds a null world centered on a specific number.
+
+## Example: Is internet use in Tunisia different from the rest of the world?
+
+In 2023, about 67% of the world's population used the internet ([ITU](https://www.itu.int/itu-d/reports/statistics/2023/10/10/ff23-internet-use/)).
+
+- $H_0$: $p_\text{internet} = 0.67$
+- $H_A$: $p_\text{internet} \neq 0.67$
+- $\alpha = 0.05$
+
+```{r}
+tunisia <- barometer |>
+  filter(country == "Tunisia") |>
+  drop_na(uses_internet)
+
+# Step 1: Find δ
+obs_prop <- tunisia |>
+  specify(response = uses_internet, success = "Yes") |>
+  calculate(stat = "prop")
+
+obs_prop
+
+# Step 2: Invent a world where δ is null
+# "draw" flips a coin that lands on "Yes" 67% of the time, once for each person
+set.seed(1234)
+null_world_prop <- tunisia |>
+  specify(response = uses_internet, success = "Yes") |>
+  hypothesize(null = "point", p = 0.67) |>
+  generate(reps = 1000, type = "draw") |>
+  calculate(stat = "prop")
+
+# Step 3: Look at δ in the null world
+visualize(null_world_prop) +
+  shade_p_value(obs_stat = obs_prop, direction = "two-sided")
+
+# Step 4: Find the p-value
+null_world_prop |>
+  get_p_value(obs_stat = obs_prop, direction = "two-sided")
+```
+
+What do you conclude? Does failing to reject the null mean that exactly 67% of Tunisians use the internet?
+
+WRITE YOUR ANSWER HERE
+
+Try it with a different country, or with `p = 0.69`, which is the ITU's estimate for the Arab States region. What changes?
+
+```{r}
+# Your code here
+```
+
+## Your turn: one mean
+
+Imagine a report claims that the average adult in Morocco is 40 years old. Does the Arab Barometer agree? Pick a country and test it.
+
+- Use `drop_na(age)` first
+- `specify(response = age)`
+- `hypothesize(null = "point", mu = 40)`
+- `generate(reps = 1000, type = "bootstrap")` (this shifts the bootstrap distribution so it's centered at 40)
+- `calculate(stat = "mean")`
+
+Hypotheses and α:
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+# Your code here
+```
+
+# 4: Regression slope
+
+## Example: Are older Tunisians less likely to have thought about emigrating?
+
+To use `thought_emigrating` as the outcome in a regression, we need to make it a number: 1 for "Yes" and 0 for "No".
+
+- $H_0$: $\beta_1 = 0$
+- $H_A$: $\beta_1 \neq 0$
+- $\alpha = 0.05$
+
+```{r}
+tunisia_ages <- barometer |>
+  filter(country == "Tunisia") |>
+  drop_na(age, thought_emigrating) |>
+  mutate(yes_num = as.numeric(thought_emigrating == "Yes"))
+
+# Step 1: Find δ
+obs_slope <- tunisia_ages |>
+  specify(yes_num ~ age) |>
+  calculate(stat = "slope")
+
+obs_slope
+
+# Step 2: Invent a world where δ is null (shuffle ages so they can't be related)
+set.seed(1234)
+null_world_slope <- tunisia_ages |>
+  specify(yes_num ~ age) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "slope")
+
+# Step 3: Look at δ in the null world
+visualize(null_world_slope) +
+  shade_p_value(obs_stat = obs_slope, direction = "two-sided")
+
+# Step 4: Find the p-value
+null_world_slope |>
+  get_p_value(obs_stat = obs_slope, direction = "two-sided")
+```
+
+None of the 1,000 shuffled slopes were as extreme as ours, so p < 0.001.
+
+### Bonus: the math way
+
+Every row in a regression table is a hypothesis test with $H_0: \beta = 0$. Compare the `estimate` and `p_value` for `age` with your simulation:
+
+```{r}
+model <- lm(yes_num ~ age, data = tunisia_ages)
+get_regression_table(model)
+```
+
+## Your turn
+
+Test the same question in a different country, or use a different yes/no outcome (like `trust_people` or `democracy_best`). Remember to make a 0/1 version of the outcome first.
+
+Hypotheses and α:
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+# Your code here
+```
