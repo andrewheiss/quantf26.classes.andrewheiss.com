@@ -1,0 +1,641 @@
+---
+title: "Inference for regression"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)     # For ggplot, dplyr, and friends
+library(infer)         # For specify(), hypothesize(), generate(), calculate(), and friends
+library(moderndive)    # For get_regression_table()
+library(modelsummary)  # For side-by-side regression tables
+
+# Load a bunch of data
+vdem <- readRDS("data/vdem.rds") |>
+  mutate(
+    democracy = if_else(regime_num >= 2, "Democracy", "Autocracy"),
+    gdp_1000 = gdpPercap / 1000,
+    in_latin_america = if_else(region == "Latin America & Caribbean", "Yes", "No"),
+    in_mena = if_else(str_detect(region, "^Middle East"), "Yes", "No")
+  )
+
+barometer <- readRDS("data/barometer.rds")
+
+happiness <- read_csv("data/world_happiness.csv") |>
+  filter(year == 2024) |>
+  mutate(gdp_1000 = gdp_per_cap / 1000)
+
+cars <- read_csv("data/qatarcars.csv") |>
+  mutate(price_1000 = price / 1000)
+```
+
+The new variables in `vdem`:
+
+- `democracy`: `"Democracy"` for electoral and liberal democracies, `"Autocracy"` for closed and electoral autocracies
+- `gdp_1000`: GDP per capita in thousands of dollars, so a "one unit increase" is \$1,000
+- `in_latin_america` and `in_mena`: `"Yes"` if the country is in Latin America and the Caribbean, or in the Middle East and North Africa
+
+# How to talk about results
+
+Every row in a regression table is a hypothesis test, with $H_0: \beta = 0$. You've already seen templates for what the numbers in a regression table mean. Now we can add a bit about significance at the end.
+
+::: {.list-table widths="1,3,3,3"}
+
+- - X
+  - β
+  - p < α
+  - p ≥ α
+
+- - Continuous
+  - On average, a one-unit increase in **X** is associated with a **β** change in **Y** (**confidence interval**).
+  - This is statistically significant (p = **BLAH**), so we are confident that it's not zero and that there is a relationship.
+  - However, this is not statistically significant (p = **BLAH**), so we cannot rule out the possibility that the true relationship is zero.
+
+- - Categorical
+  - On average, **Y** is **β** higher (or lower) in this group (**confidence interval**), compared to **the base case**.
+  - This is statistically significant (p = **BLAH**), so we are confident that it's not zero and that there is a difference.
+  - However, this is not statistically significant (p = **BLAH**), so we cannot rule out the possibility that the true difference is zero.
+:::
+
+And if you ever need to say what the p-value itself means, use the null world template:
+
+> In a world where there's no difference, the probability of seeing a difference at least as big as β is p.
+
+Things to avoid:
+
+- Don't say the null hypothesis is true or "accepted." Not significant means "not enough evidence," not "no difference"
+- Don't say "almost significant" or "marginally significant" when p = 0.06. It's significant at α = 0.10, but it's not significant at α = 0.05
+- Don't forget the substance! Is the size of β big enough to matter?
+
+# Part 1: Three ways to get the same answer
+
+We have three different ways to test whether a δ is 0:
+
+1. **Simulation**: invent a null world with {infer} and see how comfortable δ is in it
+2. **Math**: use a *t*-test (for means) or a proportion test (for proportions)
+3. **Regression**: use `lm()` and interpret the regression table
+
+They all ask the same question: how weird is δ in a world where it's actually 0? They should all give (basically) the same answer.
+
+When X is a category with two groups, the coefficient for X in a regression is the difference in means between the two groups. That's the same δ we've been calculating with `calculate(stat = "diff in means")`.
+
+## Example: Do democracies have higher life expectancy than autocracies?
+
+- $H_0$: $\mu_\text{democracy} - \mu_\text{autocracy} = 0$
+- $H_A$: $\mu_\text{democracy} - \mu_\text{autocracy} \neq 0$
+- $\alpha = 0.05$
+
+```{r}
+vdem_life <- vdem |>
+  drop_na(life_exp)
+
+vdem_life |>
+  group_by(democracy) |>
+  summarize(avg_life_exp = mean(life_exp), n = n())
+```
+
+### Approach 1: Simulation
+
+```{r}
+# Step 1: Find δ
+obs_diff <- vdem_life |>
+  specify(life_exp ~ democracy) |>
+  calculate(stat = "diff in means", order = c("Democracy", "Autocracy"))
+
+obs_diff
+
+# Step 2: Invent a world where δ is null
+set.seed(1234)
+null_world <- vdem_life |>
+  specify(life_exp ~ democracy) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in means", order = c("Democracy", "Autocracy"))
+
+# Step 3: Look at δ in the null world
+visualize(null_world) +
+  shade_p_value(obs_stat = obs_diff, direction = "two-sided")
+
+# Step 4: Find the p-value
+null_world |>
+  get_p_value(obs_stat = obs_diff, direction = "two-sided")
+```
+
+### Approach 2: *t*-test
+
+`var.equal = TRUE` makes the *t*-test use the same assumptions as `lm()`. Without it, you get [Welch's *t*-test](https://moderndive.com/v2/9-hypothesis-testing.html#theory-hypo), which is usually really close.
+
+```{r}
+vdem_life |>
+  t_test(
+    life_exp ~ democracy,
+    order = c("Democracy", "Autocracy"),
+    var.equal = TRUE
+  )
+```
+
+### Approach 3: Regression
+
+`"Autocracy"` comes first alphabetically, so it's the base case. The `democracy-Democracy` row is the difference between democracies and autocracies.
+
+```{r}
+model_life <- lm(life_exp ~ democracy, data = vdem_life)
+
+get_regression_table(model_life)
+```
+
+### Compare
+
+Look at the `democracy-Democracy` row in the regression table. Its `estimate` is δ, its `statistic` is the same as the *t*-test's `statistic`, and its `p_value` is the same as the *t*-test's `p_value` (`get_regression_table()` rounds it to 0). The simulated p-value is 0, since none of the 1,000 shuffles got anywhere close to δ.
+
+All three agree: p < 0.001.
+
+> On average, life expectancy in democracies is 7 years higher than in autocracies. This is statistically significant (p < 0.001), so we are confident that it's not zero and that there is a difference.
+
+## Example: Do women and men in Mauritania vote at different rates?
+
+This works with proportions too. To use a yes/no outcome in a regression, make it a number: 1 for "Yes" and 0 for "No". The average of a 0/1 variable is the proportion of 1s, so the regression coefficient is the difference in proportions.
+
+- $H_0$: $p_\text{women} - p_\text{men} = 0$
+- $H_A$: $p_\text{women} - p_\text{men} \neq 0$
+- $\alpha = 0.05$
+
+```{r}
+mauritania <- barometer |>
+  filter(country == "Mauritania") |>
+  drop_na(voted, gender) |>
+  mutate(voted_num = as.numeric(voted == "Yes"))
+
+mauritania |>
+  group_by(gender) |>
+  summarize(prop_voted = mean(voted_num), n = n())
+```
+
+### Approach 1: Simulation
+
+```{r}
+obs_diff_vote <- mauritania |>
+  specify(voted ~ gender, success = "Yes") |>
+  calculate(stat = "diff in props", order = c("Female", "Male"))
+
+obs_diff_vote
+
+set.seed(1234)
+null_world_vote <- mauritania |>
+  specify(voted ~ gender, success = "Yes") |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in props", order = c("Female", "Male"))
+
+visualize(null_world_vote) +
+  shade_p_value(obs_stat = obs_diff_vote, direction = "two-sided")
+
+null_world_vote |>
+  get_p_value(obs_stat = obs_diff_vote, direction = "two-sided")
+```
+
+### Approach 2: Proportion test
+
+`correct = FALSE` turns off a small-sample adjustment so that the proportion test matches `lm()`.
+
+```{r}
+mauritania |>
+  prop_test(
+    voted ~ gender,
+    success = "Yes",
+    order = c("Female", "Male"),
+    correct = FALSE
+  )
+```
+
+### Approach 3: Regression
+
+`"Male"` is the base case, so the `gender-Female` row is the difference between women and men.
+
+```{r}
+model_vote <- lm(voted_num ~ gender, data = mauritania)
+
+get_regression_table(model_vote)
+```
+
+### Compare and interpret
+
+Fill in this table:
+
+| Method                 | δ   | p-value |
+|:-----------------------|:----|:--------|
+| Simulation             |     |         |
+| Proportion test        |     |         |
+| Regression             |     |         |
+
+Is the gap statistically significant at α = 0.05? Write a sentence using the templates at the top. Since the outcome is 0/1, multiply the coefficient by 100 to talk about it in percentage points.
+
+WRITE YOUR SENTENCE HERE
+
+## Your turn
+
+Do these three ways. They're all set up the same as the examples above.
+
+### A: Do women and men in Palestine rate their country's democracy differently?
+
+`democracy_rating` is a 0–10 scale. This is a difference in means, like the life expectancy example.
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+palestine <- barometer |>
+  filter(country == "Palestine") |>
+  drop_na(democracy_rating, gender)
+```
+
+```{r}
+# Approach 1: Simulation
+# Use order = c("Female", "Male")
+
+```
+
+```{r}
+# Approach 2: t-test
+
+```
+
+```{r}
+# Approach 3: Regression
+
+```
+
+| Method                 | δ   | p-value |
+|:-----------------------|:----|:--------|
+| Simulation             |     |         |
+| *t*-test               |     |         |
+| Regression             |     |         |
+
+WRITE YOUR SENTENCE HERE
+
+### B: Do people in cities and rural areas in Lebanon donate to charity at different rates?
+
+`donate` is yes/no, so this is a difference in proportions, like the Mauritania example. `"Urban"` is the base case in the data, so use `order = c("Rural", "Urban")` to make the simulation match the regression.
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+lebanon <- barometer |>
+  filter(country == "Lebanon") |>
+  drop_na(donate, urban_rural) |>
+  mutate(donate_num = as.numeric(donate == "Yes"))
+```
+
+```{r}
+# Approach 1: Simulation
+
+```
+
+```{r}
+# Approach 2: Proportion test
+
+```
+
+```{r}
+# Approach 3: Regression
+
+```
+
+| Method                 | δ   | p-value |
+|:-----------------------|:----|:--------|
+| Simulation             |     |         |
+| Proportion test        |     |         |
+| Regression             |     |         |
+
+Is this significant at α = 0.05? What about α = 0.10?
+
+WRITE YOUR SENTENCE HERE
+
+### C: Do democracies have higher voter turnout than autocracies?
+
+`turnout` is the percent of registered voters who voted in the most recent national election.
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+vdem_turnout <- vdem |>
+  drop_na(turnout)
+```
+
+```{r}
+# Approach 1: Simulation
+
+```
+
+```{r}
+# Approach 2: t-test
+
+```
+
+```{r}
+# Approach 3: Regression
+
+```
+
+| Method                 | δ   | p-value |
+|:-----------------------|:----|:--------|
+| Simulation             |     |         |
+| *t*-test               |     |         |
+| Regression             |     |         |
+
+WRITE YOUR SENTENCE HERE. Does this mean that democracies and autocracies have the same turnout?
+
+## Slopes too
+
+With a continuous X, there's no *t*-test to run, since the regression table *is* the math-based test. But you can still simulate a null world for the slope with `stat = "slope"`.
+
+### Example: Are countries with higher unemployment less happy?
+
+`happiness` is the average answer to a 0–10 question about how good people's lives are. `unemployment_rate` is the percent of the labor force without a job.
+
+- $H_0$: $\beta_1 = 0$
+- $H_A$: $\beta_1 \neq 0$
+- $\alpha = 0.05$
+
+```{r}
+happiness_unemp <- happiness |>
+  drop_na(unemployment_rate)
+
+# Approach 1: Simulation
+obs_slope <- happiness_unemp |>
+  specify(happiness ~ unemployment_rate) |>
+  calculate(stat = "slope")
+
+obs_slope
+
+set.seed(1234)
+null_world_slope <- happiness_unemp |>
+  specify(happiness ~ unemployment_rate) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "slope")
+
+visualize(null_world_slope) +
+  shade_p_value(obs_stat = obs_slope, direction = "two-sided")
+
+null_world_slope |>
+  get_p_value(obs_stat = obs_slope, direction = "two-sided")
+
+# Approach 2: Regression
+model_unemp <- lm(happiness ~ unemployment_rate, data = happiness_unemp)
+get_regression_table(model_unemp)
+```
+
+WRITE YOUR SENTENCE HERE
+
+### Your turn: Are countries with more people happier?
+
+Do the same thing with `population_millions` as X.
+
+```{r}
+# Approach 1: Simulation
+
+```
+
+```{r}
+# Approach 2: Regression
+
+```
+
+WRITE YOUR SENTENCE HERE
+
+# Part 2: Just use `lm()`
+
+Simulation, math, and regression all give the same answer. So from now on, we can skip straight to `lm()`.
+
+Regression can also do things that are hard to do with {infer}, like compare lots of groups at once or hold other things constant.
+
+## Example: More than two groups
+
+How does the percent of legislators who are women differ across the four regime types?
+
+```{r}
+vdem |>
+  group_by(regime) |>
+  summarize(avg_women = mean(women_legislators, na.rm = TRUE), n = n())
+
+model_regime <- lm(women_legislators ~ regime, data = vdem)
+get_regression_table(model_regime)
+```
+
+`"Closed autocracy"` is the base case. Each row is its own hypothesis test, comparing that regime type to closed autocracies, with $H_0$: the difference is 0.
+
+(This is the regression version of a test called analysis of variance, or ANOVA. You might see that in other classes.)
+
+Which regime types are significantly different from closed autocracies at α = 0.05? What about at α = 0.10?
+
+WRITE YOUR ANSWER HERE
+
+Write a sentence for each of the three coefficients:
+
+- Electoral autocracy:
+- Electoral democracy:
+- Liberal democracy:
+
+## Example: Holding things constant
+
+Countries with longer life expectancy are happier, but they're also richer. Does life expectancy still matter after accounting for wealth (and unemployment)?
+
+```{r}
+happiness_complete <- happiness |>
+  drop_na(happiness, life_expectancy, gdp_1000, unemployment_rate)
+
+model_happy_1 <- lm(happiness ~ life_expectancy, data = happiness_complete)
+model_happy_2 <- lm(happiness ~ life_expectancy + gdp_1000, data = happiness_complete)
+model_happy_3 <- lm(happiness ~ life_expectancy + gdp_1000 + unemployment_rate, data = happiness_complete)
+
+get_regression_table(model_happy_1)
+get_regression_table(model_happy_2)
+get_regression_table(model_happy_3)
+```
+
+In a multiple regression, each row tests whether that coefficient is 0 *while holding the other variables constant*.
+
+What happens to the coefficient for `life_expectancy` as you add more variables? Is it still significant?
+
+WRITE YOUR ANSWER HERE
+
+Interpret all three coefficients in `model_happy_3`:
+
+- `life_expectancy`:
+- `gdp_1000`:
+- `unemployment_rate`:
+
+## Your turn
+
+Pick at least three of these questions. For each one:
+
+1. Write down $H_0$, $H_A$, and α **before** you run anything
+2. Fit a model with `lm()` and look at it with `get_regression_table()`
+3. Write a sentence (or a few) with the estimate, the p-value, and whether it's statistically significant
+4. Say whether you think the size of the estimate matters
+
+::: {.list-table widths="1,4,4"}
+
+- - Data
+  - Question
+  - Hints
+
+- - `cars`
+  - Do electric, hybrid, and petrol cars accelerate differently?
+  - `performance` is the number of seconds it takes to go from 0 to 100 km/h, so lower = faster. `enginetype` has three categories; which one is the base case?
+
+- - `cars`
+  - Do electric, hybrid, and petrol cars cost different amounts?
+  - Use `price_1000`
+
+- - `vdem`
+  - Do countries in Latin America have different life expectancy than the rest of the world?
+  - `life_exp ~ in_latin_america`
+
+- - `vdem`
+  - Is civil society stronger or weaker in Latin America?
+  - `civil_society` is a 0–1 index (higher = more robust)
+
+- - `vdem`
+  - Is turnout different in the Middle East and North Africa?
+  - `turnout ~ in_mena`
+
+- - `vdem`
+  - Do richer countries have higher turnout?
+  - `turnout ~ gdp_1000`. Then try adding `polyarchy`. What changes?
+
+- - `happiness`
+  - Are countries with more women in parliament happier?
+  - `women_parliament_prop` is the percent of seats held by women. Then try adding `gdp_1000`
+
+- - `barometer`
+  - Do women and men in Tunisia protest at different rates?
+  - `protested` is yes/no, so make a 0/1 version first
+
+- - `barometer`
+  - Do women and men in Jordan volunteer at different rates?
+  - `volunteer` is yes/no, so make a 0/1 version first
+
+- - `barometer`
+  - Do women and men think differently about whether men make better political leaders?
+  - Use all 8 countries. Make `men_better_num` that's 1 if `men_better_leaders` is `"Strongly agree"` or `"Agree"`. (Hint: `%in%`)
+
+- - `barometer`
+  - Your own question!
+  - Look at the [final project codebook](https://quantf26.classes.andrewheiss.com/assignment/final-project-codebook.html) for ideas
+
+:::
+
+### Question 1:
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+# Your code here
+```
+
+WRITE YOUR INTERPRETATION HERE
+
+### Question 2:
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+# Your code here
+```
+
+WRITE YOUR INTERPRETATION HERE
+
+### Question 3:
+
+- $H_0$:
+- $H_A$:
+- $\alpha$:
+
+```{r}
+# Your code here
+```
+
+WRITE YOUR INTERPRETATION HERE
+
+
+# Part 3: Side-by-side regression tables
+
+Published research almost never shows `get_regression_table()` output. Instead, papers show several models side by side, with one column per model. The `modelsummary()` function from {modelsummary} makes these tables.
+
+## Example: Happiness
+
+Here are the three happiness models from Part 2 in one table:
+
+```{r}
+modelsummary(
+  list(
+    "(1)" = model_happy_1,
+    "(2)" = model_happy_2,
+    "(3)" = model_happy_3
+  ),
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared")
+)
+```
+
+And here's the same table with nicer names for the variables:
+
+```{r}
+modelsummary(
+  list(
+    "(1)" = model_happy_1,
+    "(2)" = model_happy_2,
+    "(3)" = model_happy_3
+  ),
+  coef_rename = c(
+    "life_expectancy" = "Life expectancy (years)",
+    "gdp_1000" = "GDP per capita ($1,000s)",
+    "unemployment_rate" = "Unemployment rate (%)"
+  ),
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared")
+)
+```
+
+Answer these questions using only the table:
+
+1. What are the numbers in parentheses?
+2. What do the stars mean? (Look at the note at the bottom of the table)
+3. Why are some cells empty?
+4. Is life expectancy statistically significant in all three models? How do you know?
+5. How does the coefficient for life expectancy change from model 1 to model 3? Why do you think that happens?
+6. Is unemployment statistically significant at α = 0.05? At α = 0.01?
+7. Interpret the coefficient for GDP per capita in model 3, with a sentence about significance
+
+ANSWER THE QUESTIONS HERE
+
+## Your turn
+
+Make your own side-by-side table with two or three models, where each model adds more variables. Some ideas:
+
+- `vdem`: `life_exp ~ democracy`, then add `gdp_1000`, then add `in_latin_america`
+- `vdem`: `turnout ~ gdp_1000`, then add `polyarchy`
+- `vdem`: `women_legislators ~ women_empowerment`, then add `polyarchy` and `gdp_1000`
+- `cars`: `price_1000 ~ horsepower`, then add `enginetype` and `type`
+
+```{r}
+# Your code here
+```
+
+What story does your table tell? Which coefficients are significant, and do any of them change when you add more variables?
+
+WRITE YOUR ANSWER HERE

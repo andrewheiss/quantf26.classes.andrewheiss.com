@@ -1508,7 +1508,7 @@ plot_null(null_slope, obs_slope, "Simulated slopes (shuffled ages)")
 
 :::
 
-# Math-based tests {background-color="{{< brand color clr-9 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+# Math-based tests {#math-based-tests background-color="{{< brand color clr-9 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
 ## Do I have to simulate everything? {.clr-9}
 
@@ -1636,7 +1636,7 @@ get_regression_table(age_model, digits = 4) |>
 Every math-based p-value you see still measures the same thing: how surprising would this δ be in a world where it's actually 0?
 :::
 
-# Problems<br>with p-values {background-color="{{< brand color clr-2 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+# Problems<br>with p-values {#problems-with-p-values background-color="{{< brand color clr-2 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
 
 ## {.clr-2}
 

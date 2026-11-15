@@ -1,0 +1,723 @@
+---
+title: "Inference for regression"
+subtitle: "Quantitative Methods for<br>International Politics"
+course-info: "IPOL 3270 • Fall 2026"
+date: "2026-11-15"
+date-format: "long"
+format:
+  revealjs:
+    theme: [default, ../slides.scss, brand]
+    template-partials:
+      - ../../html/title-slide.html
+    highlight-style: github
+    slide-number: true
+    incremental: false
+    code-line-numbers: false
+    code-overflow: wrap
+    fig-align: center
+    auto-stretch: false
+    html-math-method: katex
+
+    title-slide-attributes:
+      data-background-image: /slides/img/background-hex-shapes.svg
+      data-background-opacity: "0.25"
+      data-background-gradient: "linear-gradient(30deg, {{< brand color clr-1 >}}, {{< brand color blue-700 >}})"
+
+filters:
+  - flourish
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(tinytable)
+library(moderndive)
+library(modelsummary)
+library(infer)
+library(countdown)
+
+# Colors from _brand.yml
+clrs <- list(
+  blue = "#2878B5",
+  orange = "#E17C05",
+  gold = "#F2B701",
+  maroon = "#8A1538",
+  purple = "#6F4C9B",
+  green = "#2D934F",
+  gray = "#696A6F"
+)
+
+theme_set(theme_grey(base_size = 14))
+
+# p-values that are 0 in a simulation really just mean "smaller than 1 in 1,000"
+fmt_p <- \(p) case_when(
+  p < 0.001 ~ "< 0.001",
+  p > 0.999 ~ "≈ 1",
+  .default = paste("=", format(round(p, 3), nsmall = 3))
+)
+
+# Same as fmt_p() but without the "=", for table cells
+fmt_p_cell <- \(p) str_remove(fmt_p(p), "^= ")
+
+# Null world histogram with the observed δ and two-sided p-value shading
+plot_null <- function(null, obs, x_lab, labels = waiver()) {
+  visualize(null) +
+    shade_p_value(obs_stat = obs, direction = "two-sided", color = clrs$orange, fill = clrs$orange) +
+    scale_x_continuous(labels = labels) +
+    labs(title = NULL, x = x_lab, y = "Count")
+}
+
+# Shared look for little tinytables
+tt_nice <- \(x, size = 0.7) {
+  x |>
+    tt() |>
+    style_tt(fontsize = size) |>
+    theme_html(class = "tinytable shadow")
+}
+```
+
+```{r}
+#| label: make-data
+#| include: false
+
+vdem <- readRDS(here::here("projects", "regression-inference", "data", "vdem.rds")) |>
+  mutate(
+    democracy = if_else(regime_num >= 2, "Democracy", "Autocracy"),
+    gdp_1000 = gdpPercap / 1000
+  )
+
+barometer <- readRDS(here::here("projects", "regression-inference", "data", "barometer.rds"))
+
+happiness <- read_csv(
+  here::here("projects", "regression-inference", "data", "world_happiness.csv"),
+  show_col_types = FALSE
+) |>
+  filter(year == 2024) |>
+  mutate(gdp_1000 = gdp_per_cap / 1000)
+
+# Slopes are δs too: happiness and unemployment
+happy_unemp <- happiness |> drop_na(unemployment_rate)
+model_unemp <- lm(happiness ~ unemployment_rate, data = happy_unemp)
+tidy_unemp <- broom::tidy(model_unemp, conf.int = TRUE)
+
+obs_slope <- happy_unemp |>
+  specify(happiness ~ unemployment_rate) |>
+  calculate(stat = "slope")
+
+set.seed(1234)
+null_slope <- happy_unemp |>
+  specify(happiness ~ unemployment_rate) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "slope")
+
+p_slope_sim <- get_p_value(null_slope, obs_slope, direction = "two-sided")$p_value
+
+# Three ways, means: life expectancy in democracies vs. autocracies
+vdem_life <- vdem |> drop_na(life_exp)
+
+obs_life <- vdem_life |>
+  specify(life_exp ~ democracy) |>
+  calculate(stat = "diff in means", order = c("Democracy", "Autocracy"))
+
+set.seed(1234)
+null_life <- vdem_life |>
+  specify(life_exp ~ democracy) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in means", order = c("Democracy", "Autocracy"))
+
+p_life_sim <- suppressWarnings(get_p_value(null_life, obs_life, direction = "two-sided")$p_value)
+t_life <- t_test(vdem_life, life_exp ~ democracy, order = c("Democracy", "Autocracy"), var.equal = TRUE)
+lm_life <- broom::tidy(lm(life_exp ~ democracy, data = vdem_life))
+
+# Three ways, means: turnout in democracies vs. autocracies (not significant)
+vdem_turnout <- vdem |> drop_na(turnout)
+
+obs_turnout <- vdem_turnout |>
+  specify(turnout ~ democracy) |>
+  calculate(stat = "diff in means", order = c("Democracy", "Autocracy"))
+
+set.seed(1234)
+null_turnout <- vdem_turnout |>
+  specify(turnout ~ democracy) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in means", order = c("Democracy", "Autocracy"))
+
+p_turnout_sim <- get_p_value(null_turnout, obs_turnout, direction = "two-sided")$p_value
+t_turnout <- t_test(vdem_turnout, turnout ~ democracy, order = c("Democracy", "Autocracy"), var.equal = TRUE)
+lm_turnout <- broom::tidy(lm(turnout ~ democracy, data = vdem_turnout))
+
+# Three ways, proportions: voting by gender in Mauritania
+mauritania <- barometer |>
+  filter(country == "Mauritania") |>
+  drop_na(voted, gender) |>
+  mutate(voted_num = as.numeric(voted == "Yes"))
+
+obs_vote <- mauritania |>
+  specify(voted ~ gender, success = "Yes") |>
+  calculate(stat = "diff in props", order = c("Female", "Male"))
+
+set.seed(1234)
+null_vote <- mauritania |>
+  specify(voted ~ gender, success = "Yes") |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in props", order = c("Female", "Male"))
+
+p_vote_sim <- get_p_value(null_vote, obs_vote, direction = "two-sided")$p_value
+prop_vote <- prop_test(mauritania, voted ~ gender, success = "Yes", order = c("Female", "Male"), correct = FALSE)
+lm_vote <- broom::tidy(lm(voted_num ~ gender, data = mauritania))
+
+# Several groups: women legislators by regime type
+vdem_women <- vdem |> drop_na(women_legislators)
+model_regime <- lm(women_legislators ~ regime, data = vdem_women)
+tidy_regime <- broom::tidy(model_regime)
+
+regime_means <- vdem_women |>
+  group_by(regime) |>
+  summarize(
+    avg = mean(women_legislators),
+    se = sd(women_legislators) / sqrt(n()),
+    n = n()
+  ) |>
+  mutate(
+    lower = avg - qt(0.975, n - 1) * se,
+    upper = avg + qt(0.975, n - 1) * se
+  )
+
+# Side-by-side table: women legislators, wealth, and democracy
+vdem_wl <- vdem |> drop_na(women_legislators, gdp_1000, polyarchy)
+model_wl_1 <- lm(women_legislators ~ gdp_1000, data = vdem_wl)
+model_wl_2 <- lm(women_legislators ~ polyarchy, data = vdem_wl)
+model_wl_3 <- lm(women_legislators ~ gdp_1000 + polyarchy, data = vdem_wl)
+
+wl_models <- list("(1)" = model_wl_1, "(2)" = model_wl_2, "(3)" = model_wl_3)
+wl_coefs <- c(
+  "gdp_1000" = "GDP per capita",
+  "polyarchy" = "Democracy",
+  "(Intercept)" = "Constant"
+)
+
+b_wl_1 <- broom::tidy(model_wl_1) |> filter(term == "gdp_1000")
+b_wl_3 <- broom::tidy(model_wl_3) |> filter(term == "gdp_1000")
+```
+
+## Plan for this week {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+[Finish hypothesis testing]{.box-clr-2 .medium .fragment}
+
+[Regression and inference]{.box-clr-1 .medium .fragment}
+
+[Everything is regression]{.box-clr-5 .medium .fragment}
+
+[Reading regression tables]{.box-clr-7 .medium .fragment}
+
+[Lots and lots of practice]{.box-clr-8 .medium .fragment}
+
+## Leftovers from last week {.clr-2}
+
+[[Math-based tests]{.box-clr-9 .medium}](/slides/21-hypothesis-testing/index.html#/math-based-tests)
+
+[[Problems with p-values]{.box-clr-2 .medium}](/slides/21-hypothesis-testing/index.html#/problems-with-p-values)
+
+# Regression<br>and inference {background-color="{{< brand color clr-1 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## {.clr-1}
+
+[Are countries with higher unemployment less happy?]{.box-clr-1-light}
+
+```{r}
+#| label: plot-unemp-happiness
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: "85%"
+
+ggplot(happy_unemp, aes(x = unemployment_rate, y = happiness)) +
+  geom_point(color = clrs$blue, alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", color = clrs$orange, fill = clrs$orange, alpha = 0.2) +
+  scale_x_continuous(labels = \(x) paste0(x, "%")) +
+  labs(x = "Unemployment rate", y = "Happiness (0–10)")
+```
+
+## Slopes are δs too {.clr-1}
+
+[Are countries with higher unemployment less happy?]{.box-clr-1-light}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+::: {.smaller}
+```{r}
+#| echo: true
+#| eval: false
+#| flourish:
+#|   - target-rx: "stat = \"slope\""
+#|     style: "background-color: var(--hl-1);"
+
+null_world <- happiness |>
+  specify(happiness ~ unemployment_rate) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "slope")
+```
+:::
+
+::: {.fragment .small}
+- δ = `r round(obs_slope$stat, 3)`
+- Simulated p `r fmt_p(p_slope_sim)`
+:::
+::::
+
+:::: {.column width="50%"}
+```{r}
+#| label: plot-null-slope
+#| fig-width: 4.5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+plot_null(null_slope, obs_slope, "Simulated slopes in the null world")
+```
+::::
+
+:::::
+
+## Slopes are δs too {.clr-1}
+
+::: {.small}
+```{r}
+#| echo: true
+#| eval: false
+
+model <- lm(happiness ~ unemployment_rate, data = happiness)
+get_regression_table(model)
+```
+:::
+
+```{r}
+get_regression_table(model_unemp) |>
+  tt() |>
+  style_tt(fontsize = 0.7) |>
+  style_tt(i = 2, j = 2:5, background = "#f7e896", bold = TRUE) |>
+  theme_html(class = "tinytable shadow")
+```
+
+::: {.incremental .small .sp-before}
+- Same δ: `r round(tidy_unemp$estimate[2], 3)`
+- Basically the same p-value: `r round(tidy_unemp$p.value[2], 3)` (math) vs. `r round(p_slope_sim, 3)` (simulation)
+- Every row in a regression table is a hypothesis test with $H_0: \beta = 0$
+:::
+
+## {.clr-1}
+
+```{r}
+get_regression_table(model_unemp) |>
+  tt() |>
+  style_tt(fontsize = 0.6) |>
+  theme_html(class = "tinytable shadow")
+```
+
+::: {.list-table widths="1,4" .smaller .sp-before-half}
+
+- - Column
+  - What it means
+
+- - `estimate`
+  - δ (or β): the slope or the difference between groups
+
+- - `std_error`
+  - How much the estimate would bounce around from sample to sample
+
+- - `statistic`
+  - `estimate / std_error`: how many standard errors δ is away from 0 (a *t* statistic)
+
+- - `p_value`
+  - In a world where β is 0ish, the probability of seeing something at least this extreme
+
+- - `lower_ci`, `upper_ci`
+  - The 95% confidence interval for β
+
+:::
+
+## Kinda cheating, rough shortcuts {.clr-1}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+::: {.fragment}
+[If `statistic` is bigger than ≈2 (or smaller than ≈−2), p < 0.05]{.box-clr-1-light}
+:::
+::::
+
+:::: {.column width="50%"}
+::: {.fragment}
+[If the 95% confidence interval doesn't include 0, p < 0.05]{.box-clr-1-light}
+:::
+::::
+
+:::::
+
+::: {.sp-before}
+[Both mean the same thing!]{.box-clr-1 .small .fragment}
+
+[δ is far enough away from 0 that it'd be weird in the null world]{.box-clr-1 .small .fragment}
+:::
+
+## Templates {.clr-1}
+
+::: {.list-table widths="1,3,3,3" .smaller}
+
+- - X
+  - β
+  - p < α
+  - p ≥ α
+
+- - Continuous
+  - On average, a one-unit increase in **X** is associated with a **β** change in **Y** (**confidence interval**).
+  - This is statistically significant (p = **BLAH**), so we are confident that it's not zero and that there is a relationship.
+  - However, this is not statistically significant (p = **BLAH**), so we cannot rule out the possibility that the true relationship is zero.
+
+- - Categorical
+  - On average, **Y** is **β** higher (or lower) in this group (**confidence interval**), compared to **the base case**.
+  - This is statistically significant (p = **BLAH**), so we are confident that it's not zero and that there is a difference.
+  - However, this is not statistically significant (p = **BLAH**), so we cannot rule out the possibility that the true difference is zero.
+:::
+
+## {.clr-1}
+
+```{r}
+get_regression_table(model_unemp) |>
+  tt() |>
+  style_tt(fontsize = 0.7) |>
+  style_tt(i = 2, background = "#f7e896", bold = TRUE) |>
+  theme_html(class = "tinytable shadow")
+```
+
+::: {.fragment .sp-before}
+[On average, a 1 percentage point increase in the unemployment rate is associated with a `r abs(round(tidy_unemp$estimate[2], 3))`-point decrease in happiness (95% CI: [`r round(tidy_unemp$conf.low[2], 3)`, `r round(tidy_unemp$conf.high[2], 3)`]). This is statistically significant (p `r fmt_p(tidy_unemp$p.value[2])`), so we are confident that it's not zero and that there is a relationship.]{.box-clr-1-light .small}
+:::
+
+::: {.fragment .small .sp-before}
+Is that big? Happiness is on a 0–10 scale, and going from 5% to 15% unemployment would mean happiness drops by about half a point
+:::
+
+# Everything<br>is regression {background-color="{{< brand color clr-5 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## {.clr-5}
+
+::: {.list-table widths="2,2,2" .small}
+
+- - Test
+  - Question
+  - `lm()`
+
+- - One-sample *t*-test
+  - Is the average different from 0?
+  - `lm(y ~ 1)`
+
+- - Two-sample *t*-test
+  - Are two averages different?
+  - `lm(y ~ group_binary)`
+
+- - Difference in proportions
+  - Are two proportions different?
+  - `lm(y_binary ~ group)`
+
+- - ANOVA
+  - Are several averages different?
+  - `lm(y ~ category)`
+
+- - Multiple regression
+  - All of that ↑, holding other things constant
+  - `lm(y ~ x + z + ...)`
+
+:::
+
+::: {.smaller}
+See ["Common statistical tests are linear models"](https://lindeloev.github.io/tests-as-linear/)
+:::
+
+## Difference in means {.clr-5}
+
+[Do democracies have higher life expectancy than autocracies?]{.box-clr-5-light}
+
+::: {.smaller}
+```{r}
+#| echo: true
+#| eval: false
+
+# Simulation
+vdem |> specify(life_exp ~ democracy) |> ...
+
+# t-test
+vdem |> t_test(life_exp ~ democracy, var.equal = TRUE, ...)
+
+# Regression
+lm(life_exp ~ democracy, data = vdem)
+```
+:::
+
+::: {.fragment}
+```{r}
+tribble(
+  ~Method, ~δ, ~`p-value`,
+  "Simulation (1,000 shuffles)", obs_life$stat, fmt_p_cell(p_life_sim),
+  "t-test", t_life$estimate, fmt_p_cell(t_life$p_value),
+  "Regression", lm_life$estimate[2], fmt_p_cell(lm_life$p.value[2])
+) |>
+  mutate(δ = round(δ, 2)) |>
+  tt_nice(size = 0.8)
+```
+:::
+
+## Difference in means {.clr-5}
+
+[Do democracies have higher turnout than autocracies?]{.box-clr-5-light}
+
+::: {.smaller}
+```{.r}
+# Simulation
+vdem |> specify(turnout ~ democracy) |> ...
+
+# t-test
+vdem |> t_test(turnout ~ democracy, var.equal = TRUE, ...)
+
+# Regression
+lm(turnout ~ democracy, data = vdem)
+```
+:::
+
+```{r}
+tribble(
+  ~Method, ~δ, ~`p-value`,
+  "Simulation (1,000 shuffles)", obs_turnout$stat, fmt_p_cell(p_turnout_sim),
+  "t-test", t_turnout$estimate, fmt_p_cell(t_turnout$p_value),
+  "Regression", lm_turnout$estimate[2], fmt_p_cell(lm_turnout$p.value[2])
+) |>
+  mutate(δ = round(δ, 2)) |>
+  tt_nice(size = 0.8)
+```
+
+## Difference in proportions {.clr-5}
+
+[Do women and men in Mauritania vote at different rates?]{.box-clr-5-light}
+
+::: {.smaller}
+```{r}
+#| echo: true
+#| eval: false
+
+mauritania <- mauritania |> mutate(voted_num = as.numeric(voted == "Yes"))
+lm(voted_num ~ gender, data = mauritania)
+```
+:::
+
+```{r}
+tribble(
+  ~Method, ~δ, ~`p-value`,
+  "Simulation (1,000 shuffles)", obs_vote$stat, fmt_p_cell(p_vote_sim),
+  "Proportion test", obs_vote$stat, fmt_p_cell(prop_vote$p_value),
+  "Regression", lm_vote$estimate[2], fmt_p_cell(lm_vote$p.value[2])
+) |>
+  mutate(δ = round(δ, 3)) |>
+  tt_nice(size = 0.8)
+```
+
+## Lots of groups {.clr-5}
+
+[Women in legislatures across regime types]{.box-clr-5-light}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r}
+#| label: plot-regime-means
+#| fig-width: 4.5
+#| fig-height: 3.5
+#| out-width: "100%"
+
+regime_means |>
+  ggplot(aes(x = avg, y = fct_rev(regime))) +
+  geom_pointrange(aes(xmin = lower, xmax = upper), color = clrs$purple, size = 0.8, linewidth = 1) +
+  scale_x_continuous(labels = \(x) paste0(x, "%")) +
+  labs(x = "Average % women legislators\n(with 95% confidence intervals)", y = NULL)
+```
+::::
+
+:::: {.column width="50%"}
+::: {.smaller}
+```{r}
+#| echo: true
+#| eval: false
+
+lm(women_legislators ~ regime, data = vdem)
+```
+:::
+
+```{r}
+tidy_regime |>
+  mutate(
+    term = str_remove(term, "regime"),
+    term = recode_values(term, "(Intercept)" ~ "Intercept", default = term),
+    estimate = round(estimate, 2),
+    p.value = fmt_p_cell(p.value)
+  ) |>
+  select(term, estimate, p.value) |>
+  tt(width = c(0.55, 0.2, 0.25)) |>
+  style_tt(fontsize = 0.6) |>
+  theme_html(class = "tinytable shadow")
+```
+::::
+
+:::::
+
+## Holding things constant {.clr-5}
+
+[Each coefficient in a multiple regression is its own test too]{.box-clr-5-light}
+
+::: {.incremental .sp-before}
+- $H_0$: β = 0, *holding all the other variables constant*
+- A variable can be significant on its own but stop being significant once you control for other things (or the other way around!)
+:::
+
+## Our turn: lots of regressions {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+[Open `regression-inference.qmd` in the project]{.box-clr-8 .small}
+
+```{r}
+#| label: clock-parts-1-2
+
+countdown(minutes = 30, seconds = 0, play_sound = TRUE, warn_when = 5 * 60)
+```
+
+# Reading<br>regression tables {#reading-regression-tables background-color="{{< brand color clr-7 >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="0.25"}
+
+## You'll see these everywhere {.clr-7}
+
+[Do richer countries have more women in their legislatures?]{.box-clr-7-light .small}
+
+```{r}
+modelsummary(
+  wl_models,
+  coef_map = wl_coefs,
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared")
+) |>
+  style_tt(fontsize = 0.7) |>
+  theme_html(class = "tinytable shadow")
+```
+
+## {.clr-7}
+
+::::: {.columns}
+
+:::: {.column width="55%"}
+```{r}
+modelsummary(
+  wl_models,
+  coef_map = wl_coefs,
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared")
+) |>
+  style_tt(fontsize = 0.6) |>
+  theme_html(class = "tinytable shadow")
+```
+::::
+
+:::: {.column width="45%"}
+::: {.incremental .small}
+- Each column is a different model
+- Each row is a variable
+- The number is β
+- The number in parentheses underneath is (usually) the standard error
+- Stars show the p-value
+- An empty cell means that variable isn't in that model
+- The bottom rows describe the whole model: number of observations, R², etc.
+:::
+::::
+
+:::::
+
+## {.clr-7}
+
+::::: {.columns}
+
+:::: {.column width="55%"}
+```{r}
+modelsummary(
+  wl_models,
+  coef_map = wl_coefs,
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared")
+) |>
+  style_tt(fontsize = 0.6) |>
+  style_tt(i = 1, j = c(2, 4), background = "#f7e896", bold = TRUE) |>
+  theme_html(class = "tinytable shadow")
+```
+::::
+
+:::: {.column width="45%"}
+::: {.incremental .smaller}
+- **Model 1**: A \$1,000 increase in GDP per capita is associated with `r round(b_wl_1$estimate, 3)` more percentage points of women legislators, on average (p `r fmt_p(b_wl_1$p.value)`)
+- **Model 3**: Holding democracy constant, that drops to `r round(b_wl_3$estimate, 3)` and isn't significant anymore (p `r fmt_p(b_wl_3$p.value)`)
+- Democracy stays significant, even after holding wealth constant
+- Richer countries tend to be more democratic, so model 1 was partly picking up democracy
+:::
+::::
+
+:::::
+
+## Watch out! {.clr-7}
+
+::: {.incremental}
+- The (parentheses) might be standard errors, *t* statistics, or p-values, and sometimes [brackets] are confidence intervals
+- The stars aren't standard!<br>Lots of papers use `*` p < 0.1, `**` p < 0.05, `***` p < 0.01
+- Always read the note at the bottom!
+:::
+
+## {.clr-7}
+
+::: {.box-center}
+[[**{modelsummary}**](https://modelsummary.com/)]{.box-clr-7-light}
+:::
+
+::: {.small}
+```{r}
+#| echo: true
+#| eval: false
+
+library(modelsummary)
+
+model1 <- lm(women_legislators ~ gdp_1000, data = vdem)
+model2 <- lm(women_legislators ~ polyarchy, data = vdem)
+model3 <- lm(women_legislators ~ gdp_1000 + polyarchy, data = vdem)
+
+modelsummary(
+  list("(1)" = model1, "(2)" = model2, "(3)" = model3),
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared")
+)
+```
+:::
+
+::: {.fragment .small}
+Use `coef_rename` or `coef_map` to give the variables nicer names
+:::
+
+## Our turn: side-by-side tables {.clr-8 background-color="{{< brand color clr-8-light >}}" background-image="/slides/img/background-hex-shapes.svg" background-opacity="1"}
+
+[Go to Part 3 in `regression-inference.qmd`]{.box-clr-8 .small}
+
+```{r}
+#| label: clock-part-3
+
+countdown(minutes = 20, seconds = 0, play_sound = TRUE, warn_when = 5 * 60)
+```
