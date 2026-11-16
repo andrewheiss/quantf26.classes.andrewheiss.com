@@ -1,5 +1,52 @@
 ---
 title: "Problem set 7"
-# subtitle: "Introduction to R and the tidyverse"
+subtitle: "Hypothesis testing and inference for regression"
 date: "2026-11-21"
 ---
+
+## Purpose
+
+[Chapter 9](https://moderndive.com/v2/09-hypothesis-testing.html) in *ModernDive* explains how to test whether a difference or relationship (or δ) in a sample is "real"/statistically significant by inventing a null world where there's no difference and seeing how weird the δ would be there. [Chapter 10](https://moderndive.com/v2/10-inference-for-regression.html) shows that every row in a regression table is one of these hypothesis tests, and explains how to read the standard errors, *t* statistics, p-values, and confidence intervals that `get_regression_table()` has been giving you all semester. I've been sneakily showing you all this inference from the very beginning of covering regression—you just didn't know yet!
+
+In this problem set, you'll use the same Arab Barometer and V-Dem data that you'll use for your final project. You'll test (1) whether women and men vote at different rates in Tunisia and Jordan, (2) whether Middle Eastern countries are more corrupt than the rest of the world, and (3) whether corruption is related to life expectancy once you account for wealth and democracy. By the end, you should be able to:
+
+- Write null and alternative hypotheses ($H_0$ and $H_A$) with symbols, and choose an evidentiary standard (α) before looking at the results
+- Use the {infer} workflow (`specify()`, `hypothesize()`, `generate()`, `calculate()`) to make a null world, and `visualize()`, `shade_p_value()`, and `get_p_value()` to see where δ falls in it and find the p-value
+- Interpret p-values correctly with the null world template, decide whether to reject the null hypothesis, and avoid common mistakes like "accepting" the null or calling a result "almost significant"
+- Show that simulation and regression give the same answer for a difference in means
+- Explain what each column of `get_regression_table()` means, and interpret coefficients with confidence intervals and p-values using the templates from class
+- Interpret coefficients in multiple regression while holding other variables constant, and make side-by-side regression tables with `modelsummary()`
+- *(and as a bonus…)* Make coefficient plots with `geom_pointrange()`, and read regression tables from published research that use different conventions
+
+## Criteria for success
+
+This problem is graded using a ✔+/✔/✔− system. I'm looking for correct code and genuine attempts at the interpretation questions, not polished prose.
+
+- **✔+**: All chunks run without errors and use the correct functions, variables, and datasets. The datasets, null worlds, p-values, models, tables, and plots you create match the expected output shown in the instructions (small differences from randomness are fine). Hypotheses are written correctly in words and symbols before the results. The written answers interpret estimates, p-values, and confidence intervals in plain language with the correct units and the right kind of conclusion (e.g., "on average, a one-point increase in corruption is associated with 1.23 fewer years of life expectancy (95% CI: −1.64 to −0.82); this is statistically significant (p < 0.001)," not just "p = 0"), never "accept" the null hypothesis, and think about whether results are big enough to matter. The extension does something new and exciting rather than only slightly modifying a previous chunk.
+- **✔**: This is the expected level of performance. All chunks run and produce mostly correct results; minor mismatches (e.g., column names or rounding) are fine. Written interpretations are attempted and reasonable, though they may be missing units or confidence intervals, mix up what a p-value means, or mix up small details.
+- **✔−**: Chunks are missing, don't run, or use the wrong variables or datasets (e.g., filtering to the wrong country or forgetting `hypothesize()`). Written answers are left blank or only restate numbers from the output without interpreting them.
+
+You may work together in groups of up to four, but you must turn in your own answers and note who you worked with.
+
+And remember: **everything human-facing must be human-generated**. Don't submit AI-generated text. I want to hear *your* voice.
+
+Also, if you do use LLMs to help with the code (I recommend not!), make sure you [follow the guidelines from the syllabus](/syllabus.qmd#rule-2-you-are-responsible-for-understanding-verifying-and-citing-everything-an-llm-generates) about how to cite what you use.
+
+## How to submit
+
+Submit a single rendered PDF on Canvas.
+
+## Instructions
+
+1. Download this `.zip` file. Make sure you [unzip or extract it after you download it](/resource/unzipping.qmd)! Open the unzipped folder in Positron.
+
+   - [{{< fa file-archive >}} `07-problem-set.zip`](/projects/07-problem-set.zip)
+   - [{{< fa cloud >}} Posit.cloud project](https://posit.cloud/spaces/809160/content/13379832): Use this link if you're using Posit.cloud on your iPad.
+
+2. Rename the Quarto file named `your-name_problem-set-7.qmd` to something that matches your name.
+
+3. Complete the tasks given in the Quarto file. You can definitely copy, paste, and adapt from other code in the document---don't try to write everything from scratch!
+
+   This problem set uses the {moderndive}, {infer}, and {modelsummary} packages. If you get an error saying `there is no package called 'moderndive'` (or `'infer'` or `'modelsummary'`), install them first by going to the Packages panel and searching for them, or by running `install.packages(c("moderndive", "infer", "modelsummary"))` in the console.
+
+4. When you're all done, render the document to Typst (pdf), PDF, or Word. Upload that file to Canvas. **Do not upload a rendered HTML file** (they don't work on Canvas).
