@@ -2,4 +2,581 @@
 title: "Things you should know for Quiz 3"
 ---
 
-Coming soon!
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(moderndive)
+library(modelsummary)
+
+world_happiness <- read_csv(here::here(
+  "projects",
+  "multiple-regression-playground",
+  "data",
+  "world_happiness.csv"
+)) |>
+  filter(year == 2024) |>
+  mutate(gdp_per_cap_1000 = gdp_per_cap / 1000) |>
+  drop_na(happiness, gdp_per_cap_1000, internet_use_prop, continent)
+
+model_gdp <- lm(happiness ~ gdp_per_cap_1000, data = world_happiness)
+
+model_gdp_internet <- lm(
+  happiness ~ gdp_per_cap_1000 + internet_use_prop,
+  data = world_happiness
+)
+
+model_happiness <- lm(
+  happiness ~ gdp_per_cap_1000 + internet_use_prop + continent,
+  data = world_happiness
+)
+```
+
+Quiz 3 covers the "How do we infer things about the world?" section of the class, including stuff that you read and did here:
+
+- [Sampling I](/class/17-class.qmd)
+- [Sampling II](/class/18-class.qmd)
+- [Estimation, confidence intervals, and bootstrapping I](/class/19-class.qmd)
+- [Estimation, confidence intervals, and bootstrapping II](/class/20-class.qmd)
+- [Hypothesis testing I](/class/21-class.qmd)
+- [Hypothesis testing II](/class/22-class.qmd)
+- [Inference for regression I](/class/23-class.qmd)
+- [Inference for regression II](/class/24-class.qmd)
+- [Problem set 6](/assignment/06-problem-set.qmd)
+- [Problem set 7](/assignment/07-problem-set.qmd)
+
+Like the first two quizzes, you'll complete this quiz in-person in class in groups on paper. **You won't run any R code.** Instead, you'll read code, plots, and regression tables and figure out what they mean. You'll define populations, parameters, and statistics; do some quick margin of error math (just square roots of nice round numbers!); read and compare confidence intervals; interpret coefficients with their confidence intervals and p-values; fix wrong interpretations of confidence intervals and p-values; and fill in missing pieces of {infer} pipelines and `lm()` models. The topics will be mixed together, and they build on everything from Quizzes 1 and 2. You'll still need to know how to interpret sliders, switches, and base cases!
+
+## How to study for the quiz
+
+Don't just read over your notes! Try some of these strategies to study more actively and productively:
+
+- **Try ignoring your notes**: Do one of the "Test yourself!" items below, answer it on paper or out loud *before* looking anything up, and then check your answer. Getting it wrong and then fixing it is good! That's how you learn!
+- **Say interpretations out loud**: Confidence intervals and p-values are *really* easy to say wrong. (People with PhDs get them wrong all the time!) Take any interval or p-value from the slides or your problem sets, cover up the answer, and interpret it out loud using the templates. Then check yourself against the templates below.
+- **Draw and sketch things**: On paper, sketch populations, samples, sampling distributions, bootstrap distributions, and null worlds. Mark where δ goes. Draw a bunch of confidence intervals stacked on top of each other and circle the ones that miss.
+- **Do the math by hand**: Practice the margin of error rule of thumb ($\frac{1}{\sqrt{n}}$) and the "4× the people → ½ the standard error" rule with just a pencil.
+- **Mix topics together**: Don't study all of the sampling stuff and then all of the hypothesis testing stuff. Jump between them! The ["Test yourself across all the topics!"](#test-yourself-across-all-the-topics) section at the end of this study guide will help you with this.
+- **Space things out**: Three 20-minute study sessions on different days will be a lot more useful than 1 hour on the morning of the quiz.
+- **Study with other people**: Don't do this on your own! Remember that we're trying to build a class community. Meet with others, take turns quizzing each other, and explain your answers to each other.
+
+## Populations, samples, and estimands
+
+#### You should understand…
+
+- …what inference is: using a sample to say something about a population that you can't measure directly
+- …the difference between a population (all the things you care about, like all adults in Tunisia), a population parameter (the thing you want to know about that population, like the proportion of all Tunisian adults who have thought about emigrating), and a sample statistic or point estimate (that same thing, but calculated from a sample)
+- …that the population parameter is a fixed, true number out in the world that we never get to see. It doesn't vary—the samples that we take do
+- …the difference between a census (measuring everything in the population) and a sample (measuring only part of it), and why we usually have to use samples
+- …the symbols for the most common parameters and statistics (hats and bars mean "this is an estimate from a sample"):
+
+  ::: {.list-table header-rows=1 widths="2,1,1"}
+  - - Estimand
+    - Population parameter
+    - Sample statistic
+  - - Proportion
+    - $p$
+    - $\widehat{p}$
+  - - Mean
+    - $\mu$
+    - $\bar{x}$
+  - - Median
+    - $m$
+    - $\widehat{m}$
+  - - Difference in proportions
+    - $p_1 - p_2$
+    - $\widehat{p}_1 - \widehat{p}_2$
+  - - Difference in means
+    - $\mu_1 - \mu_2$
+    - $\bar{x}_1 - \bar{x}_2$
+  - - Regression slope
+    - $\beta_1$
+    - $b_1$ or $\widehat{\beta}_1$
+  :::
+
+- …the difference between an estimand (the thing you want to know), an estimator (the method or formula you use to guess it), and an estimate (the number you actually get from one specific sample)
+- …that an estimand is a quantity *plus* a population ("the proportion of all Tunisian adults in 2023–24 who say they've thought about emigrating"), and that there's often more than one reasonable estimand for the same research question (a difference in proportions between young and older people vs. a regression slope for age)
+- …that we use δ (delta) as a general name for whatever statistic answers your research question ($\widehat{p}$, $\bar{x}$, $\widehat{p}_1 - \widehat{p}_2$, $\bar{x}_1 - \bar{x}_2$, $b_1$, etc.)
+- …what makes a sample good: it's (1) representative (it looks like the population), (2) unbiased (every part of the population has the same chance of being picked up), and (3) generalizable ($\widehat{p}$ is a good guess for $p$)
+
+#### You should be able to…
+
+- …take a research question and define its population, population parameter, and sample statistic, with the right symbols
+- …look at how a sample was collected (an online survey, a survey of university students, M&M bags that all came from the same Carrefour) and explain who was left out and how that could bias the estimate
+
+#### Test yourself!
+
+- For each of these research questions, define the population, the population parameter (with a symbol), and the sample statistic (with a symbol):
+  - What's the average number of hours per week that GU-Q students spend studying?
+  - Are Jordanian women less likely to trust the police than Jordanian men?
+  - Is there a relationship between a country's GDP per capita and the percent of seats in its parliament held by women?
+  - What proportion of Qatari adults support a four-day work week?
+- In the M&M activity, what was the population? The population parameter? The estimand, estimator, and estimate?
+- Come up with two different estimands for this research question: "Are older Iraqis more likely to vote than younger Iraqis?" How would each one answer the question differently?
+- A researcher wants to know what all Egyptians think about a new government policy, so they post a survey on Facebook and get 10,000 responses. Who's missing from this sample? Which direction might that push the estimate?
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 7.1–7.3 in *ModernDive*](https://moderndive.com/v2/07-sampling.html)
+- {{< fa person-chalkboard >}} ["Sampling" slides](/slides/17-sampling/index.html) (the "Populations and samples" section)
+- {{< fa person-chalkboard >}} ["Estimation, confidence intervals, and bootstrapping" slides](/slides/19-bootstrapping/index.html) (the "Estimands" section)
+
+## Sampling variation, standard errors, and margins of error
+
+#### You should understand…
+
+- …that every random sample gives a slightly different statistic, and that's totally normal and fine. Nobody did anything wrong! That's sampling variation.
+- …the difference between three kinds of distributions:
+  - The population: every single value in the whole population (all Tunisians' answers)
+  - One sample: the values in your one sample (100 Tunisians' answers)
+  - The sampling distribution: the statistics ($\widehat{p}$s) from lots and lots of samples of the same size. You can only see it with simulation or math—in real life, you only ever get one draw from it!
+- …what the central limit theorem says: with random samples that are big enough, the sampling distribution of a proportion or a mean is approximately normal and centered at the population parameter, no matter what the population looks like
+- …the difference between two kinds of spread:
+  - **Standard deviation**: how much *individual values* vary (how different is one Tunisian from another?)
+  - **Standard error**: how much *sample statistics* vary (how different is one sample's $\widehat{p}$ from another's?). This is actually the standard deviation of the sampling distribution.
+- …that bigger samples make the sampling distribution narrower and the standard error smaller, and that taking more samples just makes a smoother picture of the same distribution
+- …the standard error formula for a proportion, $\text{SE} = \sqrt{\frac{p (1 - p)}{n}}$
+- …that in a normal distribution, about 95% of values are within 1.96 (≈ 2) standard errors of the center, which is why a margin of error is $1.96 \times \text{SE}$ and a 95% confidence interval is the estimate ± the margin of error
+- …that the margin of error only measures sampling variation. It doesn't account for biased samples, non-response, people refusing to answer, confusing or leading questions, or people giving the "polite" answer.
+- …that bigger samples don't fix bias. Random sampling puts the center of the sampling distribution in the right place; sample size only controls how wide it is. A huge biased sample just gives you a very precise wrong answer.
+- …the three things that determine how big a sample you need: (1) precision (how big a margin of error can you live with?), (2) confidence (how sure do you want to be?), and (3) variability (how spread out are the answers?)
+- …that the size of the population doesn't matter for the margin of error (soup!). A sample of 1,000 gives about the same margin of error in Qatar, Tunisia, or the United States. Remember soup! You only need to test a spoonful of soup regardless of the size of the pot
+- …that estimates for smaller subgroups (young people, women, people in rural areas) are less precise than estimates for the full sample, and that surveys sometimes oversample small groups because of this
+
+#### You should be able to…
+
+- …use the rule of thumb for the margin of error of a proportion, $\text{MOE} \approx \frac{1}{\sqrt{n}}$, and flip it around to find the sample size you need, $n \approx \frac{1}{\text{MOE}^2}$
+- …calculate a standard error and margin of error for a proportion with the formula, given $\widehat{p}$ and $n$
+- …turn a news report like "34.9% (± 2.1 points)" into a point estimate, a margin of error, and a confidence interval
+- …predict what happens to the standard error and margin of error when the sample size goes up or down
+- …explain why a bigger sample won't fix a biased sample
+
+#### Test yourself!
+
+- On paper, sketch three side-by-side pictures for a yes/no survey question: the population, one sample of 100 people, and the sampling distribution of $\widehat{p}$ from 1,000 samples of 100 people. What's on the x-axis in each one? Which one is bell-shaped? Now sketch the sampling distribution again for samples of 400 people. What changed?
+- Use $\frac{1}{\sqrt{n}}$ to find the approximate margin of error for surveys of 100, 400, 1,600, and 10,000 people. What pattern do you see? Why do most national polls stop at around 1,000–2,500 people?
+- A poll wants a margin of error of ± 5 points. About how many people does it need? What about ± 1 point? Why is that second number so much bigger?
+- In a random sample of 100 people, 20 say they support a policy. Calculate $\widehat{p}$, the standard error, the margin of error, and the 95% confidence interval.
+- A survey of 2,000 Moroccans has a margin of error of about ± 2 points. Only 400 of those people live in rural areas. Roughly what's the margin of error for an estimate about only rural Moroccans?
+- Explain the difference between a standard deviation and a standard error to someone in your group without using the words "standard," "deviation," or "error."
+- A news story says "Approval of the parliament is at 41% (± 3 points)." List three things that could make this number wrong that the ± 3 doesn't cover.
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 7 in *ModernDive*](https://moderndive.com/v2/07-sampling.html)
+- {{< fa person-chalkboard >}} ["Sampling" slides](/slides/17-sampling/index.html) (the "Sampling variation," "Uncertainty," and "Choosing a sample size" sections)
+
+## Bootstrapping and confidence intervals
+
+#### You should understand…
+
+- …why we use bootstrapping: in real life we only have one sample, so we can't see the sampling distribution, and some statistics (like medians) don't have a friendly standard error formula
+- …how bootstrapping works:
+  1. Take a bootstrap sample by sampling with replacement, the same size as the original sample (so some observations show up twice or more, and some don't show up at all)
+  2. Calculate the sample statistic for that bootstrap sample
+  3. Repeat a bunch of times (1,000 or more)
+  4. Look at the distribution of all the statistics—that's the bootstrap distribution
+- …that a bootstrap distribution is centered at your sample's statistic (*not* the population parameter!), and that bootstrapping measures uncertainty—it doesn't improve your estimate, create a random sample, or fix a biased one
+- …that a bootstrap distribution gets narrower with more observations and wider when there's more spread in the data
+- …how the {infer} workflow works for bootstrapping:
+
+  ```{.r}
+  DATA |>
+    specify(response = VARIABLE) |>  # or specify(Y ~ GROUP) for differences
+    generate(reps = 1000, type = "bootstrap") |>
+    calculate(stat = "mean")  # or "prop", "median", "diff in props", "slope", etc.
+  ```
+
+- …the two ways to turn a bootstrap distribution into a confidence interval:
+  - **Standard error method**: the statistic ± 1.96 × the standard deviation of the bootstrap distribution (only works when the distribution is bell-shaped)
+  - **Percentile method**: the middle 95% of the bootstrap distribution (works for almost any statistic, even lumpy or skewed ones like medians)
+- …that a point estimate is like fishing with a spear (one number, and it almost certainly misses by a little), while a confidence interval is like fishing with a net (a range of plausible values for the population parameter)
+- …what the "95%" in a 95% confidence interval means: if we took lots of samples and made an interval from each one, about 95% of those intervals would capture the true parameter. The 95% describes the *method*, not any one specific interval. Any one interval either caught the parameter or it didn't—we just can't know which.
+- …the legal and correct ways to interpret a confidence interval:
+  - "We're 95% confident that the interval (X, Y) captures the true population parameter"
+  - "There's a 95% chance that the interval (X, Y) captures the true population parameter"
+- …and the tempting but wrong ways:
+  - ~~"There's a 95% chance that the true parameter is between X and Y"~~ (the parameter is fixed; it's the *interval* that moves around)
+  - ~~"95% of people in the population are between X and Y"~~ (a confidence interval is about a parameter like an average, not about individual people)
+  - ~~"There's a 95% chance that the next sample's mean will be between X and Y"~~
+- …how to make an interval narrower: lower the confidence level (a 90% interval is narrower than a 99% interval, but it misses more often) or get a bigger sample (narrower with the same confidence)
+- …that a confidence interval for a difference (like $p_\text{women} - p_\text{men}$) that includes 0 means that "no difference" is plausible—*not* that the groups are the same—and that an interval that is completely above or below 0 means that "no difference" isn't plausible
+- …that comparing whether two groups' intervals overlap is only a rough shortcut. If they don't overlap at all, the groups are clearly different, but slightly overlapping intervals can still be significantly different. The real way to check is an interval for the difference.
+- …that `lower_ci` and `upper_ci` in `get_regression_table()` are 95% confidence intervals for each coefficient
+
+#### You should be able to…
+
+- …describe in words or sketch what one bootstrap sample of a tiny dataset could look like
+- …predict where a bootstrap distribution will be centered and roughly how wide it'll be
+- …fill in the blanks in an {infer} bootstrapping pipeline
+- …calculate a confidence interval with the standard error method, given an estimate and its standard error
+- …interpret a confidence interval correctly with the right population and the right units ("We're 95% confident that the average democracy rating among all Iraqi adults is between 4.34 and 4.57 on a 0–10 scale")
+- …find and fix wrong interpretations of a confidence interval
+- …read a plot of confidence intervals for several groups (made with `geom_pointrange()`), say which groups are clearly different from each other, and explain why some intervals are wider than others
+
+#### Test yourself!
+
+- Write down a tiny "sample" of 6 numbers. Make three bootstrap samples from it by hand (roll a die or use [random.org](https://www.random.org/) to pick which numbers go in each one). Calculate the median of each. Why are they different? Why can't any bootstrap median be bigger than the biggest number in your original sample?
+- Fill in the blanks in this pipeline that finds a 95% confidence interval for the proportion of Kuwaitis who trust the courts:
+
+  ```{.r}
+  kuwait |>
+    specify(response = ________, success = "Yes") |>
+    generate(reps = 1000, type = "________") |>
+    calculate(stat = "________") |>
+    get_confidence_interval(level = ____, type = "percentile")
+  ```
+
+- If the sample proportion in the pipeline above was 0.62, where would you expect the bootstrap distribution to be centered? Why? Where would it be centered if the sample happened to be biased?
+- A bootstrap distribution of a mean has a standard deviation of 0.15, and the sample mean is 5.2. Use the standard error method to calculate a 95% confidence interval.
+- Which of these are correct interpretations of this interval? Fix the wrong ones. "A random sample of 1,200 Lebanese adults gives a 95% confidence interval for average trust in the army of 7.1 to 7.5 on a 0–10 scale."
+  - "95% of Lebanese adults rate the army between 7.1 and 7.5."
+  - "There's a 95% chance that the average among all Lebanese adults is between 7.1 and 7.5."
+  - "We're 95% confident that the interval from 7.1 to 7.5 captures the average among all Lebanese adults."
+  - "If we surveyed another 1,200 Lebanese adults, there's a 95% chance their average would be between 7.1 and 7.5."
+- Draw 20 confidence intervals stacked on top of each other, with a vertical line for the true population parameter. About how many should miss the line? Now draw them again as 99% intervals. What changes?
+- Imagine three countries' 95% confidence intervals for the average rating of something on a 0–10 scale: Country A is 6.8 to 7.2 (n = 2,400), Country B is 6.1 to 6.9 (n = 600), and Country C is 5.4 to 5.8 (n = 2,400). Sketch these with `geom_pointrange()`. Which country's interval is widest, and why? Which pairs of countries can you confidently say are different? Which pair can't you tell apart from the plot alone?
+- A confidence interval for the difference in voting rates between women and men ($p_\text{women} - p_\text{men}$) is −0.04 to 0.01. What does that tell you? Does it mean women and men vote at the same rate?
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 8 in *ModernDive*](https://moderndive.com/v2/08-confidence-intervals.html)
+- {{< fa person-chalkboard >}} ["Estimation, confidence intervals, and bootstrapping" slides](/slides/19-bootstrapping/index.html) (the "Bootstrapping," "Confidence intervals," and "Comparing with intervals" sections)
+
+## Hypothesis testing
+
+#### You should understand…
+
+- …the three questions you can ask about any δ, and which tool answers each one:
+  - **Is it accurate?** Is δ a good guess for the population parameter? Use confidence intervals
+  - **Is it real?** Could δ actually be zero? Use hypothesis tests and p-values
+  - **Is it substantive?** Does δ even matter? Use your knowledge of the world—no stats!
+- …how hypothesis testing is like a legal court case: δ is on trial, we start with a presumption of innocence (the null hypothesis, $H_0$, says there's no effect), you have the burden of proof, and you decide based on how much evidence there is and whether it crosses your evidentiary threshold (like "beyond a reasonable doubt" or "α = 0.05"). We never prove the null is true; we only reject it or fail to reject it (i.e. criminal defendants are either guilty or not guilty)
+- …how to write null and alternative hypotheses with symbols, like $H_0: p_\text{women} - p_\text{men} = 0$ and $H_A: p_\text{women} - p_\text{men} \neq 0$, or $H_0: \beta_1 = 0$ and $H_A: \beta_1 \neq 0$
+- …what α (alpha) is: your evidentiary standard (usually 0.10, 0.05, or 0.01), which you pick *before* looking at the results, based on how bad each kind of mistake would be. There's nothing magical about 0.05!
+- …that there's only one test! Every hypothesis test follows the same five steps:
+  1. Calculate δ
+  2. Invent a world where δ is null
+  3. Look at δ in the null world
+  4. Find the probability that δ could exist in the null world (the p-value)
+  5. Decide
+- …how permutation makes a null world: if the groups don't matter, the labels are meaningless, so shuffle them (without replacement) and recalculate δ a bunch of times. Shuffling breaks any connection between the variables, so the null world is centered at 0.
+- …the difference between bootstrapping and permuting:
+
+  ::: {.list-table header-rows=1 widths="1,2,2"}
+  - -
+    - Bootstrap
+    - Permutation
+  - - How
+    - Resample *with* replacement
+    - Shuffle *without* replacement
+  - - What it shows
+    - How much δ bounces around from sample to sample
+    - What δ looks like in a world where there's no effect
+  - - Centered at
+    - δ (your sample's statistic)
+    - 0 (or whatever the null value is)
+  - - {infer}
+    - `generate(type = "bootstrap")`
+    - `hypothesize(null = "independence")` and `generate(type = "permute")`
+  - - Used for
+    - Confidence intervals
+    - Hypothesis tests and p-values
+  :::
+
+- …what a p-value is: the probability of seeing a δ at least as extreme as ours in a world where δ is 0ish. The template: "In a world where there is no δ, the probability of seeing a δ at least as extreme as ours is p."
+- …what a p-value is *not*: it's not the probability that the result is due to random chance, it's not the probability that the null hypothesis is true, and it's not the probability that your hypothesis is wrong
+- …that there are only two possible outcomes of a test:
+  - p < α: **reject the null hypothesis**. δ doesn't fit comfortably in the null world, so it's statistically significant.
+  - p ≥ α: **fail to reject the null hypothesis**. δ could plausibly show up in the null world, so it's not statistically significant.
+- …the temptations to avoid:
+  - You never "accept" the null hypothesis or say it's "proven." A non-significant result means "not guilty," not "innocent."
+  - There's no such thing as "almost significant." It's either guilty or not!
+- …how the {infer} workflow works for hypothesis tests, and how the pieces change for different kinds of δ:
+
+  ::: {.list-table header-rows=1 widths="1,1,1,1,1"}
+  - -
+    - Difference in proportions
+    - Difference in means
+    - One proportion
+    - Regression slope
+  - - `specify()`
+    - `y ~ group, success = "Yes"`
+    - `y ~ group`
+    - `response = y, success = "Yes"`
+    - `y ~ x`
+  - - `hypothesize()`
+    - `null = "independence"`
+    - `null = "independence"`
+    - `null = "point", p = 0.67`
+    - `null = "independence"`
+  - - `generate()`
+    - `type = "permute"`
+    - `type = "permute"`
+    - `type = "draw"`
+    - `type = "permute"`
+  - - `calculate()`
+    - `stat = "diff in props"`
+    - `stat = "diff in means"`
+    - `stat = "prop"`
+    - `stat = "slope"`
+  :::
+
+- …the connection between confidence intervals and p-values: if a 95% confidence interval includes 0, p > 0.05; if it doesn't include 0, p < 0.05
+- …that math-based tests (like *t*-tests) do the same thing as simulation, but they assume the null world has a known shape instead of building it. They give basically the same answer, and the intuition is identical: how weird would δ be in a world where it's actually 0?
+- …that a p-value of 0 in a simulation or a regression table isn't really 0—it's just tiny, and you should report it as p < 0.001
+- …that "statistically significant" does not mean something is substantively important. With huge samples, even tiny, meaningless differences can be significant. Whether δ is big enough to matter is up to you and your knowledge of the world.
+- …that sometimes you don't even need a test (a 26-point gap with 2,400 people is obviously real!)
+- …what p-hacking is (testing lots of things until something is significant), and why you should decide on your hypotheses and α before you look at the data and report everything you tested
+
+#### You should be able to…
+
+- …write $H_0$ and $H_A$ in words and with symbols for any research question
+- …fill in the blanks in an {infer} hypothesis testing pipeline, and tell whether a pipeline is for a confidence interval or a p-value
+- …sketch a null world histogram, mark where δ falls in it, and shade the area that represents the p-value
+- …interpret a p-value with the null world template and decide whether to reject the null hypothesis at a given α
+- …find and fix wrong interpretations of p-values and hypothesis tests
+- …explain whether a statistically significant result is big enough to matter
+
+#### Test yourself!
+
+- For each of these, write $H_0$ and $H_A$ in words and with symbols, and pick an α. Explain why you picked that α.
+  - Do people in Iraqi cities trust the government less than people in rural Iraq? (Trust is measured on a 0–10 scale.)
+  - Are Palestinian men more likely to have thought about emigrating than Palestinian women?
+  - Is there a relationship between a country's corruption score and its voter turnout?
+- Explain the five steps of "the only test" to someone in your group using a court case as your analogy.
+- On paper, draw two histograms: one from a bootstrap pipeline and one from a permutation pipeline for the same data, where δ = 4.5. Where is each one centered? Where does 4.5 go in each one?
+- Fill in the blanks to test whether Iraqi women and men have different average ages:
+
+  ```{.r}
+  iraq |>
+    specify(________ ~ ________) |>
+    hypothesize(null = "________") |>
+    generate(reps = 1000, type = "________") |>
+    calculate(stat = "________", order = c("Female", "Male"))
+  ```
+
+  What would you change to make a confidence interval instead?
+- In a null world made from 1,000 shuffles, 23 of the simulated δs are at least as extreme as the real δ. What's the p-value? Write a sentence interpreting it with the null world template. Is it significant at α = 0.05? At α = 0.01?
+- Find and fix the mistakes in each of these:
+  - "The p-value is 0.03, so there's a 3% chance that our results are just a fluke."
+  - "The p-value is 0.03, so there's a 97% chance that our hypothesis is right."
+  - "The p-value is 0.41, so we've shown that there's no difference between the groups."
+  - "The p-value is 0.06, which is almost significant, so there's probably a difference."
+  - "The p-value is less than 0.001, so this is a really big and important effect."
+- A study with 50,000 people finds that people who drink coffee score 0.08 points higher on a 100-point happiness scale (p < 0.001). Is this statistically significant? Does it matter?
+- Why is it a problem if a researcher tests 20 different variables and only reports the one that had p < 0.05? (Look at [xkcd #882](https://xkcd.com/882/) for a hint!)
+- What happens to the number of Type I errors and Type II errors if you switch from α = 0.05 to α = 0.01? When would you want a really small α?
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 9 in *ModernDive*](https://moderndive.com/v2/09-hypothesis-testing.html)
+- {{< fa person-chalkboard >}} ["Hypothesis testing" slides](/slides/21-hypothesis-testing/index.html)
+- {{< fa arrow-up-right-from-square >}} [Statistical testing in null worlds](https://nullworlds.andrewheiss.com/)
+- {{< fa arrow-up-right-from-square >}} [Hack your way to scientific glory](https://stats.andrewheiss.com/hack-your-way/)
+- {{< fa arrow-up-right-from-square >}} Allen Downey, ["There is still only one test"](http://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html)
+
+## Inference for regression
+
+#### You should understand…
+
+- …that a regression slope is a δ too, so you can bootstrap it to get a confidence interval and permute it to get a p-value
+- …that every row in a regression table is its own hypothesis test with $H_0: \beta = 0$, and that `get_regression_table()` has been showing you inference all semester:
+
+  ::: {.list-table header-rows=1 widths="1,3"}
+  - - Column
+    - What it means
+  - - `estimate`
+    - δ (or β): the slope or the difference between groups
+  - - `std_error`
+    - How much the estimate would bounce around from sample to sample
+  - - `statistic`
+    - `estimate / std_error`: how many standard errors δ is away from 0 (a *t* statistic)
+  - - `p_value`
+    - In a world where β is 0, the probability of seeing an estimate at least this extreme
+  - - `lower_ci`, `upper_ci`
+    - The 95% confidence interval for β
+  :::
+
+- …the two rough shortcuts for reading significance without looking at the p-value (they both mean the same thing—δ is far enough from 0 that it would be weird in the null world):
+  - If the `statistic` is bigger than ≈2 (or smaller than ≈−2), p < 0.05
+  - If the 95% confidence interval doesn't include 0, p < 0.05
+- …the templates for interpreting coefficients with inference:
+
+  ::: {.list-table header-rows=1 widths="1,3,3,3"}
+  - - X
+    - β
+    - p < α
+    - p ≥ α
+  - - Continuous (slider)
+    - On average, a one-unit increase in **X** is associated with a **β** change in **Y** (**confidence interval**).
+    - This is statistically significant (p = **BLAH**), so we are confident that it's not zero and that there is a relationship.
+    - However, this is not statistically significant (p = **BLAH**), so we cannot rule out the possibility that the true relationship is zero.
+  - - Categorical (switch)
+    - On average, **Y** is **β** higher (or lower) in this group (**confidence interval**), compared to **the base case**.
+    - This is statistically significant (p = **BLAH**), so we are confident that it's not zero and that there is a difference.
+    - However, this is not statistically significant (p = **BLAH**), so we cannot rule out the possibility that the true difference is zero.
+  :::
+
+  …plus "holding everything else constant" (or "controlling for…") if there's more than one X in the model!
+- …that everything is regression! Lots of common statistical tests are just `lm()` in disguise:
+
+  ::: {.list-table header-rows=1 widths="1,2,2"}
+  - - Test
+    - Question
+    - `lm()`
+  - - One-sample *t*-test
+    - Is the average different from 0?
+    - `lm(y ~ 1)`
+  - - Two-sample *t*-test
+    - Are two averages different?
+    - `lm(y ~ group_binary)`
+  - - Difference in proportions
+    - Are two proportions different?
+    - `lm(y_binary ~ group)` (with y as 0/1)
+  - - ANOVA
+    - Are several averages different?
+    - `lm(y ~ category)`
+  - - Multiple regression
+    - All of that, holding other things constant
+    - `lm(y ~ x + z + ...)`
+  :::
+
+- …that a simulation, a *t*-test, and a regression for the same difference in means give the same δ and basically the same p-value—but the regression coefficient's sign depends on the base case (if Female is the base case, the coefficient is Male − Female, even if your {infer} pipeline used `order = c("Female", "Male")`)
+- …that in multiple regression, each coefficient's test is $H_0: \beta = 0$ *holding all the other variables constant*, so a variable can be significant on its own and stop being significant once you control for other things (or the other way around!)
+- …what affects the size of a standard error: fewer observations → bigger standard errors, and a switch where one of the groups is tiny → a big standard error for that coefficient (the estimate can only be as precise as the information we have about the smallest group)
+- …how to read side-by-side regression tables like you'll see in published research (and make with `modelsummary()`):
+  - Each column is a different model, and each row is a variable
+  - The number is β, and the number in parentheses underneath is (usually) the standard error
+  - Stars show the p-value
+  - An empty cell means that variable isn't in that model
+  - The bottom rows describe the whole model (number of observations, R², etc.)
+- …that you have to watch out when reading published tables: the parentheses might be standard errors, *t* statistics, or p-values; brackets might be confidence intervals; and the stars aren't standard (lots of papers use `*` p < 0.1, `**` p < 0.05, `***` p < 0.01). Always read the note at the bottom!
+- …how a coefficient plot (made with `geom_pointrange()` and a dashed line at 0) shows the same thing as a regression table, and how you can spot significant coefficients by checking whether their intervals cross 0
+
+#### You should be able to…
+
+- …explain what each column in `get_regression_table()` means using the actual numbers
+- …use the shortcuts to decide whether a coefficient is significant from the `statistic` or the confidence interval alone
+- …interpret any coefficient with its confidence interval and significance using the templates, with the right units, direction, base case, and "holding constant"
+- …write the `lm()` code that tests the same hypothesis as an {infer} pipeline or a *t*-test
+- …work backward from an interpretation to the `lm()` code that made it (what's Y? What are the X's? What's being held constant?)
+- …read a side-by-side regression table with stars and standard errors, and explain why a coefficient's size or significance changed across models
+- …explain why some coefficients have bigger standard errors than others
+
+#### Test yourself!
+
+- In [session 14](/class/14-class.qmd) and on [Quiz 2](/resource/quiz-2.qmd), you interpreted the `estimate` column of this model. Now look at the rest of the columns!
+
+  ```{.r}
+  model_happiness <- lm(
+    happiness ~ gdp_per_cap_1000 + internet_use_prop + continent,
+    data = world_happiness
+  )
+  get_regression_table(model_happiness)
+  ```
+
+  ```{r}
+  #| echo: false
+  get_regression_table(model_happiness)
+  ```
+
+  - Explain what each column means for the `gdp_per_cap_1000` row, using its actual numbers.
+  - Interpret the coefficients for `gdp_per_cap_1000`, `continent-Europe`, and `continent-Asia` using the templates, including their confidence intervals and whether they're significant (use α = 0.05).
+  - Without looking at the `p_value` column, use both shortcuts to explain why `continent-Oceania` isn't significant.
+  - `continent-Oceania` has the second biggest continent coefficient but a huge standard error and a really wide confidence interval. Only 2 of the 142 countries in this model are in Oceania. Why does that make the standard error so big?
+  - Does the `continent-Asia` result mean that Asian and African countries are equally happy, holding GDP and internet use constant? Why or why not?
+  - Write out the null hypothesis that the p-value for `internet_use_prop` is testing, in words and with symbols.
+  - The `p_value` for GDP per capita is 0. Is it really 0? How should you report it?
+  - Is the GDP per capita coefficient big enough to matter? Happiness is on a 0–10 scale. Think about what a \$10,000 or \$50,000 difference in GDP per capita would mean.
+
+- Here are three models explaining happiness, shown side-by-side like you'd see in a published paper:
+
+  ```{r}
+  #| echo: false
+  modelsummary(
+    list(
+      "(1)" = model_gdp,
+      "(2)" = model_gdp_internet,
+      "(3)" = model_happiness
+    ),
+    coef_rename = c(
+      "(Intercept)" = "Intercept",
+      "gdp_per_cap_1000" = "GDP per capita ($1,000s)",
+      "internet_use_prop" = "Internet use (%)",
+      "continentAmericas" = "Americas",
+      "continentAsia" = "Asia",
+      "continentEurope" = "Europe",
+      "continentOceania" = "Oceania"
+    ),
+    stars = TRUE,
+    fmt = 3,
+    gof_map = "nobs",
+    notes = "Standard errors in parentheses."
+  )
+  ```
+
+  - What do the numbers in parentheses mean? What do the stars mean? Why are some cells empty?
+  - What's the base case for continent? How do you know?
+  - The coefficient for GDP per capita drops by about half from Model 1 to Model 2. Why? What would the correlation between GDP per capita and internet use need to look like for that to happen?
+  - Write the `lm()` code for Model 2.
+  - Sketch a coefficient plot for Model 3 (without the intercept). Which points have intervals that cross the line at 0?
+
+- Write the `lm()` code that would give you the same δ and basically the same p-value as each of these:
+
+  ```{.r}
+  # A
+  vdem |>
+    specify(turnout ~ democracy) |>
+    hypothesize(null = "independence") |>
+    generate(reps = 1000, type = "permute") |>
+    calculate(stat = "diff in means", order = c("Democracy", "Autocracy"))
+
+  # B
+  vdem |>
+    specify(life_exp ~ corruption) |>
+    hypothesize(null = "independence") |>
+    generate(reps = 1000, type = "permute") |>
+    calculate(stat = "slope")
+  ```
+
+  In A, the {infer} δ is 4.2 percentage points. What number would you see in the `estimate` column of the regression? (Hint: which category is the base case?)
+
+- Work backward! Here's an interpretation from a model. Write the `lm()` code that made it and the null hypothesis that the p-value tests.
+
+  > "Holding GDP per capita and region constant, a one-point increase in a country's democracy score is associated with a 2.1 percentage point increase in the share of women in parliament, on average (95% CI: 0.8 to 3.4). This is statistically significant (p = 0.002), so we are confident that it's not zero and that there is a relationship."
+
+- A coefficient has an estimate of 0.30 and a standard error of 0.20. Without any other information, is it statistically significant at α = 0.05? Roughly what's its 95% confidence interval?
+
+- Why can't you say that a coefficient with p = 0.20 means that X and Y aren't related?
+
+#### Helpful resources
+
+- {{< fa book >}} [Chapter 10 in *ModernDive*](https://moderndive.com/v2/10-inference-for-regression.html)
+- {{< fa person-chalkboard >}} ["Inference for regression" slides](/slides/23-inference-regression/index.html)
+- {{< fa brands youtube >}} OpenIntro, ["Inference for Linear Regression"](https://www.youtube.com/watch?v=depiT-hTaGA)
+- {{< fa arrow-up-right-from-square >}} Jonas Kristoffer Lindeløv, ["Common statistical tests are linear models"](https://lindeloev.github.io/tests-as-linear/)
+
+## Test yourself across all the topics!
+
+Sampling, confidence intervals, hypothesis tests, and regression are all tied together—they're all different ways of asking how much we can trust a number we calculated from a sample. They also build on everything from Quizzes 1 and 2: you'll still need {dplyr} to calculate things, {ggplot2} to plot them, and the slider/switch templates to interpret regression coefficients.
+
+So try practicing using them together with these questions! Try doing these without notes, then check your answers against the slides, readings, class pages, and problem sets.
+
+- Pick a research question about politics or international relations that you care about and that you could answer with a survey (e.g., "Are young Jordanians less likely to trust political parties than older Jordanians?"). Then:
+  - Define the population, the population parameter, and the sample statistic (with symbols)
+  - Figure out about how many people you'd need to survey for a margin of error of ± 3 points. What if you care about a small subgroup?
+  - Write $H_0$, $H_A$, and α
+  - Write an {infer} pipeline for a confidence interval *and* one for a p-value
+  - Write the `lm()` code that tests the same thing
+  - Make up plausible results (δ, a confidence interval, and a p-value) and interpret all of them
+
+- Write five wrong interpretations of confidence intervals and p-values (say "95% of people…", "there's a 95% chance the true value is…", "the p-value is the chance it's random," "accept the null," "almost significant," "significant so it's important," etc.). Trade with a classmate and see if they can find and fix the mistakes.
+
+- Take any regression table from the slides, the class pages, or your problem sets. For every row, (1) interpret the coefficient with its confidence interval and significance, (2) check significance with both shortcuts, and (3) decide whether it's big enough to matter.
+
+- Make a tiny dataset (6–8 rows) with a categorical variable and a numeric variable. On paper, calculate the difference in means between two groups. Shuffle the group labels by hand a few times and recalculate the difference each time. Where is that tiny null world centered? Now resample the rows with replacement a few times instead. Where is *that* distribution centered?
+
+- Explain the difference between these to someone in your group: a standard deviation, a standard error, a margin of error, a confidence interval, and a p-value. Which ones are about individual people? Which ones are about sample statistics?
+
+- Look at any plot with confidence intervals for several groups (like the emigration plot from the slides, or the ones you made in Problem set 6). Which groups are clearly different? Which can't you tell apart? Why are some intervals wider than others? What {dplyr} and {ggplot2} code could have made the plot?
